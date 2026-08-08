@@ -1,9 +1,10 @@
 export type Experience = {
-  /** Company / org name — the hyperlinked part */
+  /** Company / org name — hyperlinked when a url is present */
   name: string;
   role: string;
-  url: string;
-  logoSrc: string;
+  /** Omit for unlinked entries, e.g. a stealth company */
+  url?: string;
+  logoSrc?: string;
   period: string;
   blurb: string;
 };
@@ -28,11 +29,9 @@ export const experience: Experience[] = [
       "optimizing autonomous navigation with enhanced computer vision and simulation-based validation",
   },
   {
-    name: "rayat and company inc.",
+    name: "stealth startup",
     role: "founding engineer",
-    url: "https://example.com",
-    logoSrc: "/logos/rayat.svg",
-    period: "aug 2025 — present",
+    period: "aug 2025 — jan 2026",
     blurb:
       "transforming dealership data into actionable real-time analytics at scale",
   },
