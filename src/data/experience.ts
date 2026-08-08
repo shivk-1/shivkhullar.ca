@@ -1,31 +1,39 @@
 export type Experience = {
+  /** Company / org name — the hyperlinked part */
   name: string;
+  role: string;
   url: string;
   logoSrc: string;
+  period: string;
   blurb: string;
-  period?: string;
 };
 
 export const experience: Experience[] = [
   {
-    name: "Placeholder Labs",
-    url: "https://example.com",
-    logoSrc: "/logos/placeholder-labs.svg",
-    blurb: "built internal tooling for the data platform team",
-    period: "S25",
+    name: "Waterloo Aerial Robotics Group",
+    role: "Autonomy Software Developer",
+    url: "https://www.uwarg.com/",
+    logoSrc: "/logos/warg.svg",
+    period: "Sept 2025 — Present",
+    blurb:
+      "Optimizing autonomous navigation with enhanced computer vision and simulation-based validation",
   },
   {
-    name: "Another Company",
+    name: "Rayat and Company Inc.",
+    role: "Founding Engineer",
     url: "https://example.com",
-    logoSrc: "/logos/another-company.svg",
-    blurb: "shipped a payments dashboard used by ~40 merchants",
-    period: "W25",
+    logoSrc: "/logos/rayat.svg",
+    period: "Aug 2025 — Present",
+    blurb:
+      "Transforming dealership data into actionable real-time analytics at scale",
   },
   {
-    name: "Some Startup",
-    url: "https://example.com",
-    logoSrc: "/logos/some-startup.svg",
-    blurb: "first eng hire, wrote most of the backend",
-    period: "S24",
+    name: "Headstarter AI",
+    role: "Software Engineer Fellow",
+    url: "https://headstarter.co/",
+    logoSrc: "/logos/headstarter.svg",
+    period: "Jul 2024 — Sept 2024",
+    blurb:
+      "Built intelligent task automation systems and optimized backend performance for real-time AI applications",
   },
 ];

@@ -1,30 +1,27 @@
 import Image from "next/image";
-import { funFacts, site } from "@/data/site";
+import { intro, site } from "@/data/site";
 import { Socials } from "@/components/socials";
 
 export function Hero() {
   return (
     <header className="pt-4 sm:pt-8">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
+      <div className="flex flex-col gap-6 sm:flex-row-reverse sm:items-start sm:justify-end sm:gap-8">
         <Image
           src={site.photo}
           alt={site.name}
           width={128}
           height={128}
           priority
-          className="size-24 shrink-0 rounded-xl border border-border object-cover sm:size-32"
+          className="size-24 shrink-0 rounded-xl border border-border object-cover sm:size-28"
         />
 
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              {site.name}
-            </h1>
-            <Socials className="-ml-2 sm:ml-0" />
-          </div>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Hi, I&apos;m {site.shortName}.
+          </h1>
 
-          <p className="mt-2 text-[15px] leading-relaxed text-muted sm:text-base">
-            {site.role} @{" "}
+          <p className="mt-4 text-[15px] leading-relaxed text-muted sm:text-base">
+            I&apos;m a {site.role} student at the{" "}
             <a
               href={site.schoolUrl}
               target="_blank"
@@ -33,20 +30,22 @@ export function Hero() {
             >
               {site.school}
             </a>
+            . I experiment with AI/ML and different technologies to build cool
+            things I like.
           </p>
 
-          <ul className="mt-5 space-y-1.5 text-[15px] leading-relaxed text-muted sm:text-base">
-            {funFacts.map((fact) => (
-              <li key={fact} className="flex gap-2.5">
-                <span aria-hidden="true" className="select-none text-border">
-                  —
-                </span>
-                <span>{fact}</span>
-              </li>
-            ))}
-          </ul>
+          {intro.map((para) => (
+            <p
+              key={para}
+              className="mt-3 text-[15px] leading-relaxed text-muted sm:text-base"
+            >
+              {para}
+            </p>
+          ))}
         </div>
       </div>
+
+      <Socials className="mt-7" />
     </header>
   );
 }

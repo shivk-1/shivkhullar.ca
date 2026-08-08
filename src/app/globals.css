@@ -2,22 +2,23 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Palette mirrors the warm off-white / near-black of shivkhullar.com */
 :root {
-  --background: #fbfbf9;
-  --foreground: #1a1a1a;
-  --muted: #6b6b6b;
-  --border: #e4e2dd;
-  --accent: #1a1a1a;
-  --card: #ffffff;
+  --background: oklch(97.36% 0.0017 67.8);
+  --foreground: oklch(22.21% 0 0);
+  --muted: oklch(50% 0 0);
+  --border: oklch(89% 0.002 67.8);
+  --accent: var(--foreground);
+  --card: oklch(100% 0 0);
 }
 
 .dark {
-  --background: #0d0d0d;
-  --foreground: #ededed;
-  --muted: #8f8f8f;
-  --border: #232323;
-  --accent: #ededed;
-  --card: #141414;
+  --background: oklch(14.5% 0 0);
+  --foreground: oklch(96% 0 0);
+  --muted: oklch(64% 0 0);
+  --border: oklch(26.9% 0 0);
+  --accent: var(--foreground);
+  --card: oklch(19% 0 0);
 }
 
 @theme inline {
@@ -27,7 +28,7 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-card: var(--card);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-dm-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -38,7 +39,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

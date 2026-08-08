@@ -59,6 +59,9 @@ export function ProjectCard({ project }: { project: Project }) {
           <span className="rounded-full border border-border px-2 py-0.5 text-[11px] uppercase tracking-wider text-muted">
             {project.tag}
           </span>
+          <span className="ml-auto text-sm text-muted tabular-nums">
+            {project.period}
+          </span>
         </div>
         <p className="mt-2 text-[15px] leading-relaxed text-muted">
           {project.blurb}

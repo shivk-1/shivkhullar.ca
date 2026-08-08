@@ -4,37 +4,33 @@ import { Reveal } from "@/components/reveal";
 
 export function ExperienceList() {
   return (
-    <ul className="space-y-3.5">
+    <ul className="space-y-6">
       {experience.map((job, i) => (
         <Reveal key={job.name} delay={i * 0.04}>
           <li>
-            <p className="text-[15px] leading-relaxed text-muted sm:text-base">
-              <a
-                href={job.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="group inline-flex items-center gap-2 align-baseline"
-              >
-                <Image
-                  src={job.logoSrc}
-                  alt=""
-                  width={20}
-                  height={20}
-                  className="size-5 shrink-0 rounded-[5px] border border-border object-cover"
-                />
-                <span className="link font-medium text-foreground">
-                  {job.name}
-                </span>
-              </a>
-              <span aria-hidden="true" className="mx-2 text-border">
-                —
-              </span>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <p className="text-[15px] font-medium sm:text-base">
+                {job.role} @{" "}
+                <a
+                  href={job.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex items-baseline gap-1.5"
+                >
+                  <Image
+                    src={job.logoSrc}
+                    alt=""
+                    width={18}
+                    height={18}
+                    className="size-[18px] shrink-0 translate-y-[3px] rounded-[5px] border border-border object-cover"
+                  />
+                  <span className="link">{job.name}</span>
+                </a>
+              </p>
+              <p className="text-sm text-muted tabular-nums">{job.period}</p>
+            </div>
+            <p className="mt-1.5 text-[15px] leading-relaxed text-muted">
               {job.blurb}
-              {job.period ? (
-                <span className="ml-2 whitespace-nowrap text-sm text-border">
-                  {job.period}
-                </span>
-              ) : null}
             </p>
           </li>
         </Reveal>

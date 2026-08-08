@@ -6,44 +6,49 @@ export type Project = {
   /** Poster frame for video previews */
   posterSrc?: string;
   tag: string;
+  period: string;
   blurb: string;
 };
 
 export const projects: Project[] = [
   {
-    name: "Orbit",
-    repoUrl: "https://github.com/",
+    name: "WatEats",
+    repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
-    mediaSrc: "/projects/orbit.svg",
-    tag: "Browser Game",
+    mediaSrc: "/projects/wateats.svg",
+    tag: "In Development",
+    period: "Nov 2025 — Present",
     blurb:
-      "A physics sandbox where you slingshot satellites around procedurally generated systems.",
+      "An intelligent dining recommender that matches Waterloo students' cravings to residence menus through AI-powered semantic search.",
   },
   {
-    name: "Setlist",
-    repoUrl: "https://github.com/",
+    name: "SentinelAI",
+    repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
-    mediaSrc: "/projects/setlist.svg",
-    tag: "iOS App",
+    mediaSrc: "/projects/sentinelai.svg",
+    tag: "AI Platform",
+    period: "Oct 2025",
     blurb:
-      "Tracks every live show you've been to and builds a year-end wrapped from it.",
+      "An AI platform detecting anomalous network activity and exposing potential cybersecurity threats.",
   },
   {
-    name: "Grain",
-    repoUrl: "https://github.com/",
+    name: "PredictPL",
+    repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
-    mediaSrc: "/projects/grain.svg",
-    tag: "Audio Tool",
+    mediaSrc: "/projects/predictpl.svg",
+    tag: "Machine Learning",
+    period: "Sept 2025",
     blurb:
-      "Granular sampler in the browser. Drag a WAV in, mangle it, export stems.",
+      "Engineered an ML system that predicts Premier League match results through feature-rich statistical modeling.",
   },
   {
-    name: "Ledgerly",
-    repoUrl: "https://github.com/",
+    name: "Campr",
+    repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
-    mediaSrc: "/projects/ledgerly.svg",
+    mediaSrc: "/projects/campr.svg",
     tag: "Web App",
+    period: "Jul 2024",
     blurb:
-      "Double-entry bookkeeping for people who hate bookkeeping. Plaid in, CSV out.",
+      "Peer-to-peer camping platform connecting outdoor enthusiasts through shared gear and local events.",
   },
 ];

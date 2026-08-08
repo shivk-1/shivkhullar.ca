@@ -7,7 +7,7 @@ export function Footer() {
       <p className="text-sm text-muted">
         © {new Date().getFullYear()} {site.name}. Built with Next.js.
       </p>
-      <Socials className="-ml-2 sm:ml-0" />
+      <Socials />
     </footer>
   );
 }
