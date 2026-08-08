@@ -16,7 +16,7 @@ export const experience: Experience[] = [
     logoSrc: "/logos/baseleaf.svg",
     period: "May 2026 — Present",
     blurb:
-      "Building automation pipelines and fine-tuning LLMs for document generation with eval-driven QA",
+      "Building LLM-powered tooling that helps immigration professionals move through casework faster",
   },
   {
     name: "Waterloo Aerial Robotics Group",

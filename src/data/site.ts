@@ -19,6 +19,6 @@ export const site = {
 
 /** Prose blocks under the title line, each rendered as its own paragraph. */
 export const intro: string[] = [
-  "Working on paper-to-implementation R&D, replicating results and pressure-testing where they break, and building projects I actually want to build.",
+  "Currently Software Engineering Intern at Baseleaf. Working on paper-to-implementation R&D, replicating results + pressure-testing, and building projects I actually want to build.",
   "Seeking Winter 2027 internships.",
 ];
