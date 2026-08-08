@@ -8,12 +8,12 @@ export const site = {
   description:
     "Computer Engineering student at the University of Waterloo. I experiment with AI/ML and different technologies to build cool things I like.",
   photo: "/me.svg",
-  email: "myfaltoomails@gmail.com",
+  email: "shivansh.khullar@gmail.com",
   resume: "/resume.pdf",
   socials: {
     github: "https://github.com/shivk-1",
     linkedin: "https://www.linkedin.com/in/shivanshkhullar/",
-    x: "https://x.com/",
+    x: "https://x.com/shivanshk_",
   },
 } as const;
 
