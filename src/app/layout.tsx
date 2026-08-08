@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -7,6 +7,15 @@ import { site } from "@/data/site";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
+  subsets: ["latin"],
+});
+
+/**
+ * Display face for the h1 and section headings. Stands in for Apple's SF Pro,
+ * which is not licensed for webfont embedding.
+ */
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -41,7 +50,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${geistMono.variable}`}>
+      <body
+        className={`${dmSans.variable} ${inter.variable} ${geistMono.variable}`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

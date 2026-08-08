@@ -29,6 +29,7 @@
   --color-accent: var(--accent);
   --color-card: var(--card);
   --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
