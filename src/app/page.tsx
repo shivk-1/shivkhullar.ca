@@ -10,7 +10,7 @@ export default function Home() {
     <main className="pb-20">
       <Hero />
 
-      <div className="mt-14 space-y-14 sm:mt-16 sm:space-y-16">
+      <div className="mt-16 space-y-16 sm:mt-20 sm:space-y-20">
         <Section id="experience" title="Experience">
           <ExperienceList />
         </Section>

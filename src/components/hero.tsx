@@ -9,10 +9,10 @@ export function Hero() {
         <Image
           src={site.photo}
           alt={site.name}
-          width={160}
-          height={160}
+          width={224}
+          height={224}
           priority
-          className="size-28 shrink-0 rounded-xl border border-border object-cover sm:size-36"
+          className="size-36 shrink-0 rounded-2xl border border-border object-cover sm:size-48"
         />
 
         {/* Prose capped well under the container width — long measures hurt reading */}
