@@ -17,7 +17,8 @@ export const site = {
   },
 } as const;
 
-/** Short prose intro, rendered as separate paragraphs. */
+/** Prose blocks under the title line, each rendered as its own paragraph. */
 export const intro: string[] = [
-  "I currently work on helping car dealerships make the most of their data at Rayat and Company Inc. I'm also developing an app that helps Waterloo students find the best residence cafeteria food based on their cravings.",
+  "Working on paper-to-implementation R&D, replicating results and pressure-testing where they break, and building projects I actually want to build.",
+  "Seeking Winter 2027 internships.",
 ];
