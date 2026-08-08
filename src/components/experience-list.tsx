@@ -17,6 +17,7 @@ export function ExperienceList() {
                   rel="noreferrer noopener"
                   className="inline-flex items-baseline gap-1.5"
                 >
+                  <span className="link">{job.name}</span>
                   <Image
                     src={job.logoSrc}
                     alt=""
@@ -24,7 +25,6 @@ export function ExperienceList() {
                     height={18}
                     className="size-[18px] shrink-0 translate-y-[3px] rounded-[5px] border border-border object-cover"
                   />
-                  <span className="link">{job.name}</span>
                 </a>
               </p>
               <p className="text-sm text-muted tabular-nums">{job.period}</p>
