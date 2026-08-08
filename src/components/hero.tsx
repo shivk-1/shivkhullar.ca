@@ -8,15 +8,15 @@ export function Hero() {
       {/*
         Sized to the height of the text column (heading + two paragraphs + the
         social links row) so the photo's bottom edge lines up with the links.
-        Nudge sm:size-72 if the intro copy changes length.
+        Nudge sm:size-64 if the intro copy changes length.
       */}
-      <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-2xl border border-border sm:size-72">
+      <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-2xl border border-border sm:size-64">
         <Image
           src={site.photo}
           alt={site.name}
           fill
           priority
-          sizes="(max-width: 640px) 160px, 288px"
+          sizes="(max-width: 640px) 160px, 256px"
           className="object-cover"
         />
       </div>
@@ -28,7 +28,7 @@ export function Hero() {
         </h1>
 
         <p className="mt-4 text-base leading-relaxed text-muted sm:text-[17px]">
-          {site.role} @{" "}
+          I&apos;m a {site.role} student at the{" "}
           <a
             href={site.schoolUrl}
             target="_blank"
@@ -37,12 +37,14 @@ export function Hero() {
           >
             {site.school}
           </a>
+          . I experiment with AI/ML and different technologies to build cool
+          things I like.
         </p>
 
         {intro.map((para) => (
           <p
             key={para}
-            className="mt-4 text-base leading-relaxed text-muted sm:text-[17px]"
+            className="mt-3 text-base leading-relaxed text-muted sm:text-[17px]"
           >
             {para}
           </p>

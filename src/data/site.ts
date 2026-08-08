@@ -6,7 +6,7 @@ export const site = {
   schoolUrl: "https://uwaterloo.ca/",
   url: "https://shivkhullar.com",
   description:
-    "Computer Engineering @ University of Waterloo. AI Software Engineering Intern at BaseLeaf Technologies, working across the machine learning stack.",
+    "Computer Engineering student at the University of Waterloo. I experiment with AI/ML and different technologies to build cool things I like.",
   photo: "/me.svg",
   email: "shivansh.khullar@gmail.com",
   resume: "/resume.pdf",
@@ -17,9 +17,7 @@ export const site = {
   },
 } as const;
 
-/** Prose intro blocks, each rendered as its own paragraph under the title line. */
+/** Short prose intro, rendered as separate paragraphs. */
 export const intro: string[] = [
-  "Currently an AI Software Engineering Intern at BaseLeaf Technologies, where I build event-driven automation pipelines over REST services and fine-tune transformer-based LLMs for document generation, along with the evaluation harnesses and human-in-the-loop QA workflows that keep their outputs factually grounded.",
-  "Outside of that, my time goes to research and implementation across the machine learning stack: architecting and training neural models, interrogating how they fail, and carrying the ideas that survive contact with real data from paper to production.",
-  "Seeking Winter 2027 internships.",
+  "I currently work on helping car dealerships make the most of their data at Rayat and Company Inc. I'm also developing an app that helps Waterloo students find the best residence cafeteria food based on their cravings.",
 ];
