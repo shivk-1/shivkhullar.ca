@@ -10,6 +10,15 @@ export type Experience = {
 
 export const experience: Experience[] = [
   {
+    name: "BaseLeaf",
+    role: "Software Engineering Intern",
+    url: "https://example.com",
+    logoSrc: "/logos/baseleaf.svg",
+    period: "May 2026 — Present",
+    blurb:
+      "Automation pipelines and fine-tuned LLMs for document generation, backed by eval harnesses and automated QA",
+  },
+  {
     name: "Waterloo Aerial Robotics Group",
     role: "Autonomy Software Developer",
     url: "https://www.uwarg.com/",
