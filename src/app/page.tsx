@@ -2,7 +2,6 @@ import { Hero } from "@/components/hero";
 import { Section } from "@/components/section";
 import { ExperienceList } from "@/components/experience-list";
 import { ProjectCard } from "@/components/project-card";
-import { Reveal } from "@/components/reveal";
 import { projects } from "@/data/projects";
 
 export default function Home() {
@@ -17,10 +16,8 @@ export default function Home() {
 
         <Section id="projects" title="Projects">
           <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
-            {projects.map((project, i) => (
-              <Reveal key={project.name} delay={i * 0.05}>
-                <ProjectCard project={project} />
-              </Reveal>
+            {projects.map((project) => (
+              <ProjectCard key={project.name} project={project} />
             ))}
           </div>
         </Section>
