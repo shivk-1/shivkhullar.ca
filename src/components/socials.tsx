@@ -3,11 +3,11 @@ import { site } from "@/data/site";
 type Social = { label: string; href: string; external?: boolean };
 
 const socials: Social[] = [
-  { label: "GitHub", href: site.socials.github, external: true },
-  { label: "LinkedIn", href: site.socials.linkedin, external: true },
-  { label: "X", href: site.socials.x, external: true },
-  { label: "Email", href: `mailto:${site.email}` },
-  { label: "Resume", href: site.resume, external: true },
+  { label: "github", href: site.socials.github, external: true },
+  { label: "linkedin", href: site.socials.linkedin, external: true },
+  { label: "x", href: site.socials.x, external: true },
+  { label: "email", href: `mailto:${site.email}` },
+  { label: "resume", href: site.resume, external: true },
 ];
 
 /** Text-only link row — no icons, matching the old site's tone. */

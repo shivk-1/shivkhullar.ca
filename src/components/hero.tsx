@@ -24,7 +24,7 @@ export function Hero() {
       {/* Prose capped well under the container width — long measures hurt reading */}
       <div className="flex min-w-0 max-w-3xl flex-col">
         <h1 className="text-base font-bold sm:text-[17px]">
-          Hi, I&apos;m {site.shortName}.
+          hi, i&apos;m {site.shortName}.
         </h1>
 
         <p className="mt-4 text-base leading-relaxed text-muted sm:text-[17px]">

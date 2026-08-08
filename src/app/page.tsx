@@ -10,11 +10,11 @@ export default function Home() {
       <Hero />
 
       <div className="mt-16 space-y-16 sm:mt-20 sm:space-y-20">
-        <Section id="experience" title="Experience">
+        <Section id="experience" title="experience">
           <ExperienceList />
         </Section>
 
-        <Section id="projects" title="Projects">
+        <Section id="projects" title="some things i've built">
           <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
             {projects.map((project) => (
               <ProjectCard key={project.name} project={project} />

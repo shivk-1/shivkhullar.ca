@@ -1,12 +1,12 @@
 export const site = {
-  name: "Shivansh Khullar",
-  shortName: "Shivansh",
-  role: "Computer Engineering",
-  school: "University of Waterloo",
+  name: "shivansh khullar",
+  shortName: "shivansh",
+  role: "computer engineering",
+  school: "university of waterloo",
   schoolUrl: "https://uwaterloo.ca/",
   url: "https://shivkhullar.com",
   description:
-    "Computer Engineering student at the University of Waterloo. I experiment with AI/ML and different technologies to build cool things I like.",
+    "computer engineering @ university of waterloo. working on paper-to-implementation r&d and building projects i actually want to build.",
   photo: "/me.svg",
   email: "shivansh.khullar@gmail.com",
   resume: "/resume.pdf",
@@ -19,6 +19,6 @@ export const site = {
 
 /** Prose blocks under the title line, each rendered as its own paragraph. */
 export const intro: string[] = [
-  "Currently Software Engineering Intern at Baseleaf. Working on paper-to-implementation R&D, replicating results + pressure-testing, and building projects I actually want to build.",
-  "Seeking Winter 2027 internships.",
+  "currently software engineering intern at baseleaf. working on paper-to-implementation r&d, replicating results + pressure-testing, and building projects i actually want to build.",
+  "seeking winter 2027 internships.",
 ];

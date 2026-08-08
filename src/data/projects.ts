@@ -12,43 +12,43 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    name: "WatEats",
+    name: "wateats",
     repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
     mediaSrc: "/projects/wateats.svg",
-    tag: "In Development",
-    period: "Nov 2025 — Present",
+    tag: "in development",
+    period: "nov 2025 — present",
     blurb:
-      "An intelligent dining recommender that matches Waterloo students' cravings to residence menus through AI-powered semantic search.",
+      "an intelligent dining recommender that matches waterloo students' cravings to residence menus through ai-powered semantic search.",
   },
   {
-    name: "SentinelAI",
+    name: "sentinelai",
     repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
     mediaSrc: "/projects/sentinelai.svg",
-    tag: "AI Platform",
-    period: "Oct 2025",
+    tag: "ai platform",
+    period: "oct 2025",
     blurb:
-      "An AI platform detecting anomalous network activity and exposing potential cybersecurity threats.",
+      "an ai platform detecting anomalous network activity and exposing potential cybersecurity threats.",
   },
   {
-    name: "PredictPL",
+    name: "predictpl",
     repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
     mediaSrc: "/projects/predictpl.svg",
-    tag: "Machine Learning",
-    period: "Sept 2025",
+    tag: "machine learning",
+    period: "sept 2025",
     blurb:
-      "Engineered an ML system that predicts Premier League match results through feature-rich statistical modeling.",
+      "engineered an ml system that predicts premier league match results through feature-rich statistical modeling.",
   },
   {
-    name: "Campr",
+    name: "campr",
     repoUrl: "https://github.com/shivk-1",
     mediaType: "image",
     mediaSrc: "/projects/campr.svg",
-    tag: "Web App",
-    period: "Jul 2024",
+    tag: "web app",
+    period: "jul 2024",
     blurb:
-      "Peer-to-peer camping platform connecting outdoor enthusiasts through shared gear and local events.",
+      "peer-to-peer camping platform connecting outdoor enthusiasts through shared gear and local events.",
   },
 ];

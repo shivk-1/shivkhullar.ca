@@ -10,39 +10,39 @@ export type Experience = {
 
 export const experience: Experience[] = [
   {
-    name: "BaseLeaf",
-    role: "Software Engineering Intern",
+    name: "baseleaf",
+    role: "software engineering intern",
     url: "https://example.com",
     logoSrc: "/logos/baseleaf.svg",
-    period: "May 2026 — Present",
+    period: "may 2026 — present",
     blurb:
-      "Building LLM-powered tooling that helps immigration professionals move through casework faster",
+      "building llm-powered tooling that helps immigration professionals move through casework faster",
   },
   {
-    name: "Waterloo Aerial Robotics Group",
-    role: "Autonomy Software Developer",
+    name: "waterloo aerial robotics group",
+    role: "autonomy software developer",
     url: "https://www.uwarg.com/",
     logoSrc: "/logos/warg.svg",
-    period: "Sept 2025 — Present",
+    period: "sept 2025 — present",
     blurb:
-      "Optimizing autonomous navigation with enhanced computer vision and simulation-based validation",
+      "optimizing autonomous navigation with enhanced computer vision and simulation-based validation",
   },
   {
-    name: "Rayat and Company Inc.",
-    role: "Founding Engineer",
+    name: "rayat and company inc.",
+    role: "founding engineer",
     url: "https://example.com",
     logoSrc: "/logos/rayat.svg",
-    period: "Aug 2025 — Present",
+    period: "aug 2025 — present",
     blurb:
-      "Transforming dealership data into actionable real-time analytics at scale",
+      "transforming dealership data into actionable real-time analytics at scale",
   },
   {
-    name: "Headstarter AI",
-    role: "Software Engineer Fellow",
+    name: "headstarter ai",
+    role: "software engineer fellow",
     url: "https://headstarter.co/",
     logoSrc: "/logos/headstarter.svg",
-    period: "Jul 2024 — Sept 2024",
+    period: "jul 2024 — sept 2024",
     blurb:
-      "Built intelligent task automation systems and optimized backend performance for real-time AI applications",
+      "built intelligent task automation systems and optimized backend performance for real-time ai applications",
   },
 ];
