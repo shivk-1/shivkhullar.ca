@@ -48,7 +48,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="mx-auto w-full max-w-2xl px-5 sm:px-6">
+          <div className="mx-auto w-full max-w-5xl px-5 sm:px-8 lg:px-10">
             <div className="flex justify-end pt-5">
               <ThemeToggle />
             </div>

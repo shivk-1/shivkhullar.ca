@@ -5,22 +5,23 @@ import { Socials } from "@/components/socials";
 export function Hero() {
   return (
     <header className="pt-4 sm:pt-8">
-      <div className="flex flex-col gap-6 sm:flex-row-reverse sm:items-start sm:justify-end sm:gap-8">
+      <div className="flex flex-col gap-6 sm:flex-row-reverse sm:items-start sm:justify-end sm:gap-10">
         <Image
           src={site.photo}
           alt={site.name}
-          width={128}
-          height={128}
+          width={160}
+          height={160}
           priority
-          className="size-24 shrink-0 rounded-xl border border-border object-cover sm:size-28"
+          className="size-28 shrink-0 rounded-xl border border-border object-cover sm:size-36"
         />
 
-        <div className="min-w-0">
+        {/* Prose capped well under the container width — long measures hurt reading */}
+        <div className="min-w-0 max-w-3xl">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Hi, I&apos;m {site.shortName}.
           </h1>
 
-          <p className="mt-4 text-[15px] leading-relaxed text-muted sm:text-base">
+          <p className="mt-4 text-base leading-relaxed text-muted sm:text-[17px]">
             I&apos;m a {site.role} student at the{" "}
             <a
               href={site.schoolUrl}
@@ -37,7 +38,7 @@ export function Hero() {
           {intro.map((para) => (
             <p
               key={para}
-              className="mt-3 text-[15px] leading-relaxed text-muted sm:text-base"
+              className="mt-3 text-base leading-relaxed text-muted sm:text-[17px]"
             >
               {para}
             </p>
@@ -45,7 +46,7 @@ export function Hero() {
         </div>
       </div>
 
-      <Socials className="mt-7" />
+      <Socials className="mt-8" />
     </header>
   );
 }

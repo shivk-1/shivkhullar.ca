@@ -29,7 +29,7 @@ export function ExperienceList() {
               </p>
               <p className="text-sm text-muted tabular-nums">{job.period}</p>
             </div>
-            <p className="mt-1.5 text-[15px] leading-relaxed text-muted">
+            <p className="mt-1.5 max-w-3xl text-[15px] leading-relaxed text-muted">
               {job.blurb}
             </p>
           </li>

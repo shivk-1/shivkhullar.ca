@@ -16,7 +16,7 @@ export default function Home() {
         </Section>
 
         <Section id="projects" title="Projects">
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
             {projects.map((project, i) => (
               <Reveal key={project.name} delay={i * 0.05}>
                 <ProjectCard project={project} />
