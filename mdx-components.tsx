@@ -17,7 +17,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       <h3 className="mt-8 text-base font-bold sm:text-[17px]" {...props} />
     ),
     p: (props) => (
-      <p className="mt-4 text-base leading-[1.75] text-muted" {...props} />
+      <p className="mt-4 text-base leading-relaxed text-muted" {...props} />
     ),
     a: (props) => (
       <a
@@ -29,19 +29,19 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     ul: (props) => (
       <ul
-        className="mt-4 list-disc space-y-1.5 pl-5 text-base leading-[1.75] text-muted marker:text-border"
+        className="mt-4 list-disc space-y-1.5 pl-5 text-base leading-relaxed text-muted marker:text-border"
         {...props}
       />
     ),
     ol: (props) => (
       <ol
-        className="mt-4 list-decimal space-y-1.5 pl-5 text-base leading-[1.75] text-muted marker:text-border"
+        className="mt-4 list-decimal space-y-1.5 pl-5 text-base leading-relaxed text-muted marker:text-border"
         {...props}
       />
     ),
     blockquote: (props) => (
       <blockquote
-        className="mt-6 border-l-2 border-border pl-4 text-base leading-[1.75] text-muted italic"
+        className="mt-6 border-l-2 border-border pl-4 text-base leading-relaxed text-muted italic"
         {...props}
       />
     ),
