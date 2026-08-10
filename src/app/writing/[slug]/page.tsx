@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { PostContents } from "@/components/post-contents";
 import { formatDate, getPost, getSlugs } from "@/lib/writing";
 import { site } from "@/data/site";
 
@@ -61,18 +62,7 @@ export default async function PostPage({ params }: Params) {
         </p>
 
         {post.headings.length > 1 ? (
-          <nav aria-label="contents" className="mt-8">
-            <p className="text-sm text-muted">contents</p>
-            <ul className="mt-2 space-y-1">
-              {post.headings.map((h) => (
-                <li key={h.id}>
-                  <a href={`#${h.id}`} className="link text-[15px] text-muted">
-                    {h.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <PostContents headings={post.headings} />
         ) : null}
 
         <Body />
