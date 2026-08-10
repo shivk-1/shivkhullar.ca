@@ -31,6 +31,7 @@ export const experience: Experience[] = [
   {
     name: "stealth startup",
     role: "founding engineer",
+    logoSrc: "/logos/stealth.svg",
     period: "aug 2025 — jan 2026",
     blurb:
       "transforming dealership data into actionable real-time analytics at scale",
