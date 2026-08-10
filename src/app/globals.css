@@ -17,7 +17,7 @@
   /* Body and secondary copy are both plain white here; hierarchy in dark mode
      comes from weight and spacing rather than from a dimmed grey. */
   --foreground: oklch(100% 0 0);
-  --muted: oklch(90% 0 0);
+  --muted: oklch(85% 0 0);
   --border: oklch(26.9% 0 0);
   --accent: var(--foreground);
   --card: oklch(19% 0 0);
