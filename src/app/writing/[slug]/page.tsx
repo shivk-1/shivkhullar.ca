@@ -40,13 +40,14 @@ export default async function PostPage({ params }: Params) {
   );
 
   return (
-    // Narrower than the rest of the site: long-form wants a shorter measure
-    <main className="max-w-2xl pt-4 pb-24 sm:pt-8">
+    // Narrower than the rest of the site and centred: long-form wants a
+    // shorter measure than the index and section pages
+    <main className="mx-auto max-w-2xl pt-4 pb-24 sm:pt-8">
       <Link href="/writing" className="link text-[15px] text-muted">
         ← writing
       </Link>
 
-      <article className="mt-8">
+      <article className="post mt-8">
         <h1 className="text-base font-bold sm:text-[17px]">{post.title}</h1>
 
         {post.subtitle ? (

@@ -23,6 +23,9 @@ export type Post = PostMeta & {
 
 const CONTENT_DIR = path.join(process.cwd(), "content", "writing");
 
+/** Average adult reading speed; what the "x min read" figure divides by. */
+const WORDS_PER_MINUTE = 200;
+
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -67,7 +70,9 @@ export function getPost(slug: string): Post {
   return {
     ...parseMeta(source, slug),
     slug,
-    readTime: readingTime(bodyOf(source)).text,
+    readTime: readingTime(bodyOf(source), {
+      wordsPerMinute: WORDS_PER_MINUTE,
+    }).text,
     headings: headingsOf(source),
   };
 }

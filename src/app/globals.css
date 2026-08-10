@@ -70,6 +70,18 @@ body {
   text-decoration-color: var(--foreground);
 }
 
+/*
+  An italic-only paragraph directly after a figure reads as its caption.
+  Lets posts stay plain markdown instead of needing a <Figure> component.
+*/
+.post img + p:has(> em:only-child),
+.post p:has(> em:only-child) {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
