@@ -1,0 +1,81 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { formatDate, getPost, getSlugs } from "@/lib/writing";
+import { site } from "@/data/site";
+
+type Params = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams() {
+  return getSlugs().map((slug) => ({ slug }));
+}
+
+export const dynamicParams = false;
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  if (!getSlugs().includes(slug)) return {};
+
+  const post = getPost(slug);
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.date,
+      images: post.cover ? [post.cover] : undefined,
+    },
+  };
+}
+
+export default async function PostPage({ params }: Params) {
+  const { slug } = await params;
+  if (!getSlugs().includes(slug)) notFound();
+
+  const post = getPost(slug);
+  const { default: Body } = await import(
+    `../../../../content/writing/${slug}.mdx`
+  );
+
+  return (
+    // Narrower than the rest of the site: long-form wants a shorter measure
+    <main className="max-w-2xl pt-4 pb-24 sm:pt-8">
+      <Link href="/writing" className="link text-[15px] text-muted">
+        ← writing
+      </Link>
+
+      <article className="mt-8">
+        <h1 className="text-base font-bold sm:text-[17px]">{post.title}</h1>
+
+        {post.subtitle ? (
+          <p className="mt-2 text-base leading-relaxed text-muted">
+            {post.subtitle}
+          </p>
+        ) : null}
+
+        <p className="mt-3 text-sm text-muted">
+          {site.name} · {formatDate(post.date)} · {post.readTime}
+        </p>
+
+        {post.headings.length > 1 ? (
+          <nav aria-label="contents" className="mt-8">
+            <p className="text-sm text-muted">contents</p>
+            <ul className="mt-2 space-y-1">
+              {post.headings.map((h) => (
+                <li key={h.id}>
+                  <a href={`#${h.id}`} className="link text-[15px] text-muted">
+                    {h.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ) : null}
+
+        <Body />
+      </article>
+    </main>
+  );
+}
