@@ -24,7 +24,7 @@ export const experience: Experience[] = [
     role: "autonomy software developer",
     url: "https://www.uwarg.com/",
     logoSrc: "/logos/warg.svg",
-    period: "sept 2025 — present",
+    period: "sept 2025 — dec 2025",
     blurb:
       "optimizing autonomous navigation with enhanced computer vision and simulation-based validation",
   },
