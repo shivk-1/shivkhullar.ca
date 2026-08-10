@@ -49,10 +49,12 @@ export default async function PostPage({ params }: Params) {
       </Link>
 
       <article className="post mt-8">
-        <h1 className="text-base font-bold sm:text-[17px]">{post.title}</h1>
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+          {post.title}
+        </h1>
 
         {post.subtitle ? (
-          <p className="mt-2 text-base leading-relaxed text-muted">
+          <p className="mt-2 text-[17px] leading-relaxed text-muted sm:text-lg">
             {post.subtitle}
           </p>
         ) : null}
