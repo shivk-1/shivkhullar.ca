@@ -31,7 +31,10 @@ export function GalleryCarousel() {
   const stepWidth = (el: HTMLDivElement) =>
     el.clientWidth + (parseFloat(getComputedStyle(el).columnGap) || 0);
 
-  /** Wraps at both ends so the arrows never dead-end. */
+  /**
+   * Wraps at both ends so the arrows never dead-end. Free scrolling can leave
+   * the strip between two slides, so this steps off the nearest one.
+   */
   const go = (delta: number) => {
     const el = track.current;
     if (!el) return;
@@ -51,12 +54,12 @@ export function GalleryCarousel() {
       <div
         ref={track}
         onScroll={syncPage}
-        className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth sm:gap-5"
+        className="no-scrollbar flex gap-3 overflow-x-auto overscroll-x-contain scroll-smooth sm:gap-5"
       >
         {pages.map((photos, index) => (
           <div
             key={index}
-            className="grid w-full shrink-0 snap-start grid-cols-3 gap-3 sm:gap-5"
+            className="grid w-full shrink-0 grid-cols-3 gap-3 sm:gap-5"
           >
             {photos.map((photo) => (
               <figure key={photo.src}>
