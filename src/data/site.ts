@@ -17,6 +17,14 @@ export const site = {
   },
 } as const;
 
+/**
+ * Sections that are built but not shown yet. Flip a flag to true and the
+ * section renders again with no other changes.
+ */
+export const features = {
+  projects: false,
+} as const;
+
 /** Prose blocks under the title line, each rendered as its own paragraph. */
 export const intro: string[] = [
   "currently software engineering intern at baseleaf. working on paper-to-implementation r&d, replicating results + pressure-testing, and building projects i actually want to build.",
