@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gallery, type GalleryPhoto } from "@/data/gallery";
 
 const PER_PAGE = 3;
@@ -19,57 +19,31 @@ export function GalleryCarousel() {
   const pages = paginate(gallery);
   const track = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(0);
-  const [dragging, setDragging] = useState(false);
   const [active, setActive] = useState<GalleryPhoto | null>(null);
-  const drag = useRef({ startX: 0, startScroll: 0, moved: false });
 
   if (pages.length === 0) return null;
+
+  /**
+   * A slide is one viewport wide, and the track's own gap keeps the last photo
+   * of one slide off the first photo of the next, so a page is that gap wider
+   * than the visible strip.
+   */
+  const stepWidth = (el: HTMLDivElement) =>
+    el.clientWidth + (parseFloat(getComputedStyle(el).columnGap) || 0);
 
   /** Wraps at both ends so the arrows never dead-end. */
   const go = (delta: number) => {
     const el = track.current;
     if (!el) return;
     const next = (page + delta + pages.length) % pages.length;
-    el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+    el.scrollTo({ left: next * stepWidth(el), behavior: "smooth" });
     setPage(next);
   };
 
   const syncPage = () => {
     const el = track.current;
     if (!el) return;
-    setPage(Math.round(el.scrollLeft / el.clientWidth));
-  };
-
-  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    const el = track.current;
-    // Touch and pen already scroll this natively; only mice need the drag.
-    if (!el || event.pointerType !== "mouse") return;
-    drag.current = {
-      startX: event.clientX,
-      startScroll: el.scrollLeft,
-      moved: false,
-    };
-    setDragging(true);
-    el.setPointerCapture(event.pointerId);
-  };
-
-  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    const el = track.current;
-    if (!dragging || !el) return;
-    const dx = event.clientX - drag.current.startX;
-    if (Math.abs(dx) > 3) drag.current.moved = true;
-    el.scrollLeft = drag.current.startScroll - dx;
-  };
-
-  const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    const el = track.current;
-    if (!dragging || !el) return;
-    setDragging(false);
-    el.releasePointerCapture(event.pointerId);
-    // Snapping is off mid-drag, so settle on the nearest slide by hand.
-    const nearest = Math.round(el.scrollLeft / el.clientWidth);
-    el.scrollTo({ left: nearest * el.clientWidth, behavior: "smooth" });
-    setPage(nearest);
+    setPage(Math.round(el.scrollLeft / stepWidth(el)));
   };
 
   return (
@@ -77,20 +51,7 @@ export function GalleryCarousel() {
       <div
         ref={track}
         onScroll={syncPage}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        // A click that ends a drag would otherwise open that photo's lightbox.
-        onClickCapture={(event) => {
-          if (drag.current.moved) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        }}
-        className={`no-scrollbar flex cursor-grab overflow-x-auto overscroll-x-contain scroll-smooth ${
-          dragging ? "cursor-grabbing select-none" : "snap-x snap-mandatory"
-        }`}
+        className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth sm:gap-5"
       >
         {pages.map((photos, index) => (
           <div
