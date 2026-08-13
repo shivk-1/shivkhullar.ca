@@ -72,6 +72,14 @@ body {
   text-decoration-color: var(--foreground);
 }
 
+/* Scrollable strips that keep their own arrows instead of a visible bar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /*
   An italic-only paragraph directly after a figure reads as its caption.
   Lets posts stay plain markdown instead of needing a <Figure> component.
