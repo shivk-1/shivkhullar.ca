@@ -38,7 +38,7 @@ export default function Home() {
           <WritingList posts={posts} />
         </Section>
 
-        <Section id="gallery" title="gallery">
+        <Section id="gallery" title="a glimpse of my life">
           <GalleryCarousel />
         </Section>
       </div>
