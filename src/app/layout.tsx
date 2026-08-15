@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { DM_Sans, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@/data/site";
 
 const dmSans = DM_Sans({
@@ -59,12 +58,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="mx-auto w-full max-w-5xl px-5 sm:px-8 lg:px-10">
-            <div className="flex justify-end pt-5">
-              <ThemeToggle />
-            </div>
-            {children}
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>

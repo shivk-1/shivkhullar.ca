@@ -1,6 +1,33 @@
 import Image from "next/image";
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { intro, site } from "@/data/site";
 import { Socials } from "@/components/socials";
+
+const LINK_SPAN = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+/**
+ * Renders the `[label](/href)` spans in an intro paragraph as links so the copy
+ * in site.ts stays plain data instead of turning into markup.
+ */
+function prose(text: string): ReactNode[] {
+  const out: ReactNode[] = [];
+  let cursor = 0;
+
+  for (const match of text.matchAll(LINK_SPAN)) {
+    const [span, label, href] = match;
+    if (match.index > cursor) out.push(text.slice(cursor, match.index));
+    out.push(
+      <Link key={href} href={href} className="link text-foreground">
+        {label}
+      </Link>,
+    );
+    cursor = match.index + span.length;
+  }
+
+  out.push(text.slice(cursor));
+  return out;
+}
 
 export function Hero() {
   return (
@@ -45,7 +72,7 @@ export function Hero() {
               key={para}
               className="mt-4 text-base leading-relaxed text-muted sm:text-[17px]"
             >
-              {para}
+              {prose(para)}
             </p>
           ))}
         </div>
