@@ -36,9 +36,9 @@ export default async function PostPage({ params }: Params) {
   if (!getSlugs().includes(slug)) notFound();
 
   const post = getPost(slug);
-  const { default: Body } = await import(
-    `../../../../content/writing/${slug}.mdx`
-  );
+  // Aliased rather than relative: turbopack only builds a resolvable module
+  // context for a templated import when the static prefix is an alias.
+  const { default: Body } = await import(`@content/writing/${slug}.mdx`);
 
   return (
     // Narrower than the rest of the site and centred: long-form wants a
