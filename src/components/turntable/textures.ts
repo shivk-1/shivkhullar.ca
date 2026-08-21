@@ -476,3 +476,69 @@ export function feltMaps(): SurfaceMaps {
     normal: texture(normalFromLuminance(canvas, 2.2)),
   };
 }
+
+/* -------------------------------------------------------------------------- */
+/* ground shadow                                                               */
+/* -------------------------------------------------------------------------- */
+
+const GROUND_SIZE = 512;
+
+/** How dark the pool is where the slab meets the floor. */
+const GROUND_CORE = 0.44;
+/** World distance over which it fades out from the slab's edge. */
+const GROUND_FALLOFF = 0.62;
+
+/**
+ * The pool the deck sits in.
+ *
+ * Painted rather than rendered. The plinth is a slab sitting flush on the
+ * floor, so a real contact shadow is hidden underneath it and the cast one is
+ * a sliver at the base — correct, and invisible. A product shot solves this
+ * with a soft pool wider than the object, which is what this draws: the
+ * signed distance out from the plinth footprint, faded off.
+ *
+ * `w` and `d` are the footprint and `spread` the world size of the plane the
+ * map goes on, all in the same units.
+ */
+export function groundShadowMap(w: number, d: number, spread: number) {
+  const canvas = makeCanvas(GROUND_SIZE);
+  const ctx = context(canvas);
+  const image = ctx.createImageData(GROUND_SIZE, GROUND_SIZE);
+  const data = image.data;
+
+  const halfW = w / 2;
+  const halfD = d / 2;
+  // Nudged the way the key light throws it, so the painted pool and the real
+  // cast shadow agree rather than fighting.
+  const offsetX = -0.1;
+  const offsetZ = -0.1;
+
+  for (let row = 0; row < GROUND_SIZE; row++) {
+    // The plane is rotated flat, so a canvas row is a line of constant z.
+    const z = (row / GROUND_SIZE - 0.5) * spread - offsetZ;
+    for (let col = 0; col < GROUND_SIZE; col++) {
+      const x = (col / GROUND_SIZE - 0.5) * spread - offsetX;
+
+      // Signed distance to the footprint: zero inside it, and the real
+      // distance out once past an edge or a corner.
+      const qx = Math.abs(x) - halfW;
+      const qz = Math.abs(z) - halfD;
+      const outside = Math.hypot(Math.max(qx, 0), Math.max(qz, 0));
+      const distance = outside + Math.min(Math.max(qx, qz), 0);
+
+      const alpha =
+        distance <= 0
+          ? GROUND_CORE
+          : GROUND_CORE * Math.exp(-Math.pow(distance / GROUND_FALLOFF, 1.35));
+
+      const i = (row * GROUND_SIZE + col) * 4;
+      data[i] = 0;
+      data[i + 1] = 0;
+      data[i + 2] = 0;
+      data[i + 3] = alpha * 255;
+    }
+  }
+
+  ctx.putImageData(image, 0, 0);
+  return texture(canvas);
+}
