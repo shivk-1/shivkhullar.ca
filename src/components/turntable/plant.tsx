@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ceramicMaps, groundShadowMap, leafMaps } from "./textures";
 
@@ -23,6 +24,27 @@ const SOIL_Y = POT.h * 0.9;
 const LEAVES = 19;
 /** How far a leaf springs from the plant's centre line before it starts. */
 const LEAF_OFFSET = 0.13;
+
+/** Where the plant stands when the canvas is at its narrowest. */
+const HOME = new THREE.Vector3(1.5, 0, -3.05);
+
+/**
+ * The floor direction that reads as "to the right" on screen, for the scene's
+ * default camera. Held fixed rather than read off the live camera, or the
+ * plant would crawl sideways across the floor as the camera orbits.
+ */
+const SCREEN_RIGHT = new THREE.Vector3(0.8575, 0, -0.5144);
+
+/**
+ * The library is a fixed 320px, so the white space beside the deck is however
+ * much the window has left over — plenty on a wide display, almost none on a
+ * small one. The plant slides out into it when there is room and tucks back in
+ * when there is not, instead of one position that either crowds the deck or
+ * runs off the edge.
+ */
+const TIGHT_ASPECT = 1.2;
+const WIDE_ASPECT = 1.7;
+const MAX_SLIDE = 1.6;
 /** Phyllotaxis: successive leaves this far apart never line up into rows. */
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
@@ -115,7 +137,20 @@ function leafAt(index: number) {
   };
 }
 
-export function Plant({ position }: { position: [number, number, number] }) {
+export function Plant() {
+  const aspect = useThree((state) => state.size.width / state.size.height);
+
+  const position = useMemo(() => {
+    const slide = THREE.MathUtils.mapLinear(
+      THREE.MathUtils.clamp(aspect, TIGHT_ASPECT, WIDE_ASPECT),
+      TIGHT_ASPECT,
+      WIDE_ASPECT,
+      0,
+      MAX_SLIDE,
+    );
+    return SCREEN_RIGHT.clone().multiplyScalar(slide).add(HOME);
+  }, [aspect]);
+
   const maps = useMemo(
     () => ({
       leaf: leafMaps(),

@@ -126,8 +126,9 @@ export function TurntableScene(props: TurntableProps) {
       <Turntable {...props} />
 
       {/* Stood off the deck's far right corner, close enough to read as the
-          same room and far enough not to crowd the tonearm. */}
-      <Plant position={[1.5, 0, -3.05]} />
+          same room and far enough not to crowd the tonearm. It places itself
+          against the canvas shape, so it is given no position here. */}
+      <Plant />
 
       {/*
         The floor. A shadow material draws nothing except where a shadow lands,
