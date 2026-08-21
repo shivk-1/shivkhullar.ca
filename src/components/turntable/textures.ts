@@ -500,14 +500,26 @@ const GROUND_FALLOFF = 0.62;
  * `w` and `d` are the footprint and `spread` the world size of the plane the
  * map goes on, all in the same units.
  */
-export function groundShadowMap(w: number, d: number, spread: number) {
+export function groundShadowMap(
+  w: number,
+  d: number,
+  spread: number,
+  {
+    cornerRadius = 0,
+    core = GROUND_CORE,
+    falloff = GROUND_FALLOFF,
+  }: { cornerRadius?: number; core?: number; falloff?: number } = {},
+) {
   const canvas = makeCanvas(GROUND_SIZE);
   const ctx = context(canvas);
   const image = ctx.createImageData(GROUND_SIZE, GROUND_SIZE);
   const data = image.data;
 
-  const halfW = w / 2;
-  const halfD = d / 2;
+  // Rounding is taken off the half extents and added back as a radius, so a
+  // corner radius equal to the half width gives a circle for free.
+  const round = Math.min(cornerRadius, w / 2, d / 2);
+  const halfW = w / 2 - round;
+  const halfD = d / 2 - round;
   // Nudged the way the key light throws it, so the painted pool and the real
   // cast shadow agree rather than fighting.
   const offsetX = -0.1;
@@ -524,12 +536,12 @@ export function groundShadowMap(w: number, d: number, spread: number) {
       const qx = Math.abs(x) - halfW;
       const qz = Math.abs(z) - halfD;
       const outside = Math.hypot(Math.max(qx, 0), Math.max(qz, 0));
-      const distance = outside + Math.min(Math.max(qx, qz), 0);
+      const distance = outside + Math.min(Math.max(qx, qz), 0) - round;
 
       const alpha =
         distance <= 0
-          ? GROUND_CORE
-          : GROUND_CORE * Math.exp(-Math.pow(distance / GROUND_FALLOFF, 1.35));
+          ? core
+          : core * Math.exp(-Math.pow(distance / falloff, 1.35));
 
       const i = (row * GROUND_SIZE + col) * 4;
       data[i] = 0;
@@ -541,4 +553,117 @@ export function groundShadowMap(w: number, d: number, spread: number) {
 
   ctx.putImageData(image, 0, 0);
   return texture(canvas);
+}
+
+/* -------------------------------------------------------------------------- */
+/* plant                                                                       */
+/* -------------------------------------------------------------------------- */
+
+const LEAF_SIZE = 256;
+
+/**
+ * A leaf, drawn in the same uv the leaf geometry is built in: x runs from the
+ * stalk to the tip, y across the blade with the midrib down the middle.
+ *
+ * The veins are what make a leaf read as a leaf rather than a green shape, and
+ * they are far cheaper drawn into a map shared by every leaf than modelled.
+ */
+export function leafMaps(): SurfaceMaps {
+  const canvas = makeCanvas(LEAF_SIZE);
+  const ctx = context(canvas);
+  const size = LEAF_SIZE;
+  const mid = size / 2;
+
+  const base = ctx.createLinearGradient(0, 0, size, 0);
+  base.addColorStop(0, "#25551f");
+  base.addColorStop(0.45, "#2f7027");
+  base.addColorStop(1, "#3c8130");
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, size, size);
+
+  // Mottling, so the blade is not a flat wash of one green.
+  for (let blotch = 0; blotch < 130; blotch++) {
+    const x = hash(blotch * 1.71) * size;
+    const y = hash(blotch * 3.31) * size;
+    const r = 6 + hash(blotch * 5.9) * 26;
+    ctx.fillStyle = `rgba(${40 + hash(blotch * 7.3) * 40},${86 + hash(blotch * 2.1) * 44},${34 + hash(blotch * 9.1) * 30},0.16)`;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, TAU);
+    ctx.fill();
+  }
+
+  // Side veins, swept toward the tip and mirrored either side of the midrib.
+  ctx.lineCap = "round";
+  const VEINS = 11;
+  for (let i = 1; i <= VEINS; i++) {
+    const t = i / (VEINS + 1);
+    const x0 = t * size;
+    // The blade narrows toward the tip, so the veins there are shorter.
+    const reach = (0.42 - 0.26 * t) * size;
+    ctx.strokeStyle = `rgba(150,196,124,${0.3 - t * 0.1})`;
+    ctx.lineWidth = 1.6;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(x0, mid);
+      ctx.quadraticCurveTo(
+        x0 + reach * 0.55,
+        mid + side * reach * 0.4,
+        x0 + reach * 0.85,
+        mid + side * reach,
+      );
+      ctx.stroke();
+    }
+  }
+
+  // Midrib, tapering out as it runs to the tip.
+  for (let x = 0; x < size; x++) {
+    const half = 3.6 * (1 - x / size) + 0.6;
+    ctx.fillStyle = `rgba(168,205,138,${0.55 - (x / size) * 0.25})`;
+    ctx.fillRect(x, mid - half, 1, half * 2);
+  }
+
+  return {
+    map: texture(canvas, true),
+    // Glossy: a rubber plant's leaves are the shiniest thing in the room.
+    roughness: texture(roughnessFromLuminance(canvas, 0.26, 0.42)),
+    normal: texture(normalFromLuminance(canvas, 2.4)),
+  };
+}
+
+const CERAMIC_SIZE = 256;
+
+/** Fine vertical ribbing for the pot. Lathe uv runs x around its circumference. */
+export function ceramicMaps(): SurfaceMaps {
+  const size = CERAMIC_SIZE;
+  const canvas = makeCanvas(size);
+  const ctx = context(canvas);
+
+  ctx.fillStyle = "#b4b4b4";
+  ctx.fillRect(0, 0, size, size);
+
+  // Whole ribs across the width, so the pattern meets itself round the back.
+  const RIBS = 48;
+  for (let i = 0; i < RIBS; i++) {
+    const x = (i / RIBS) * size;
+    const shade = 150 + hash(i * 4.13) * 40;
+    ctx.fillStyle = `rgb(${shade},${shade},${shade})`;
+    ctx.fillRect(x, 0, size / RIBS / 2, size);
+  }
+
+  // Grit, so the glaze is not perfectly smooth under the key light.
+  for (let speck = 0; speck < 2400; speck++) {
+    const x = hash(speck * 2.9) * size;
+    const y = hash(speck * 6.7) * size;
+    ctx.fillStyle = `rgba(90,90,90,${hash(speck * 1.3) * 0.16})`;
+    ctx.fillRect(x, y, 1.4, 1.4);
+  }
+
+  const roughness = texture(roughnessFromLuminance(canvas, 0.5, 0.72));
+  const normal = texture(normalFromLuminance(canvas, 1.1));
+  for (const t of [roughness, normal]) {
+    t.wrapS = THREE.RepeatWrapping;
+    t.wrapT = THREE.RepeatWrapping;
+  }
+
+  return { roughness, normal };
 }

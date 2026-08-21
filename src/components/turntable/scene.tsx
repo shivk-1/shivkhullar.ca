@@ -8,6 +8,7 @@ import {
   OrbitControls,
   PerformanceMonitor,
 } from "@react-three/drei";
+import { Plant } from "./plant";
 import { Turntable, type TurntableProps } from "./turntable";
 
 /**
@@ -123,6 +124,10 @@ export function TurntableScene(props: TurntableProps) {
       </Environment>
 
       <Turntable {...props} />
+
+      {/* Stood off the deck's far right corner, close enough to read as the
+          same room and far enough not to crowd the tonearm. */}
+      <Plant position={[1.5, 0, -3.05]} />
 
       {/*
         The floor. A shadow material draws nothing except where a shadow lands,
