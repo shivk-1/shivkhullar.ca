@@ -25,14 +25,23 @@ const MAT = { r: 1.3, h: 0.014 };
 const RECORD = { r: 1.28, h: 0.028 };
 const LABEL_R = 0.44;
 
-/** Outer and inner limits of the playable band, as radii on the disc. */
+/**
+ * Outer and inner limits of the playable band, as radii on the disc. The inner
+ * end stops around the middle of the record rather than running in to the
+ * label, which keeps the whole of a track inside a ten degree sweep.
+ */
 const GROOVE_OUT = 1.2;
-const GROOVE_IN = 0.52;
+const GROOVE_IN = 0.86;
+
+/**
+ * Where the stylus parks, as a radius from the spindle. Outside the platter,
+ * so nothing is hovering over the record while the deck is stopped.
+ */
+const REST_RADIUS = 1.62;
 
 const ARM = { x: -1.15, z: -1.15, length: 2.0 };
 /** The stylus overhangs the end of the tube, so it reaches further than it. */
 const STYLUS_REACH = ARM.length + 0.13;
-const ARM_REST = -1.55;
 /** Height of the arm's pivot above the top plate. */
 const ARM_PIVOT_Y = 0.4;
 
@@ -60,6 +69,11 @@ const BPM_SCALE = { min: 0.55, max: 1.9 };
  * a given groove radius falls out of the triangle pivot-spindle-tip. Solving it
  * rather than hand-tuning keeps the stylus on the record when any of the
  * dimensions above change.
+ *
+ * The triangle has two solutions, one either side of the pivot-spindle line.
+ * This takes the near one for every radius including the parked one, so the
+ * arm swings a few degrees within one arc. Mixing the two roots is what makes
+ * an arm sweep the whole width of the deck to reach the lead-in groove.
  */
 function armAngle(radius: number) {
   const dx = PLATTER.x - ARM.x;
@@ -69,8 +83,14 @@ function armAngle(radius: number) {
   const cos =
     (STYLUS_REACH * STYLUS_REACH + span * span - radius * radius) /
     (2 * STYLUS_REACH * span);
-  return base + Math.acos(THREE.MathUtils.clamp(cos, -1, 1));
+  return base - Math.acos(THREE.MathUtils.clamp(cos, -1, 1));
 }
+
+/**
+ * Parked angle, solved the same way as every playing angle so the two stay in
+ * step. Roughly twelve degrees out from the lead-in groove.
+ */
+const ARM_REST = armAngle(REST_RADIUS);
 
 export type TurntableProps = {
   playing: boolean;
@@ -442,8 +462,9 @@ function Headshell() {
 /** The little black post the arm is dropped onto when it is not tracking. */
 function ArmRest() {
   // Sat under the tube at the rest angle, so the arm lands on it rather than
-  // beside it. Solved from ARM_REST for the same reason armAngle is solved.
-  const out = 1.72;
+  // beside it. Solved from ARM_REST for the same reason armAngle is solved,
+  // and far enough out along the tube to clear the platter behind it.
+  const out = 1.85;
   const x = Math.cos(ARM_REST) * out;
   const z = -Math.sin(ARM_REST) * out;
   // Top of the cradle meets the underside of the tube.
