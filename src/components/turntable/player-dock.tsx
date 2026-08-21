@@ -16,6 +16,7 @@ export function PlayerDock({
   time,
   duration,
   rpm,
+  bpm,
   volume,
   onToggle,
   onSeek,
@@ -27,6 +28,7 @@ export function PlayerDock({
   time: number;
   duration: number;
   rpm: number;
+  bpm: number | null;
   volume: number;
   onToggle: () => void;
   onSeek: (seconds: number) => void;
@@ -106,6 +108,11 @@ export function PlayerDock({
             className="h-1 w-20 accent-black"
           />
           <span className="tabular-nums">{rpm} rpm</span>
+          {/* The platter speed is scaled by this, so it belongs beside the
+              control it modifies rather than off in the track details. */}
+          {bpm !== null && (
+            <span className="tabular-nums text-black/30">{bpm} bpm</span>
+          )}
         </label>
 
         <label className="ml-auto flex items-center gap-2">

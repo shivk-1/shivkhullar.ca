@@ -5,6 +5,7 @@ import { myTracks, type Track } from "@/data/music";
 import { Library } from "./library";
 import { PlayerDock } from "./player-dock";
 import { TurntableScene } from "./scene";
+import { useBpm } from "./use-bpm";
 
 type OnRepeatState = "loading" | "ready" | "unavailable";
 
@@ -22,6 +23,10 @@ export function MusicRoom() {
   const [duration, setDuration] = useState(0);
   const [rpm, setRpm] = useState(33);
   const [volume, setVolume] = useState(0.8);
+
+  // Measured from the audio itself, and only used to set how fast the platter
+  // turns. Null until it lands, or forever if the track cannot be read.
+  const bpm = useBpm(track?.audioSrc);
 
   const [onRepeat, setOnRepeat] = useState<Track[]>([]);
   const [onRepeatState, setOnRepeatState] = useState<OnRepeatState>("loading");
@@ -87,6 +92,7 @@ export function MusicRoom() {
         <TurntableScene
           playing={playing}
           rpm={rpm}
+          bpm={bpm}
           // Guarded: duration is NaN until metadata lands, and NaN would put
           // the stylus nowhere.
           progress={duration > 0 ? time / duration : 0}
@@ -100,6 +106,7 @@ export function MusicRoom() {
             time={time}
             duration={duration}
             rpm={rpm}
+            bpm={bpm}
             volume={volume}
             onToggle={toggle}
             onSeek={seek}
