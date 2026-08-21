@@ -6,6 +6,13 @@ import { gallery, type GalleryPhoto } from "@/data/gallery";
 
 const PER_PAGE = 3;
 
+/** "2024-07-21" -> "jul 2024". Matches the date style used in experience. */
+function formatDate(iso: string) {
+  return new Date(`${iso}T00:00:00`)
+    .toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    .toLowerCase();
+}
+
 /** Splits the photos into the slides the carousel steps through. */
 function paginate(photos: GalleryPhoto[]) {
   const pages: GalleryPhoto[][] = [];
@@ -51,56 +58,72 @@ export function GalleryCarousel() {
 
   return (
     <div>
-      <div
-        ref={track}
-        onScroll={syncPage}
-        className="no-scrollbar flex gap-3 overflow-x-auto overscroll-x-contain scroll-smooth sm:gap-5"
-      >
-        {pages.map((photos, index) => (
-          <div
-            key={index}
-            className="grid w-full shrink-0 grid-cols-3 gap-3 sm:gap-5"
-          >
-            {photos.map((photo) => (
-              <figure key={photo.src}>
-                <button
-                  type="button"
-                  onClick={() => setActive(photo)}
-                  aria-label={`open photo: ${photo.caption}`}
-                  className="relative block aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-md border border-border bg-background"
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.caption}
-                    fill
-                    sizes="(min-width: 640px) 240px, 30vw"
-                    draggable={false}
-                    className="object-cover"
-                  />
-                </button>
-                <figcaption className="mt-2 text-[13px] leading-relaxed text-muted sm:text-sm">
-                  {photo.caption}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        ))}
+      {/*
+        Arrows flank the strip instead of sitting under it, so they read as
+        controls for the photos rather than another line of section furniture.
+        They are centred on the whole track, captions included.
+      */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        {pages.length > 1 && (
+          <NavButton label="previous photos" onClick={() => go(-1)}>
+            ←
+          </NavButton>
+        )}
+
+        <div
+          ref={track}
+          onScroll={syncPage}
+          // min-w-0 or the flex item refuses to shrink below its content and
+          // the track pushes the arrows off the edge instead of scrolling.
+          className="no-scrollbar flex min-w-0 flex-1 gap-3 overflow-x-auto overscroll-x-contain scroll-smooth sm:gap-5"
+        >
+          {pages.map((photos, index) => (
+            <div
+              key={index}
+              className="grid w-full shrink-0 grid-cols-3 gap-3 sm:gap-5"
+            >
+              {photos.map((photo) => (
+                <figure key={photo.src}>
+                  <button
+                    type="button"
+                    onClick={() => setActive(photo)}
+                    aria-label={`open photo: ${photo.caption}`}
+                    className="relative block aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-md border border-border bg-background"
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={photo.caption}
+                      fill
+                      sizes="(min-width: 640px) 240px, 30vw"
+                      draggable={false}
+                      className="object-cover"
+                    />
+                  </button>
+                  <figcaption className="mt-2 text-[13px] leading-relaxed text-muted sm:text-sm">
+                    {photo.caption}{" "}
+                    {/* Dimmer than the caption so the date reads as a footnote
+                        to it rather than as part of the sentence. */}
+                    <span className="text-muted/70 tabular-nums">
+                      {formatDate(photo.date)}
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {pages.length > 1 && (
+          <NavButton label="next photos" onClick={() => go(1)}>
+            →
+          </NavButton>
+        )}
       </div>
 
       {pages.length > 1 && (
-        <div className="mt-5 flex items-center justify-between gap-4">
-          <p className="text-sm text-muted tabular-nums">
-            {page + 1} / {pages.length}
-          </p>
-          <div className="flex items-center gap-2">
-            <NavButton label="previous photos" onClick={() => go(-1)}>
-              ←
-            </NavButton>
-            <NavButton label="next photos" onClick={() => go(1)}>
-              →
-            </NavButton>
-          </div>
-        </div>
+        <p className="mt-5 text-center text-sm text-muted tabular-nums">
+          {page + 1} / {pages.length}
+        </p>
       )}
 
       <Lightbox photo={active} onClose={() => setActive(null)} />
@@ -182,7 +205,7 @@ function NavButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="flex size-8 items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-foreground"
+      className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-foreground"
     >
       {children}
     </button>
