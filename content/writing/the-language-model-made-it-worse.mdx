@@ -1,0 +1,269 @@
+export const meta = {
+  title: "the language model made it worse",
+  subtitle:
+    "reading typing off wrist muscle signals, and what happens when you let an llm clean up the output",
+  date: "2026-08-22",
+  excerpt:
+    "i put a free llm and a constrained beam search on top of the same emg encoder to see which recovers more typing. the llm raised error by ten points. the lever nobody was arguing about, sample rate, was worth fourteen.",
+  cover: "/writing/cer-journey.png",
+}
+
+when you press a key, your forearm muscles contract, and that contraction leaks a
+few millionths of a volt to the surface of your skin. electrodes on a wristband
+pick it up. no needles, no implant, just a strap.
+
+the question is whether you can run that backwards: from voltage, recover the
+keystroke. do it well enough and you get a keyboard with no keyboard.
+
+this post is about a comparison inside that problem. there are two schools of
+thought on turning a noisy decode into text, and i wanted to know which wins with
+everything underneath held identical. one of them is the move everybody reaches
+for right now, "put a language model on it." that one lost. it lost by being
+worse than doing nothing.
+
+## the signal
+
+**surface emg** (electromyography) is muscle electrical activity recorded from
+the skin. the dataset is `emg2qwerty`, released by meta: two wristbands, 16
+electrodes each, 32 channels, sampled 2,000 times per second while people type on
+a normal keyboard, with the keylogger output as ground truth. 30 users, 366
+sessions, 111 hours, 1.7 million keystrokes.
+
+four seconds of it, both wrists, titled with the text being typed:
+
+![](/writing/emg-hero.png)
+
+_each row is one electrode. the spikes are muscle bursts, roughly keystrokes,
+overlapping and smeared._
+
+the problem is visible immediately. keystrokes are not separated events, they are
+overlapping bursts, because your fingers move toward the next key before the
+current one bottoms out. and which electrode lights up depends on where the
+wristband sat that morning.
+
+zoom out to 20 seconds across all 32 electrodes and the structure is clearer:
+
+![](/writing/emg-electrodes.png)
+
+_brighter means more muscle activity. the hands take turns and specific
+electrodes fire for specific fingers. that structure is what makes this solvable
+at all._
+
+## the pipeline, in plain terms first
+
+the standard attack has two halves.
+
+the **encoder** looks at the signal and guesses characters. it does not know
+english. it knows "this pattern of muscle activity looks like an r." the ears.
+
+the **decoder** turns that stream of guesses into a string. this is where
+knowledge about language gets injected, because the encoder's output is full of
+errors and english has structure you can exploit.
+
+the argument in this post is entirely about the second half. the encoder stays
+frozen across both experiments: same ears, different brains.
+
+### what the encoder actually is
+
+the encoder does not eat raw voltage. it eats a **spectrogram**, a picture of
+which frequencies are present at each moment in time. muscle activity has a
+characteristic frequency signature, so this makes the job far easier than raw
+waveform would.
+
+![](/writing/emg-spectrogram.png)
+
+_what the model actually sees: time left to right, frequency bottom to top,
+brightness is energy. note that it stops at 250 Hz. that matters later._
+
+from there:
+
+- a **rotation-invariant** electrode front-end: it tries not to care if you wore
+  the wristband rotated differently than yesterday
+- **TDS convolution** blocks (time-depth-separable) for local patterns in time,
+  the muscle-burst shapes
+- a **transformer** over time, letting distant moments in the window talk to each
+  other. this is the piece borrowed from brain2qwerty's meg decoder, and what the
+  original emg2qwerty baseline lacks
+- a linear layer to 99 classes: 98 keys plus one special symbol
+
+24.2m parameters, trained from scratch on 4-second windows.
+
+### what CTC is, and why it matters here
+
+that 99th class is called **blank**, and it exists because of a real problem: the
+model guesses about 125 times per second, but you typed maybe 8 characters in
+that second, and nobody labeled which millisecond each keypress happened. so how
+do you train against the text at all?
+
+**CTC** (connectionist temporal classification) is the answer. the model emits
+blank whenever nothing is happening, and repeats collapse: `hh_ee_lll_o` becomes
+`hello`. training sums probability over every alignment that would collapse to
+the right answer, so the model is never told where the characters are, only what
+they were.
+
+the consequence is the hinge of this post. at decode time CTC hands you not a
+string but a probability distribution over characters at every time step, which
+implies a huge weighted set of possible strings. that set is the **lattice**.
+what you are allowed to do with it is the entire disagreement.
+
+### how error gets measured
+
+**CER**, character error rate: insertions plus deletions plus substitutions,
+divided by the length of the truth. 0% is perfect, 100% means as many mistakes as
+characters. **WER** is the same at word level, always worse, since one wrong
+character ruins a whole word.
+
+the reference point throughout is **MyoText**, a published system on this task
+reporting 5.4% CER and 6.5% WER from hand-built physiological priors plus a
+constrained search. that is the target. my encoder, decoded greedily (take the
+most likely character at each step, collapse), lands at **46.4% CER**.
+
+bad in absolute terms, unremarkable in context: emg2qwerty's own generic-user
+baseline is around 55% greedy CER before its language model. 46.4% is a working
+front-end, just a noisy one, and noise is the condition where the two decoding
+philosophies disagree hardest.
+
+## the two philosophies
+
+![](/writing/emg-method.png)
+
+_same data, same encoder weights, two decoders. one may leave the lattice, one
+may not._
+
+**unconstrained.** throw the lattice away, take the greedy string, hand it to a
+language model, ask for the correct sentence. i used `byt5-small`, a
+character-level model, fine-tuned on 65,676 (noisy, clean) pairs from my own
+encoder's output. it can emit anything. the brain2qwerty-style move, and what
+most people reach for first.
+
+**constrained.** keep the lattice. run **CTC prefix beam search**, which carries
+many candidate strings forward at once instead of committing to the best
+character at each step, scoring each with a 5-gram character language model built
+from the training text. **beam width** 24 is how many candidates stay alive.
+**alpha** (0.4) is how loudly the language model votes against the encoder.
+**beta** (0.6) is a per-character bonus offsetting the language model's bias
+toward short strings. the key property: it can only reweight paths the encoder
+already put probability on. it cannot invent.
+
+both of these are "add a language model." that phrase covers two completely
+different operations.
+
+## the free language model hallucinates fluently
+
+byt5 trained fine. training loss fell 2.23 to 0.86 over three epochs. validation
+CER went **up** every epoch, 58.1% to 60.3% to 60.7%, finishing at 56.6% against
+the 46.4% baseline on a matched eval subset.
+
+![](/writing/emg-byt5-overfit.png)
+
+_left: training loss falling while validation error climbs, textbook overfitting.
+right: the encoder alone beats the encoder plus the llm._
+
+the failure is legible in the strings:
+
+```
+noisy   quclige x ju        byt5  quickly brown fox ju     truth  the quick brown fox ju
+noisy   cnea ssalae         byt5  cheapest salad           truth  evision kinda salad
+noisy   epeneus             byt5  epeneus                  truth  entrepreneur
+```
+
+`cheapest salad` is real english. confident, well-formed, wrong. the noisy string
+had partially-correct characters in it and the model traded them for a fluent
+phrase sharing almost nothing with the target. CER punishes that trade,
+correctly.
+
+this is not byt5 being a bad model. it is a model asked to reconstruct content
+that is no longer in its input. at 46% CER the message is gone, so the only thing
+left to condition on is the prior, and the prior is "what does english look
+like." you get english. you do not get the sentence.
+
+## the constrained one helped every user
+
+before decoding i also **personalized** the encoder, fine-tuning it on each
+user's own sessions. anatomy and typing style differ enough that one generic
+model leaves a lot on the table.
+
+![](/writing/emg-personalization.png)
+
+_generic against personalized, all 30 users. helps almost everyone, unevenly.
+orange line is MyoText, for scale._
+
+then the beam search on top. mean CER 42.9% to 39.3%, word error rate 93.1% to
+85.7%, and it improved **all 12 users** it ran on. not most. all.
+
+the word-level gain being roughly twice the character-level gain is the tell. the
+language model is mostly fixing **boundaries**, where one word ends and the next
+starts, which is exactly the call the encoder is genuinely torn on and the
+lattice already holds as a near-tie. that is where a prior is information.
+rewriting content is where a prior becomes fiction.
+
+stated plainly: a language model helps a noisy decoder exactly as far as it stays
+inside the set of hypotheses the signal supports. once it can leave that set, its
+fluency stops being an asset and becomes the mechanism by which the error is
+made.
+
+## the lever nobody was arguing about
+
+here is the part that made the whole comparison feel small.
+
+every number above ran on 500 Hz data. the recordings are 2,000 Hz. i decimated
+them 4x early on so the persisted tensors would fit in free-tier storage, then
+built eight milestones on top of that decision without revisiting it.
+
+there is a hard fact about sampling: you can only represent frequencies up to
+half your sample rate. that is **nyquist**. at 500 Hz everything above 250 Hz is
+not attenuated, it is gone. go back to the spectrogram image, the one stopping at
+exactly 250 Hz. fine finger movement lives partly above that line, and i had
+binned it for storage reasons.
+
+re-persisting six users at full 2 kHz and re-running the identical
+personalization recipe, no architecture change, no decoder change, nothing but
+sample rate, took mean CER from 42.3% to **27.8%**. that one data step beat every
+decoding idea in the project combined, including the beam search i had just spent
+a milestone validating.
+
+stack both levers and it lands at **24.8%** mean, **22.2%** for the best user.
+the two effects are independent and additive, which is its own quiet confirmation
+they were fixing different problems.
+
+![](/writing/cer-journey.png)
+
+_the whole arc. every constrained or fidelity lever moved error down. the one
+unconstrained-llm lever moved it up._
+
+```
+encoder, greedy       46.4%
++ byt5 (free llm)     56.6%   worse
++ personalize (500)   42.3%
++ beam-lm (500)       39.3%
++ 2 khz, greedy       27.8%
++ 2 khz + beam-lm     24.8%
+  best user           22.2%
+myotext (published)    5.4%
+```
+
+## what this shows and what it doesn't
+
+24.8% is still nearly five times MyoText's 5.4%, and i am not going to dress that
+up. this is a from-scratch reproduction on a six-user subset at free-kaggle-t4
+budget, the paper's exact 30-user subset was never released so mine is a
+documented deviation, and the generic encoder never got retrained at 2 kHz. not a
+competitive system.
+
+what it does support is narrower, and travels further than emg:
+
+- on a noisy front-end, **constrained decoding beats unconstrained correction**,
+  and the unconstrained version can be worse than doing nothing.
+- a generative corrector's confidence is not evidence. it is the delivery
+  mechanism for the error.
+- before tuning the decoder, audit what you threw away in preprocessing. i spent
+  four milestones on decoding and one afternoon on sample rate. the afternoon won
+  by four times.
+
+that last one is what i would actually tell someone. the decimation was never a
+modeling choice i defended. it was a storage workaround i stopped thinking about,
+and it capped every result downstream of it for months. those are the expensive
+ones. they never look like bugs. they look like settings.
+
+code, configs, per-milestone logs and seeds:
+[Brain2Qwerty-on-EMG](https://github.com/shivk-1/emg2qwerty).
