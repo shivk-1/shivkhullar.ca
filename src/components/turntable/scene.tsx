@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   Environment,
@@ -9,6 +9,7 @@ import {
   PerformanceMonitor,
 } from "@react-three/drei";
 import { Plant } from "./plant";
+import { Speaker } from "./speaker";
 import { Turntable, type TurntableProps } from "./turntable";
 
 /**
@@ -129,6 +130,11 @@ export function TurntableScene(props: TurntableProps) {
           same room and far enough not to crowd the tonearm. It places itself
           against the canvas shape, so it is given no position here. */}
       <Plant />
+
+      {/* Loaded, so it suspends; the rest of the scene draws without it. */}
+      <Suspense fallback={null}>
+        <Speaker />
+      </Suspense>
 
       {/*
         The floor. A shadow material draws nothing except where a shadow lands,
