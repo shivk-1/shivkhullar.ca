@@ -14,7 +14,7 @@ export const experience: Experience[] = [
     name: "baseleaf",
     role: "software engineering intern",
     url: "https://example.com",
-    logoSrc: "/logos/baseleaf.svg",
+    logoSrc: "/logos/baseleaf.jpeg",
     period: "may 2026 — present",
     blurb:
       "building llm-powered tooling that helps immigration professionals move through casework faster",
@@ -23,7 +23,7 @@ export const experience: Experience[] = [
     name: "waterloo aerial robotics group",
     role: "autonomy software developer",
     url: "https://www.uwarg.com/",
-    logoSrc: "/logos/warg.svg",
+    logoSrc: "/logos/warg.jpeg",
     period: "sept 2025 — dec 2025",
     blurb:
       "optimizing autonomous navigation with enhanced computer vision and simulation-based validation",
@@ -31,7 +31,7 @@ export const experience: Experience[] = [
   {
     name: "stealth startup",
     role: "founding engineer",
-    logoSrc: "/logos/stealth.svg",
+    logoSrc: "/logos/stealth.jpeg",
     period: "aug 2025 — jan 2026",
     blurb:
       "transforming dealership data into actionable real-time analytics at scale",
@@ -40,7 +40,7 @@ export const experience: Experience[] = [
     name: "headstarter ai",
     role: "software engineer fellow",
     url: "https://headstarter.co/",
-    logoSrc: "/logos/headstarter.svg",
+    logoSrc: "/logos/headstarter.jpeg",
     period: "jul 2024 — sept 2024",
     blurb:
       "built intelligent task automation systems and optimized backend performance for real-time ai applications",
