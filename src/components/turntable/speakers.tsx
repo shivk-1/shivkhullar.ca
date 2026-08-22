@@ -8,10 +8,9 @@ import * as THREE from "three";
  * "Speaker with stand" by Halil Kantarci on sketchfab, CC Attribution.
  *
  * The file holds three separate things — a speaker sat on its stand, a second
- * speaker on the floor, and a bare stand — and all three are used. They are
- * not left in the arrangement the file ships with: that spreads them over six
- * units, which runs the far one off the side of the canvas. Each is pulled out
- * by name and stood where it is wanted instead.
+ * speaker on the floor, and a bare stand. Only the first is wanted, so the
+ * other two are matched by name and dropped on the way in, which keeps their
+ * geometry out of the draw and the shadow pass as well as out of shot.
  */
 const MODEL = "/models/speaker_with_stand.glb";
 
@@ -37,15 +36,16 @@ const VIEWER_HEADING = 0.5399;
 const TOWARD_VIEWER = 0.5;
 
 /**
- * Each piece, in the file's own units.
+ * What gets shown, in the file's own units.
  *
  * `front` is the heading its baffle already points along inside the file,
- * which aiming has to cancel. It is not shared: the two cabinets are the same
- * mesh placed at different node rotations, so they sit 34.9 degrees apart.
- * Both were measured from the area weighted average normal of the badge mesh
- * put through its node's world matrix.
+ * which aiming has to cancel — measured from the area weighted average normal
+ * of the badge mesh put through its node's world matrix. `out` and `side` are
+ * where it stands, out from the corner and across.
  *
- * `out` and `side` are where it stands, out from the corner and across.
+ * Kept as a list because the file holds two more pieces at their own headings
+ * (the floor speaker sits at 1.2025), and putting either back is a matter of
+ * adding a row.
  */
 const PIECES = [
   {
@@ -55,23 +55,6 @@ const PIECES = [
     front: 0.5949,
     out: 1.45,
     side: 0.15,
-  },
-  {
-    name: "speaker on the floor",
-    match: /^(speakerBody|displayEtc|glass|panel)_2_/,
-    centre: { x: -0.31, z: 0.435 },
-    front: 1.2025,
-    out: 1.55,
-    side: -1.35,
-  },
-  {
-    name: "the spare stand",
-    match: /^(standLegs|standTable)_2_/,
-    centre: { x: 0.48, z: -0.085 },
-    // No baffle to aim, so it just sits square with its neighbours.
-    front: 0.5949,
-    out: 2.45,
-    side: 1.15,
   },
 ];
 
