@@ -9,7 +9,7 @@ import {
   PerformanceMonitor,
 } from "@react-three/drei";
 import { Plant } from "./plant";
-import { Speaker } from "./speaker";
+import { Speakers } from "./speakers";
 import { Turntable, type TurntableProps } from "./turntable";
 
 /**
@@ -67,13 +67,13 @@ export function TurntableScene(props: TurntableProps) {
         castShadow
         // 1024 rather than 2048: the shadow map is redrawn every frame, and at
         // this scene's size the extra resolution buys nothing but fill rate.
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[1280, 1280]}
         // Tight bounds around the deck, so the map's texels are spent on it
         // instead of on empty floor.
-        shadow-camera-left={-6}
-        shadow-camera-right={6}
-        shadow-camera-top={6}
-        shadow-camera-bottom={-6}
+        shadow-camera-left={-7.5}
+        shadow-camera-right={7.5}
+        shadow-camera-top={7.5}
+        shadow-camera-bottom={-7.5}
         shadow-camera-near={0.5}
         shadow-camera-far={25}
         // normalBias handles acne on the curved parts without the peter
@@ -133,7 +133,7 @@ export function TurntableScene(props: TurntableProps) {
 
       {/* Loaded, so it suspends; the rest of the scene draws without it. */}
       <Suspense fallback={null}>
-        <Speaker />
+        <Speakers />
       </Suspense>
 
       {/*
@@ -158,9 +158,13 @@ export function TurntableScene(props: TurntableProps) {
         minPolarAngle={0.18}
         enableDamping
         dampingFactor={0.08}
-        // Aimed at the platter rather than the origin, so the deck sits
-        // centred once the library takes the right third of the viewport.
-        target={[0, 0.5, 0]}
+        // Raised well above the platter. The speakers stand taller than the
+        // deck and sat behind it, where the camera's downward angle throws
+        // them high up the frame; tilting up drops the whole scene enough to
+        // clear them. It costs nothing in framing — the camera and the field
+        // of view are untouched, so the deck is drawn at exactly the size it
+        // was, just lower.
+        target={[0, 1.15, 0]}
       />
     </Canvas>
   );
