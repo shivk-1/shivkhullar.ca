@@ -1,15 +1,24 @@
 import Image from "next/image";
 import { experience, type Experience } from "@/data/experience";
 
+/** Rendered size of a company logo. Keep the className below in step with it. */
+const LOGO = 24;
+
 function logo(job: Experience) {
   if (!job.logoSrc) return null;
   return (
     <Image
       src={job.logoSrc}
       alt=""
-      width={18}
-      height={18}
-      className="size-[18px] shrink-0 translate-y-[3px] rounded-[5px] border border-border object-cover"
+      width={LOGO}
+      height={LOGO}
+      /*
+        items-baseline sits the image's bottom edge on the text baseline, so it
+        grows upward and would ride high. The nudge drops it back until its
+        centre lands on the cap height's, which is where the eye reads it as
+        level with the name.
+      */
+      className="size-[24px] shrink-0 translate-y-[6px] rounded-[6px] border border-border object-cover"
     />
   );
 }
