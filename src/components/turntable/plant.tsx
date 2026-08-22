@@ -26,14 +26,14 @@ const LEAVES = 19;
 const LEAF_OFFSET = 0.13;
 
 /** Where the plant stands when the canvas is at its narrowest. */
-const HOME = new THREE.Vector3(1.5, 0, -3.05);
+const HOME = new THREE.Vector3(1.54, 0, -2.42);
 
 /**
- * The floor direction that reads as "to the right" on screen, for the scene's
- * default camera. Held fixed rather than read off the live camera, or the
- * plant would crawl sideways across the floor as the camera orbits.
+ * The direction it slides in, toward the plinth's near right corner. Held
+ * fixed rather than read off the live camera, or the plant would crawl across
+ * the floor as the camera orbits.
  */
-const SCREEN_RIGHT = new THREE.Vector3(0.8575, 0, -0.5144);
+const SLIDE = new THREE.Vector3(0.9884, 0, 0.1518);
 
 /**
  * The library is a fixed 320px, so the white space beside the deck is however
@@ -44,7 +44,10 @@ const SCREEN_RIGHT = new THREE.Vector3(0.8575, 0, -0.5144);
  */
 const TIGHT_ASPECT = 1.2;
 const WIDE_ASPECT = 1.7;
-const MAX_SLIDE = 1.6;
+/** Enough to reach the corner, and no further: past this its foliage leaves
+ *  the right of the canvas. Each aspect in between stays inside what it can
+ *  take, so it arrives at the corner only on a window wide enough to show it. */
+const MAX_SLIDE = 1.15;
 /** Phyllotaxis: successive leaves this far apart never line up into rows. */
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
@@ -148,7 +151,7 @@ export function Plant() {
       0,
       MAX_SLIDE,
     );
-    return SCREEN_RIGHT.clone().multiplyScalar(slide).add(HOME);
+    return SLIDE.clone().multiplyScalar(slide).add(HOME);
   }, [aspect]);
 
   const maps = useMemo(

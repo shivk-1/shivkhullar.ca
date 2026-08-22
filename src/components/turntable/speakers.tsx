@@ -55,6 +55,8 @@ const PIECES = [
     front: 0.5949,
     out: 1.45,
     side: 0.15,
+    /** Slid back along its own facing, away from the deck, after it is aimed. */
+    back: 0.5,
   },
 ];
 
@@ -101,6 +103,11 @@ export function Speakers() {
         VIEWER_HEADING,
         TOWARD_VIEWER,
       );
+
+      // Backed off along the way it is already pointing, and after the heading
+      // is worked out rather than before, so sliding it does not re-aim it.
+      position.x -= Math.sin(heading) * piece.back;
+      position.z -= Math.cos(heading) * piece.back;
 
       return {
         key: piece.name,
