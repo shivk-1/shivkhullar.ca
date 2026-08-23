@@ -38,7 +38,7 @@ export function TurntableScene(props: TurntableProps) {
     <Canvas
       shadows
       dpr={dpr}
-      camera={{ position: [6.0, 6.0, 10.0], fov: 34 }}
+      camera={{ position: [7.3, 7.3, 12.2], fov: 34 }}
       gl={{
         // Transparent so the page's own black shows through past the floor,
         // and the room reads as carrying on into the dark.
@@ -120,7 +120,7 @@ export function TurntableScene(props: TurntableProps) {
         // Widened with the camera: it now rests about thirteen units out, so
         // the old ceiling of fourteen left almost nothing to pull back to.
         minDistance={6}
-        maxDistance={24}
+        maxDistance={30}
         // Stops the camera dropping under the plinth, where there is nothing
         // modelled and the deck would read as a floating slab.
         maxPolarAngle={Math.PI / 2 - 0.06}

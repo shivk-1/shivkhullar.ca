@@ -26,27 +26,29 @@ const DRACO = "/draco/";
 
 const TABLE = {
   url: "/models/table_lamp.glb",
-  /** Height here, and what it measures in the file. */
-  height: 1.7,
+  /** Height here, and what it measures in the file. Taller than the plant's
+   *  2.8, which is the way round a floor lamp and a pot plant really go. */
+  height: 3.1,
   modelHeight: 0.598,
   /** Its base sits below the file's origin, so it needs lifting onto the floor. */
   base: -0.14,
   centre: { x: -0.003, z: 0.0 },
   /** Dead centre of the bulb, in the file's units. */
   bulb: { x: 0, y: 0.313, z: 0 },
-  at: { x: 3.6, z: 0.4 },
+  at: { x: 3.2, z: -2.8 },
 } as const;
 
 const DONUT = {
   url: "/models/donut_lamp__game-ready_pbr_3d_model.glb",
-  /** Sized across rather than up: it is a ring lying on the floor. */
-  width: 1.8,
+  /** Sized across rather than up: it is a ring lying on the floor. A shade
+   *  wider than the record it sits beside, which is 2.56 across. */
+  width: 2.9,
   modelWidth: 0.352,
   base: -0.079,
   centre: { x: 1.537, z: 0.982 },
   /** Middle of the ring, which is where its glow comes from. */
   ring: { x: 1.537, y: -0.007, z: 0.982 },
-  at: { x: -3.8, z: 0.7 },
+  at: { x: -4.8, z: -0.4 },
 } as const;
 
 /**
@@ -108,8 +110,8 @@ function TableLamp() {
           (TABLE.bulb.z - TABLE.centre.z) * scale,
         ]}
         color="#ffb066"
-        intensity={90}
-        distance={26}
+        intensity={140}
+        distance={34}
         decay={2}
         castShadow
         shadow-mapSize={[1024, 1024]}
@@ -145,8 +147,8 @@ function DonutLamp() {
       <pointLight
         position={[0, DONUT.ring.y * scale + lift + 0.15, 0]}
         color="#ff4a00"
-        intensity={26}
-        distance={15}
+        intensity={48}
+        distance={22}
         decay={2}
         castShadow
         shadow-mapSize={[512, 512]}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ceramicMaps, leafMaps } from "./textures";
 
@@ -25,29 +24,17 @@ const LEAVES = 19;
 /** How far a leaf springs from the plant's centre line before it starts. */
 const LEAF_OFFSET = 0.13;
 
-/** Where the plant stands when the canvas is at its narrowest. */
-const HOME = new THREE.Vector3(1.54, 0, -2.42);
-
 /**
- * The direction it slides in, toward the plinth's near right corner. Held
- * fixed rather than read off the live camera, or the plant would crawl across
- * the floor as the camera orbits.
+ * Where it stands: behind the deck and left of centre.
+ *
+ * It used to sit off the plinth's near right corner and slide further out as
+ * the canvas widened. That space belongs to the table lamp now, and the two do
+ * not both fit there — the lamp alone wants about half the frame's width, and
+ * on a narrow canvas there is only a third of it to the right of where the
+ * plant stood. So the plant moved rather than the lamp shrinking, and it no
+ * longer needs to slide: nothing is competing for where it is now.
  */
-const SLIDE = new THREE.Vector3(0.9884, 0, 0.1518);
-
-/**
- * The library is a fixed 320px, so the white space beside the deck is however
- * much the window has left over — plenty on a wide display, almost none on a
- * small one. The plant slides out into it when there is room and tucks back in
- * when there is not, instead of one position that either crowds the deck or
- * runs off the edge.
- */
-const TIGHT_ASPECT = 1.2;
-const WIDE_ASPECT = 1.7;
-/** Enough to reach the corner, and no further: past this its foliage leaves
- *  the right of the canvas. Each aspect in between stays inside what it can
- *  take, so it arrives at the corner only on a window wide enough to show it. */
-const MAX_SLIDE = 1.15;
+const HOME = new THREE.Vector3(0.6, 0, -2.8);
 /** Phyllotaxis: successive leaves this far apart never line up into rows. */
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
@@ -141,19 +128,6 @@ function leafAt(index: number) {
 }
 
 export function Plant() {
-  const aspect = useThree((state) => state.size.width / state.size.height);
-
-  const position = useMemo(() => {
-    const slide = THREE.MathUtils.mapLinear(
-      THREE.MathUtils.clamp(aspect, TIGHT_ASPECT, WIDE_ASPECT),
-      TIGHT_ASPECT,
-      WIDE_ASPECT,
-      0,
-      MAX_SLIDE,
-    );
-    return SLIDE.clone().multiplyScalar(slide).add(HOME);
-  }, [aspect]);
-
   const maps = useMemo(
     () => ({
       leaf: leafMaps(),
@@ -178,7 +152,7 @@ export function Plant() {
   }, [maps, geometry]);
 
   return (
-    <group position={position}>
+    <group position={HOME}>
       <mesh geometry={geometry.pot} castShadow receiveShadow>
         <meshStandardMaterial
           color="#dcd7ce"
