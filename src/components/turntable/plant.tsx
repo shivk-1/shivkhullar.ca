@@ -34,7 +34,7 @@ const LEAF_OFFSET = 0.13;
  * plant stood. So the plant moved rather than the lamp shrinking, and it no
  * longer needs to slide: nothing is competing for where it is now.
  */
-const HOME = new THREE.Vector3(0.6, 0, -2.8);
+const HOME = new THREE.Vector3(1.37, 0, -3.26);
 /** Phyllotaxis: successive leaves this far apart never line up into rows. */
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 

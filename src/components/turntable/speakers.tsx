@@ -33,7 +33,7 @@ const AIM = new THREE.Vector3(-2.3, 0, -1.8);
  * they do not swivel as it orbits.
  */
 const VIEWER_HEADING = 0.5399;
-const TOWARD_VIEWER = 0.5;
+const TOWARD_VIEWER = 0.68;
 
 /**
  * What gets shown, in the file's own units.

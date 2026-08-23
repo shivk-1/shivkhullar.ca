@@ -35,7 +35,7 @@ const TABLE = {
   centre: { x: -0.003, z: 0.0 },
   /** Dead centre of the bulb, in the file's units. */
   bulb: { x: 0, y: 0.313, z: 0 },
-  at: { x: 3.2, z: -2.8 },
+  at: { x: 3.15, z: -2.3 },
 } as const;
 
 const DONUT = {
@@ -48,7 +48,7 @@ const DONUT = {
   centre: { x: 1.537, z: 0.982 },
   /** Middle of the ring, which is where its glow comes from. */
   ring: { x: 1.537, y: -0.007, z: 0.982 },
-  at: { x: -4.8, z: -0.4 },
+  at: { x: -4.17, z: 0.16 },
 } as const;
 
 /**
