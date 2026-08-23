@@ -4,17 +4,17 @@ import { useState } from "react";
 import Image from "next/image";
 import { trackYear, type ProducedTrack, type Track } from "@/data/music";
 
-type Tab = "produced" | "on-repeat";
+type Tab = "on-repeat" | "produced";
 
 /**
  * The record crate. Two tabs rather than two stacked groups: the produced
  * rows carry a year and a note, so they are twice the height of a spotify
- * row, and stacking the two lists pushed my own music off the top of the
+ * row, and stacking the two lists pushed one of them off the top of the
  * scroll as soon as the playlist loaded.
  *
- * Opens on "produced" every time. A visitor should hear my own music before
- * anyone else's, and the tab is the only thing left saying so now that the
- * ordering does not.
+ * Opens on "on repeat", which is the first tab. The open tab and the leading
+ * tab are deliberately the same thing: a tablist that opens on its second
+ * entry reads as though something has already been clicked.
  */
 export function Library({
   produced,
@@ -29,7 +29,7 @@ export function Library({
   current: Track | null;
   onSelect: (track: Track) => void;
 }) {
-  const [tab, setTab] = useState<Tab>("produced");
+  const [tab, setTab] = useState<Tab>("on-repeat");
 
   return (
     <aside className="flex h-full w-full flex-col border-l border-white/10 bg-white/[0.05] backdrop-blur">
@@ -39,14 +39,6 @@ export function Library({
         className="flex shrink-0 gap-1 border-b border-white/10 px-3 py-3"
       >
         <TabButton
-          id="produced"
-          active={tab === "produced"}
-          onSelect={setTab}
-          count={produced.length}
-        >
-          produced
-        </TabButton>
-        <TabButton
           id="on-repeat"
           active={tab === "on-repeat"}
           onSelect={setTab}
@@ -54,26 +46,14 @@ export function Library({
         >
           on repeat
         </TabButton>
-      </div>
-
-      <div
-        role="tabpanel"
-        id="panel-produced"
-        aria-labelledby="tab-produced"
-        hidden={tab !== "produced"}
-        className="min-h-0 flex-1 overflow-y-auto px-2 py-3"
-      >
-        <p className="px-3 pb-2 text-[12.5px] leading-relaxed text-white/40">
-          beats and tracks i made. pick one to put it on the deck.
-        </p>
-        {produced.map((track) => (
-          <ProducedRow
-            key={track.id}
-            track={track}
-            active={current?.id === track.id}
-            onSelect={onSelect}
-          />
-        ))}
+        <TabButton
+          id="produced"
+          active={tab === "produced"}
+          onSelect={setTab}
+          count={produced.length}
+        >
+          produced
+        </TabButton>
       </div>
 
       <div
@@ -89,6 +69,26 @@ export function Library({
         )}
         {onRepeat.map((track) => (
           <Row
+            key={track.id}
+            track={track}
+            active={current?.id === track.id}
+            onSelect={onSelect}
+          />
+        ))}
+      </div>
+
+      <div
+        role="tabpanel"
+        id="panel-produced"
+        aria-labelledby="tab-produced"
+        hidden={tab !== "produced"}
+        className="min-h-0 flex-1 overflow-y-auto px-2 py-3"
+      >
+        <p className="px-3 pb-2 text-[12.5px] leading-relaxed text-white/40">
+          beats and tracks i made. pick one to put it on the deck.
+        </p>
+        {produced.map((track) => (
+          <ProducedRow
             key={track.id}
             track={track}
             active={current?.id === track.id}
