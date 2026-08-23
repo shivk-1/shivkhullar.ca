@@ -9,7 +9,7 @@ export const site = {
     "computer engineering @ university of waterloo. working on paper-to-implementation r&d and building projects i actually want to build.",
   photo: "/me.svg",
   email: "shivansh.khullar@gmail.com",
-  resume: "/resume.pdf",
+  resume: "/Shivansh_Khullar_Resume.pdf",
   socials: {
     github: "https://github.com/shivk-1",
     linkedin: "https://www.linkedin.com/in/shivanshkhullar/",
