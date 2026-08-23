@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { ceramicMaps, groundShadowMap, leafMaps } from "./textures";
+import { ceramicMaps, leafMaps } from "./textures";
 
 /**
  * A potted rubber plant standing beside the deck.
@@ -158,13 +158,6 @@ export function Plant() {
     () => ({
       leaf: leafMaps(),
       ceramic: ceramicMaps(),
-      // Circular pool: a corner radius equal to the half width rounds the
-      // footprint the whole way off.
-      pool: groundShadowMap(POT.r * 2, POT.r * 2, 2.6, {
-        cornerRadius: POT.r,
-        core: 0.4,
-        falloff: 0.34,
-      }),
     }),
     [],
   );
@@ -186,21 +179,6 @@ export function Plant() {
 
   return (
     <group position={position}>
-      {/* Contact pool, matching the one under the deck. */}
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0.005, 0]}
-        renderOrder={1}
-      >
-        <planeGeometry args={[2.6, 2.6]} />
-        <meshBasicMaterial
-          map={maps.pool}
-          transparent
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-
       <mesh geometry={geometry.pot} castShadow receiveShadow>
         <meshStandardMaterial
           color="#dcd7ce"

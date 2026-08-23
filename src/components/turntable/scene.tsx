@@ -8,22 +8,23 @@ import {
   OrbitControls,
   PerformanceMonitor,
 } from "@react-three/drei";
+import { Lamps } from "./lamps";
 import { Plant } from "./plant";
 import { Speakers } from "./speakers";
 import { Turntable, type TurntableProps } from "./turntable";
 
 /**
- * The deck on a plain white stage.
+ * The deck in a dark room, lit only by the two lamps standing in it.
  *
- * The environment is built in-scene from lightformers rather than loaded as an
- * hdr: drei's presets fetch their map from a cdn, which would make the page
- * depend on a third party to render at all. Chrome and brushed aluminium need
- * something to reflect — with directional lights alone, metal renders black —
- * so a softbox rig stands in for a studio.
+ * There are no abstract lights here any more: every photon comes from a lamp
+ * that is visibly in shot, at the position of that lamp's own glowing part.
+ * Both are warm — the table lamp amber through its shade, the donut a flat
+ * orange — so where they overlap they add up rather than fight, and the deck
+ * ends up lit warm from the right and rimmed orange from the left.
  *
- * The scene is tiny in geometry (under 6k triangles) and entirely bound by
- * fragment cost, so everything tuned for speed here is about how many pixels
- * get shaded, not how many things are on screen.
+ * The camera sits further back than it did. Five objects on the floor need
+ * more floor than three did, and at the old distance the lamps had nowhere to
+ * stand that was not off the bottom of the frame.
  */
 export function TurntableScene(props: TurntableProps) {
   /**
@@ -37,10 +38,10 @@ export function TurntableScene(props: TurntableProps) {
     <Canvas
       shadows
       dpr={dpr}
-      camera={{ position: [4.8, 4.8, 8.0], fov: 34 }}
+      camera={{ position: [6.0, 6.0, 10.0], fov: 34 }}
       gl={{
-        // Transparent so the page's own white shows through and the canvas can
-        // sit under the layout without a seam.
+        // Transparent so the page's own black shows through past the floor,
+        // and the room reads as carrying on into the dark.
         alpha: true,
         antialias: true,
         // Asks for the discrete gpu on machines that have both.
@@ -58,69 +59,28 @@ export function TurntableScene(props: TurntableProps) {
         onDecline={() => setDpr(1)}
       />
 
-      {/* Kept low on purpose. Flat fill washes the grooves out; the disc only
-          reads as vinyl when a hard key sweeps across the rings. */}
-      <ambientLight intensity={0.12} />
-      <directionalLight
-        position={[4, 7, 4]}
-        intensity={1.15}
-        castShadow
-        // 1024 rather than 2048: the shadow map is redrawn every frame, and at
-        // this scene's size the extra resolution buys nothing but fill rate.
-        shadow-mapSize={[1280, 1280]}
-        // Tight bounds around the deck, so the map's texels are spent on it
-        // instead of on empty floor.
-        shadow-camera-left={-7.5}
-        shadow-camera-right={7.5}
-        shadow-camera-top={7.5}
-        shadow-camera-bottom={-7.5}
-        shadow-camera-near={0.5}
-        shadow-camera-far={25}
-        // normalBias handles acne on the curved parts without the peter
-        // panning a large constant bias would cause on the plinth.
-        shadow-normalBias={0.02}
-        shadow-bias={-0.0004}
-      />
-      {/* Grazing light purely for the grooves. The opposite-side fill this
-          used to need is now covered by the environment. */}
-      <directionalLight position={[-2, 1.2, 6]} intensity={0.6} />
+      {/*
+        Just enough that unlit faces are dark rather than pure black, and warm
+        so it reads as spill off the lamps instead of a second light source.
+      */}
+      <ambientLight color="#ffb27a" intensity={0.09} />
 
-      {/* frames={1} because nothing in here moves: render the cube once. */}
-      {/* Dialled well down: at full strength the softboxes reflect off every
-          dark material and the record, the knobs and the arm base all go grey. */}
-      <Environment resolution={256} frames={1} environmentIntensity={0.4}>
-        {/* The stage itself, so metal reflects a bright room rather than void. */}
-        <color attach="background" args={["#dcdcde"]} />
-        {/* overhead softbox */}
+      {/*
+        A dark room rather than a studio. Metal with nothing to reflect renders
+        black, so this is kept alive at a fraction of its old strength purely
+        so the chrome on the tonearm and the speaker's badge still catch
+        something. The one panel left is warm and overhead, standing in for the
+        table lamp's throw bouncing off a ceiling.
+      */}
+      <Environment resolution={128} frames={1} environmentIntensity={0.12}>
+        <color attach="background" args={["#0a0709"]} />
         <Lightformer
           form="rect"
-          intensity={3}
-          position={[0, 6, 0]}
+          intensity={0.9}
+          color="#ffc48f"
+          position={[3, 6, 3]}
           rotation={[Math.PI / 2, 0, 0]}
-          scale={[10, 10, 1]}
-        />
-        {/* key and fill panels, at the height the chrome will pick them up */}
-        <Lightformer
-          form="rect"
-          intensity={2.2}
-          position={[6, 2.5, 4]}
-          rotation={[0, -Math.PI / 3, 0]}
-          scale={[7, 5, 1]}
-        />
-        <Lightformer
-          form="rect"
-          intensity={1.1}
-          position={[-7, 2.5, -3]}
-          rotation={[0, Math.PI / 2.4, 0]}
-          scale={[7, 5, 1]}
-        />
-        {/* A long thin strip: this is the highlight that rolls along the arm. */}
-        <Lightformer
-          form="rect"
-          intensity={1.4}
-          position={[-2, 5, 8]}
-          rotation={[-Math.PI / 5, 0, 0]}
-          scale={[9, 3.5, 1]}
+          scale={[9, 9, 1]}
         />
       </Environment>
 
@@ -131,40 +91,46 @@ export function TurntableScene(props: TurntableProps) {
           against the canvas shape, so it is given no position here. */}
       <Plant />
 
-      {/* Loaded, so it suspends; the rest of the scene draws without it. */}
+      {/* Loaded, so they suspend; the rest of the scene draws without them. */}
       <Suspense fallback={null}>
         <Speakers />
       </Suspense>
+      <Suspense fallback={null}>
+        <Lamps />
+      </Suspense>
 
       {/*
-        The floor. A shadow material draws nothing except where a shadow lands,
-        so the page's own white is the floor and there is no horizon edge to
-        give a plane away — the deck reads as sitting on a white room that
-        carries on past the viewport.
+        The floor is a real surface now, not a shadow catcher. It has to be:
+        the lamps have to land on something for their pools to be visible, and
+        a shadow material would have shown their light as nothing at all. Left
+        slightly glossy so each lamp lays a soft streak of itself across it.
       */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow renderOrder={0}>
-        <planeGeometry args={[60, 60]} />
-        <shadowMaterial transparent opacity={0.16} depthWrite={false} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[80, 80]} />
+        <meshStandardMaterial
+          color="#0d0b0d"
+          roughness={0.58}
+          metalness={0.12}
+        />
       </mesh>
 
       <OrbitControls
         makeDefault
         enablePan={false}
-        minDistance={4}
-        maxDistance={14}
+        // Widened with the camera: it now rests about thirteen units out, so
+        // the old ceiling of fourteen left almost nothing to pull back to.
+        minDistance={6}
+        maxDistance={24}
         // Stops the camera dropping under the plinth, where there is nothing
         // modelled and the deck would read as a floating slab.
         maxPolarAngle={Math.PI / 2 - 0.06}
         minPolarAngle={0.18}
         enableDamping
         dampingFactor={0.08}
-        // Raised well above the platter. The speakers stand taller than the
-        // deck and sat behind it, where the camera's downward angle throws
-        // them high up the frame; tilting up drops the whole scene enough to
-        // clear them. It costs nothing in framing — the camera and the field
-        // of view are untouched, so the deck is drawn at exactly the size it
-        // was, just lower.
-        target={[0, 1.15, 0]}
+        // Raised above the platter so the tall objects behind the deck clear
+        // the top of the frame, and dropped a little from where it was now
+        // that the camera has moved back and bought that room another way.
+        target={[0, 0.95, 0]}
       />
     </Canvas>
   );

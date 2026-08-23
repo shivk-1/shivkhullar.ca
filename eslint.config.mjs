@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored third party: the draco decoder three ships, copied in so the
+    // compressed model can be read without fetching a decoder from a cdn.
+    // Minified upstream code, not ours to lint.
+    "public/draco/**",
   ]),
 ]);
 

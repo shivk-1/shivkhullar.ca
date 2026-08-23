@@ -3,13 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import {
-  brushedMaps,
-  feltMaps,
-  groundShadowMap,
-  vinylMaps,
-  woodMaps,
-} from "./textures";
+import { brushedMaps, feltMaps, vinylMaps, woodMaps } from "./textures";
 
 /**
  * Everything is modelled from primitives rather than loaded as a glb: the deck
@@ -50,9 +44,6 @@ const PLATTER_TOP = PLATE_TOP + PLATTER.h;
 const MAT_TOP = PLATTER_TOP + MAT.h;
 
 const TAU = Math.PI * 2;
-
-/** World size of the plane the ground shadow is painted onto. */
-const GROUND_SPREAD = 11;
 
 /**
  * Platter speed is scaled by how fast the track actually is, against a 120bpm
@@ -122,7 +113,6 @@ export function Turntable({
       wood: woodMaps(),
       brushed: brushedMaps(),
       felt: feltMaps(),
-      ground: { map: groundShadowMap(PLINTH.w, PLINTH.d, GROUND_SPREAD) },
     }),
     [],
   );
@@ -171,8 +161,6 @@ export function Turntable({
 
   return (
     <group>
-      <Ground map={maps.ground.map} />
-
       {/* plinth: solid oak, grain running the long way */}
       <mesh position={[0, PLINTH.h / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[PLINTH.w, PLINTH.h, PLINTH.d]} />
@@ -300,31 +288,6 @@ export function Turntable({
       <Controls rpm={rpm} />
       <DustCoverHinges />
     </group>
-  );
-}
-
-/**
- * The shadow the deck sits in. Unlit and depth-write free so it never occludes
- * anything, and untone-mapped so the falloff stays as painted instead of being
- * lifted by the tone curve.
- */
-function Ground({ map }: { map: THREE.Texture }) {
-  return (
-    <mesh
-      rotation={[-Math.PI / 2, 0, 0]}
-      // Above the floor plane that catches the cast shadow, below everything
-      // else. The stretch under the plinth is hidden by the plinth itself.
-      position={[0, 0.004, 0]}
-      renderOrder={1}
-    >
-      <planeGeometry args={[GROUND_SPREAD, GROUND_SPREAD]} />
-      <meshBasicMaterial
-        map={map}
-        transparent
-        depthWrite={false}
-        toneMapped={false}
-      />
-    </mesh>
   );
 }
 

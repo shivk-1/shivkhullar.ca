@@ -113,7 +113,7 @@ export function MusicRoom() {
             onRpm={setRpm}
             onVolume={setVolume}
           />
-          <p className="text-[11px] text-black/30">
+          <p className="text-[11px] text-white/35">
             drag to rotate · scroll to zoom
           </p>
         </div>

@@ -10,13 +10,14 @@ export const metadata: Metadata = {
 
 export default function MusicPage() {
   return (
-    // Fixed white: the deck is lit for a white stage, so this page opts out of
-    // the light/dark tokens the rest of the site uses.
-    <div className="relative h-dvh w-full overflow-hidden bg-white">
+    // Fixed black, and not from the light/dark tokens the rest of the site
+    // uses: the room is lit only by the two lamps standing in it, so the page
+    // behind the canvas has to be the dark the floor fades out into.
+    <div className="relative h-dvh w-full overflow-hidden bg-black">
       <Link
         href="/"
         aria-label={`back to ${site.name}`}
-        className="absolute left-4 top-4 z-10 grid size-10 place-items-center rounded-full text-black/50 transition-colors hover:bg-black/5 hover:text-black sm:left-6 sm:top-6"
+        className="absolute left-4 top-4 z-10 grid size-10 place-items-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white sm:left-6 sm:top-6"
       >
         <svg
           width="18"

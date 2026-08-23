@@ -36,9 +36,9 @@ export function PlayerDock({
   onVolume: (volume: number) => void;
 }) {
   return (
-    <div className="pointer-events-auto w-full max-w-md rounded-2xl border border-black/[0.08] bg-white/85 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur">
+    <div className="pointer-events-auto w-full max-w-md rounded-2xl border border-white/[0.10] bg-white/[0.07] p-4 shadow-[0_10px_40px_rgba(0,0,0,0.55)] backdrop-blur">
       <div className="flex items-center gap-3">
-        <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-black/5">
+        <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-white/10">
           {track && (
             <Image
               src={track.artwork}
@@ -51,16 +51,16 @@ export function PlayerDock({
           )}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-[15px] font-bold text-black">
+          <span className="block truncate text-[15px] font-bold text-white">
             {track?.title ?? "no track selected"}
           </span>
-          <span className="block truncate text-[13px] text-black/45">
+          <span className="block truncate text-[13px] text-white/50">
             {track?.artist ?? "pick one from the library"}
           </span>
         </span>
       </div>
 
-      <div className="mt-4 flex items-center gap-3 text-[12px] text-black/45">
+      <div className="mt-4 flex items-center gap-3 text-[12px] text-white/50">
         <span className="tabular-nums">{clock(time)}</span>
         <input
           type="range"
@@ -71,7 +71,7 @@ export function PlayerDock({
           disabled={!track}
           onChange={(event) => onSeek(Number(event.target.value))}
           aria-label="seek"
-          className="h-1 flex-1 accent-black"
+          className="h-1 flex-1 accent-white"
         />
         <span className="tabular-nums">{clock(duration)}</span>
       </div>
@@ -82,7 +82,7 @@ export function PlayerDock({
           onClick={onToggle}
           disabled={!track}
           aria-label={playing ? "pause" : "play"}
-          className="grid size-12 shrink-0 place-items-center rounded-full bg-black text-white transition-opacity hover:opacity-85 disabled:opacity-25"
+          className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-white transition-opacity hover:opacity-85 disabled:opacity-25"
         >
           {playing ? (
             <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
@@ -96,7 +96,7 @@ export function PlayerDock({
           )}
         </button>
 
-        <label className="flex items-center gap-2 text-[12px] text-black/45">
+        <label className="flex items-center gap-2 text-[12px] text-white/50">
           <input
             type="range"
             min={33}
@@ -105,13 +105,13 @@ export function PlayerDock({
             value={rpm}
             onChange={(event) => onRpm(Number(event.target.value))}
             aria-label="platter speed"
-            className="h-1 w-20 accent-black"
+            className="h-1 w-20 accent-white"
           />
           <span className="tabular-nums">{rpm} rpm</span>
           {/* The platter speed is scaled by this, so it belongs beside the
               control it modifies rather than off in the track details. */}
           {bpm !== null && (
-            <span className="tabular-nums text-black/30">{bpm} bpm</span>
+            <span className="tabular-nums text-white/35">{bpm} bpm</span>
           )}
         </label>
 
@@ -125,7 +125,7 @@ export function PlayerDock({
             value={volume}
             onChange={(event) => onVolume(Number(event.target.value))}
             aria-label="volume"
-            className="h-1 w-20 accent-black"
+            className="h-1 w-20 accent-white"
           />
         </label>
       </div>
