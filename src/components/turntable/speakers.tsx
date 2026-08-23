@@ -53,8 +53,8 @@ const PIECES = [
     match: /^(standLegs|standTable|speakerBody|displayEtc|glass|panel)_(?!2_)/,
     centre: { x: -0.015, z: -0.022 },
     front: 0.5949,
-    out: 1.45,
-    side: 0.15,
+    out: 1.47,
+    side: -0.63,
     /** Slid back along its own facing, away from the deck, after it is aimed. */
     back: 0.5,
   },
