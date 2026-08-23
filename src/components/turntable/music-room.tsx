@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { myTracks, type Track } from "@/data/music";
+import { producedTracks, type Track } from "@/data/music";
 import { Library } from "./library";
 import { PlayerDock } from "./player-dock";
 import { TurntableScene } from "./scene";
@@ -121,7 +121,7 @@ export function MusicRoom() {
 
       <div className="h-64 shrink-0 sm:h-full sm:w-80">
         <Library
-          mine={myTracks}
+          produced={producedTracks}
           onRepeat={onRepeat}
           onRepeatState={onRepeatState}
           current={track}
