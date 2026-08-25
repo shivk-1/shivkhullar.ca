@@ -15,7 +15,7 @@ export const experience: Experience[] = [
     role: "software engineering intern",
     url: "https://baseleaf.co",
     logoSrc: "/logos/baseleaf.jpeg",
-    period: "may 2026 — present",
+    period: "may 2026 — aug 2026",
     blurb:
       "building llm-powered tooling that helps immigration professionals move through casework faster",
   },
