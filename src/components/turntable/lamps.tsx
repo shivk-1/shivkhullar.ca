@@ -52,6 +52,47 @@ const DONUT = {
 } as const;
 
 /**
+ * The table lamp's shade, by material name. It is modelled as two
+ * near-coincident layers — an outer one the file ships as alphaMode BLEND, and
+ * an opaque liner behind it.
+ */
+const SHADE = new Set(["Shade", "Shade.001"]);
+
+/**
+ * Makes the shade behave like a lampshade rather than a tinted window.
+ *
+ * As downloaded the outer layer is 87% alpha, so the bulb reads straight
+ * through it — the one thing a lit shade never does. Real fabric with a lamp
+ * behind it is the brightest thing in the room and completely opaque: it does
+ * not transmit the bulb, it re-emits it. So the layer goes opaque and picks up
+ * an emissive term to stand in for that scattered light.
+ *
+ * Emissive rather than a flat bright colour because the material still has to
+ * take light from elsewhere — the donut lamp across the room lands on this
+ * shade, and unlit geometry would sit in the scene looking like a decal.
+ */
+function lightTheShade(material: THREE.Material) {
+  if (!SHADE.has(material.name)) return material;
+
+  const shade = material.clone() as THREE.MeshStandardMaterial;
+  shade.transparent = false;
+  shade.opacity = 1;
+  shade.depthWrite = true;
+  shade.emissive = new THREE.Color("#ff8c46");
+  shade.emissiveIntensity = 0.85;
+
+  // The two layers sit close enough together to z-fight now that both write
+  // depth, which they did not do while the outer one was blended. A constant
+  // offset settles the order without moving any geometry.
+  shade.polygonOffset = true;
+  shade.polygonOffsetFactor = -1;
+  shade.polygonOffsetUnits = -1;
+
+  shade.needsUpdate = true;
+  return shade;
+}
+
+/**
  * Lamps light the room; they are not lit by it, and they do not block it. The
  * table lamp is a quarter of a million triangles, and putting it through six
  * cube faces of its own shadow map would cost more than its own shadow is
@@ -65,11 +106,17 @@ function prepare(scene: THREE.Object3D) {
     mesh.castShadow = false;
     mesh.receiveShadow = false;
 
+    // Cloning the scene shares materials with the cached gltf, so the shade is
+    // replaced with a copy rather than edited where it lies.
+    mesh.material = Array.isArray(mesh.material)
+      ? mesh.material.map(lightTheShade)
+      : lightTheShade(mesh.material);
+
     // The table lamp keeps the normals it shipped with, and so keeps most of
     // its triangles. Stripping them lets it weld and simplify — 672k down to
-    // 42k — but its shade is two near-coincident translucent layers, and
-    // welding collapses them into each other: the shade comes back streaked
-    // with z-fighting at any triangle count. Correct beats small here.
+    // 42k — but its shade is two near-coincident layers, and welding collapses
+    // them into each other: the shade comes back streaked with z-fighting at
+    // any triangle count. Correct beats small here.
   });
   return root;
 }

@@ -1,13 +1,15 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Environment,
   Lightformer,
   OrbitControls,
   PerformanceMonitor,
+  Preload,
 } from "@react-three/drei";
+import { markRoomReady, resetRoomReady } from "./room-ready";
 import { Lamps } from "./lamps";
 import { Plant } from "./plant";
 import { Speakers } from "./speakers";
@@ -66,53 +68,64 @@ export function TurntableScene(props: TurntableProps) {
       <ambientLight color="#ffb27a" intensity={0.09} />
 
       {/*
-        A dark room rather than a studio. Metal with nothing to reflect renders
-        black, so this is kept alive at a fraction of its old strength purely
-        so the chrome on the tonearm and the speaker's badge still catch
-        something. The one panel left is warm and overhead, standing in for the
-        table lamp's throw bouncing off a ceiling.
+        One boundary around everything that loads, rather than one per model.
+        Split boundaries let each model appear the moment its own glb landed,
+        so the room assembled itself in stages in full view; the fade would
+        already be running by the time the second one arrived. Nothing here is
+        worth showing on its own, so it all waits together.
       */}
-      <Environment resolution={128} frames={1} environmentIntensity={0.12}>
-        <color attach="background" args={["#0a0709"]} />
-        <Lightformer
-          form="rect"
-          intensity={0.9}
-          color="#ffc48f"
-          position={[3, 6, 3]}
-          rotation={[Math.PI / 2, 0, 0]}
-          scale={[9, 9, 1]}
-        />
-      </Environment>
-
-      <Turntable {...props} />
-
-      {/* Stood off the deck's far right corner, close enough to read as the
-          same room and far enough not to crowd the tonearm. It places itself
-          against the canvas shape, so it is given no position here. */}
-      <Plant />
-
-      {/* Loaded, so they suspend; the rest of the scene draws without them. */}
       <Suspense fallback={null}>
+        {/*
+          A dark room rather than a studio. Metal with nothing to reflect
+          renders black, so this is kept alive at a fraction of its old
+          strength purely so the chrome on the tonearm and the speaker's badge
+          still catch something. The one panel left is warm and overhead,
+          standing in for the table lamp's throw bouncing off a ceiling.
+        */}
+        <Environment resolution={128} frames={1} environmentIntensity={0.12}>
+          <color attach="background" args={["#0a0709"]} />
+          <Lightformer
+            form="rect"
+            intensity={0.9}
+            color="#ffc48f"
+            position={[3, 6, 3]}
+            rotation={[Math.PI / 2, 0, 0]}
+            scale={[9, 9, 1]}
+          />
+        </Environment>
+
+        <Turntable {...props} />
+
+        {/* Stood off the deck's far right corner, close enough to read as the
+            same room and far enough not to crowd the tonearm. It places itself
+            against the canvas shape, so it is given no position here. */}
+        <Plant />
         <Speakers />
-      </Suspense>
-      <Suspense fallback={null}>
         <Lamps />
-      </Suspense>
 
-      {/*
-        The floor is a real surface now, not a shadow catcher. It has to be:
-        the lamps have to land on something for their pools to be visible, and
-        a shadow material would have shown their light as nothing at all. Left
-        slightly glossy so each lamp lays a soft streak of itself across it.
-      */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[80, 80]} />
-        <meshStandardMaterial
-          color="#0d0b0d"
-          roughness={0.58}
-          metalness={0.12}
-        />
-      </mesh>
+        {/*
+          The floor is a real surface now, not a shadow catcher. It has to be:
+          the lamps have to land on something for their pools to be visible,
+          and a shadow material would have shown their light as nothing at all.
+          Left slightly glossy so each lamp lays a soft streak of itself across
+          it.
+        */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[80, 80]} />
+          <meshStandardMaterial
+            color="#0d0b0d"
+            roughness={0.58}
+            metalness={0.12}
+          />
+        </mesh>
+
+        {/* Uploads every texture and compiles every material up front. Without
+            it the first frames are spent doing exactly that, on the main
+            thread, while the fade is already running. */}
+        <Preload all />
+
+        <RoomReady />
+      </Suspense>
 
       <OrbitControls
         makeDefault
@@ -134,4 +147,42 @@ export function TurntableScene(props: TurntableProps) {
       />
     </Canvas>
   );
+}
+
+/**
+ * Tells the page the room is worth looking at.
+ *
+ * Being inside the Suspense boundary means this only mounts once every model
+ * has resolved — but resolved is not drawn. The first frame after that still
+ * has shaders to compile and geometry to upload, and firing on mount put the
+ * fade in a race with that work: it would run against a half-built room and
+ * then everything else would appear at once, which reads as a cut rather than
+ * a fade. Waiting for real frames costs two of them and removes the race.
+ *
+ * A warm cache reaches this in the same two frames, so a revisit still fades
+ * rather than waiting on a timer.
+ */
+function RoomReady() {
+  const drawn = useRef(0);
+  const invalidate = useThree((state) => state.invalidate);
+
+  // The signal is module state, so its lifetime is tied to the canvas that
+  // sets it rather than to the fade that reads it. Clearing it on unmount is
+  // what lets a second visit to the page fade in again — and doing it here
+  // rather than in the fade keeps strict mode's double mount from wiping a
+  // signal that has already been sent.
+  useEffect(() => resetRoomReady, []);
+
+  useFrame(() => {
+    drawn.current += 1;
+    if (drawn.current === 1) {
+      // On demand rendering would otherwise stop here and never reach the
+      // second frame; asking for it costs nothing when already animating.
+      invalidate();
+      return;
+    }
+    if (drawn.current === 2) markRoomReady();
+  });
+
+  return null;
 }

@@ -11,8 +11,8 @@ type OnRepeatState = "loading" | "ready" | "unavailable";
 
 /**
  * Owns the one <audio> element on the page and the state the deck animates
- * from. Deliberately not a context: the home page iPod gets its own instance,
- * and nothing about this player should survive leaving /music.
+ * from. Deliberately not a context: nothing about this player should survive
+ * leaving /music.
  */
 export function MusicRoom() {
   const audio = useRef<HTMLAudioElement>(null);
@@ -39,8 +39,8 @@ export function MusicRoom() {
       .then(({ tracks }: { tracks: Track[] }) => {
         if (stale) return;
         setOnRepeat(tracks);
-        // The route answers 200 with an empty list when spotify is not
-        // configured or the fetch failed, so an empty list is the signal.
+        // The route answers 200 with an empty list when the lookup failed,
+        // so an empty list is the signal rather than a status code.
         setOnRepeatState(tracks.length > 0 ? "ready" : "unavailable");
       })
       .catch(() => {
@@ -106,7 +106,6 @@ export function MusicRoom() {
             time={time}
             duration={duration}
             rpm={rpm}
-            bpm={bpm}
             volume={volume}
             onToggle={toggle}
             onSeek={seek}
@@ -119,12 +118,13 @@ export function MusicRoom() {
         </div>
       </div>
 
-      <div className="h-64 shrink-0 sm:h-full sm:w-80">
+      <div className="h-72 shrink-0 sm:h-full sm:w-[24rem] md:w-[30rem]">
         <Library
           produced={producedTracks}
           onRepeat={onRepeat}
           onRepeatState={onRepeatState}
           current={track}
+          playing={playing}
           onSelect={select}
         />
       </div>

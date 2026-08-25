@@ -13,7 +13,7 @@ export const experience: Experience[] = [
   {
     name: "baseleaf",
     role: "software engineering intern",
-    url: "https://example.com",
+    url: "https://baseleaf.co",
     logoSrc: "/logos/baseleaf.jpeg",
     period: "may 2026 — present",
     blurb:
