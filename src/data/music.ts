@@ -67,7 +67,7 @@ const produced: ProducedTrack[] = [
     seconds: 180,
     date: "2026-04-18",
     note: "placeholder — say what this one is here.",
-    message: "placeholder: the note for this one goes here.",
+    message: "placeholder note. replace this with something about the track.",
   },
   {
     id: "mine-2",
@@ -79,7 +79,8 @@ const produced: ProducedTrack[] = [
     seconds: 180,
     date: "2025-11-02",
     note: "placeholder — say what this one is here.",
-    message: "placeholder: the note for this one goes here.",
+    message:
+      "placeholder note, a good deal longer than the other one, so that the two of them do not come out the same size on the page.",
   },
 ];
 
@@ -121,27 +122,30 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Nights",
     artist: "Frank Ocean",
-    message: "placeholder: the note for this one goes here.",
+    message: "two words.",
   },
   {
     title: "Passionfruit",
     artist: "Drake",
-    message: "placeholder: the note for this one goes here.",
+    message: "a short placeholder note.",
   },
   {
     title: "Redbone",
     artist: "Childish Gambino",
-    message: "placeholder: the note for this one goes here.",
+    message:
+      "a middling placeholder note, long enough that it has to wrap onto a couple of lines before it will sit on the paper.",
   },
   {
     title: "Sunflower",
     artist: "Rex Orange County",
-    message: "placeholder: the note for this one goes here.",
+    message:
+      "a longer placeholder note. the lettering is measured after troika has laid it out, then stepped down until the whole block sits inside the margins of the page, however many lines that turns out to take.",
   },
   {
     title: "Time Moves Slow",
     artist: "BADBADNOTGOOD",
-    message: "placeholder: the note for this one goes here.",
+    message:
+      "the longest placeholder of the set, here to prove the other end of the range. it keeps going for a while yet, so that the fitting pass has to bring the writing right down to the smallest size the page allows before all of it will fit between the margins.",
   },
 ];
 

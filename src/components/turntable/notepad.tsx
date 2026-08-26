@@ -95,6 +95,25 @@ const PEN_MODEL = {
   floor: -0.0331,
 } as const;
 
+/** How much of the flat top the writing may use, leaving a paper margin. */
+const MARGIN = 0.84;
+
+/**
+ * How the lettering is sized to the note.
+ *
+ * `smallest` and `largest` are fractions of the writing box's own width, so
+ * the proportions survive the pad being rescaled. `fill` is how much of the
+ * box's height a note has to take up before it counts as fitted — below that
+ * the lettering grows. `passes` is the ceiling on measurements per note, so a
+ * string that cannot settle gives up rather than measuring forever.
+ */
+const FIT = {
+  smallest: 0.035,
+  largest: 0.14,
+  fill: 0.86,
+  passes: 8,
+} as const;
+
 /** Ink. Dark and warm rather than black, so the lamp still finds it. */
 const INK = "#2b2119";
 
@@ -148,6 +167,17 @@ export function Notepad({ message }: { message?: string }) {
   const built = useMemo(() => {
     const padScale = PAD_LENGTH / PAD_MODEL.length;
     const penScale = PEN_LENGTH / PEN_MODEL.length;
+
+    /**
+     * The box the writing has to live inside, in the pad group's own axes.
+     * `width` runs along the reading direction, which is the file's z and the
+     * room's x once the group's quarter turn is applied; `height` is the way
+     * the lines stack, the file's x.
+     */
+    const box = {
+      width: (PAD_MODEL.page.z[1] - PAD_MODEL.page.z[0]) * padScale * MARGIN,
+      height: (PAD_MODEL.page.x[1] - PAD_MODEL.page.x[0]) * padScale * MARGIN,
+    };
 
     const paper = prepare(pad.scene, (material, mesh) => {
       // The spiral ships with no metallicFactor at all, which in gltf means
@@ -218,7 +248,9 @@ export function Notepad({ message }: { message?: string }) {
           ((PAD_MODEL.page.z[0] + PAD_MODEL.page.z[1]) / 2 -
             PAD_MODEL.centre.z) *
           padScale,
-        width: (PAD_MODEL.page.z[1] - PAD_MODEL.page.z[0]) * padScale,
+        ...box,
+        smallest: box.width * FIT.smallest,
+        largest: box.width * FIT.largest,
       },
     };
   }, [pad.scene, pen.scene]);
@@ -238,13 +270,7 @@ export function Notepad({ message }: { message?: string }) {
           scale={built.padScale}
           position={built.padOffset}
         />
-        <Message
-          message={message}
-          at={built.page}
-          // A tenth of the page's width per line of text, which lands three
-          // lines of a short note inside the margins.
-          size={built.page.width * 0.098}
-        />
+        <Message message={message} at={built.page} />
       </group>
 
       <group position={[PEN_AT.x, 0, PEN_AT.z]} rotation={[0, PEN_HEADING, 0]}>
@@ -259,30 +285,98 @@ export function Notepad({ message }: { message?: string }) {
 }
 
 /**
- * The line on the page, and the crossfade between one line and the next.
+ * The note on the page: the crossfade from one note to the next, and the fit
+ * of a note of any length into the box on the paper.
  *
- * Two pieces of state rather than one: `message` is what should be on the page
- * and `shown` is what is on it. They differ only while the old note is fading
- * out, and the swap happens at the bottom of that fade, so the words are never
- * seen changing.
+ * `message` is what should be on the page and `shown` is what is on it. They
+ * differ only while the old note is fading out, and the swap happens at the
+ * bottom of that fade, so the words are never seen changing.
+ *
+ * The size is measured rather than calculated. Troika lays text out in a
+ * worker against the font's own advances, so how many lines a note wraps to,
+ * and how tall it therefore stands, is not something that can be worked out
+ * from its length up front — the only honest way to know is to set it and look.
+ * So each note is laid out, its block bounds are read back on sync, and the
+ * lettering steps toward a size that fills the box.
+ *
+ * Each step moves by the square root of how far off it is because height goes
+ * roughly as the square of the lettering: a bigger face makes every line
+ * taller and forces more of them at once. Stepping by the ratio itself
+ * overshoots and oscillates; stepping by its root lands inside the tolerance
+ * in two or three passes.
+ *
+ * None of that is ever seen. The note is pinned at zero opacity until its fit
+ * has settled, so it fades in already the right size instead of resizing in
+ * front of the reader.
  */
 function Message({
   message,
   at,
-  size,
 }: {
   message?: string;
-  at: { x: number; y: number; z: number; width: number };
-  size: number;
+  at: {
+    x: number;
+    y: number;
+    z: number;
+    width: number;
+    height: number;
+    smallest: number;
+    largest: number;
+  };
 }) {
   const [shown, setShown] = useState(message);
+  const [size, setSize] = useState(at.largest);
+  const passes = useRef(0);
+  const fitted = useRef(false);
   const material = useRef<THREE.MeshStandardMaterial>(null);
   const opacity = useRef(0);
 
+  /**
+   * Called by troika every time it finishes laying the note out, which is
+   * once per render of this component. Sets state only while the fit is still
+   * moving, so the renders it causes stop rather than feeding themselves.
+   */
+  const measure = (troika: { textRenderInfo?: { blockBounds: number[] } }) => {
+    const bounds = troika.textRenderInfo?.blockBounds;
+    const height = bounds ? bounds[3] - bounds[1] : 0;
+
+    // Nothing to fit: an empty page is already the right size.
+    if (!shown || height <= 0) {
+      fitted.current = true;
+      return;
+    }
+
+    const ratio = at.height / height;
+    // Inside the box, and filling enough of it to look written rather than
+    // typed onto one line in the middle.
+    const settled = ratio >= 1 && ratio <= 1 / FIT.fill;
+    if (settled || passes.current >= FIT.passes) {
+      fitted.current = true;
+      return;
+    }
+
+    const next = THREE.MathUtils.clamp(
+      size * Math.sqrt(ratio),
+      at.smallest,
+      at.largest,
+    );
+
+    // Already pinned against one end of the range: no further pass can move
+    // it, and waiting for one that never comes would hold the page blank.
+    if (Math.abs(next - size) < 1e-4) {
+      fitted.current = true;
+      return;
+    }
+
+    passes.current += 1;
+    setSize(next);
+  };
+
   useFrame((_, delta) => {
-    // Fade out while the page is out of date, and while there is nothing to
-    // say at all — an empty pad is better than a stand-in line.
-    const target = shown !== message || !shown ? 0 : 1;
+    // Held down while the page is out of date, while the fit is still being
+    // found, and while there is nothing to say at all — an empty pad is
+    // better than a stand-in line.
+    const target = shown !== message || !shown || !fitted.current ? 0 : 1;
     opacity.current = THREE.MathUtils.damp(
       opacity.current,
       target,
@@ -290,7 +384,16 @@ function Message({
       delta,
     );
 
-    if (shown !== message && opacity.current < 0.02) setShown(message);
+    if (shown !== message && opacity.current < 0.02) {
+      setShown(message);
+      // A new note is a new fit, restarted from the largest the page allows.
+      // Coming down from too big converges from the side a short note can
+      // simply stay on. Done here rather than in an effect so the reset sits
+      // in the one place the note actually changes.
+      passes.current = 0;
+      fitted.current = false;
+      setSize(at.largest);
+    }
     if (material.current) material.current.opacity = opacity.current;
   });
 
@@ -303,11 +406,13 @@ function Message({
       position={[at.x, at.y, at.z]}
       font={FONT}
       fontSize={size}
-      // Margins on both sides of the page. Anything longer wraps, and past
-      // three lines it runs off the bottom — which is the constraint the notes
-      // are written to.
-      maxWidth={at.width * 0.8}
+      maxWidth={at.width}
       lineHeight={1.3}
+      // A single word longer than the page would otherwise run off both edges
+      // of the paper, and no amount of shrinking fixes it — troika only wraps
+      // at spaces unless it is told it may break inside a word.
+      overflowWrap="break-word"
+      onSync={measure}
       textAlign="center"
       anchorX="center"
       anchorY="middle"
