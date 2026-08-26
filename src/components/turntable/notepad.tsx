@@ -114,6 +114,17 @@ const FIT = {
   passes: 8,
 } as const;
 
+/**
+ * What the page says with nothing playing.
+ *
+ * The pad had been left blank until a track was picked, on the reasoning that
+ * an empty page beats a stand-in line. That was wrong: nothing plays until
+ * someone clicks, so the first thing anyone sees is a notepad with nothing on
+ * it, which reads as a prop that failed to load rather than as a pad waiting
+ * to be written on. Set this to an empty string to go back to a blank page.
+ */
+const RESTING = "put something on.";
+
 /** Ink. Dark and warm rather than black, so the lamp still finds it. */
 const INK = "#2b2119";
 
@@ -270,7 +281,7 @@ export function Notepad({ message }: { message?: string }) {
           scale={built.padScale}
           position={built.padOffset}
         />
-        <Message message={message} at={built.page} />
+        <Message message={message || RESTING} at={built.page} />
       </group>
 
       <group position={[PEN_AT.x, 0, PEN_AT.z]} rotation={[0, PEN_HEADING, 0]}>
@@ -373,9 +384,8 @@ function Message({
   };
 
   useFrame((_, delta) => {
-    // Held down while the page is out of date, while the fit is still being
-    // found, and while there is nothing to say at all — an empty pad is
-    // better than a stand-in line.
+    // Held down while the page is out of date and while the fit is still
+    // being found. The empty case only comes up if RESTING is blanked out.
     const target = shown !== message || !shown || !fitted.current ? 0 : 1;
     opacity.current = THREE.MathUtils.damp(
       opacity.current,
