@@ -23,6 +23,11 @@ export type Track = {
    *
    * Keep it to a line or two: the pad is on the floor and foreshortened, and
    * a paragraph there is decoration nobody can read.
+   *
+   * Letters and `. , ! ? ' " : ;` only. The hand lettering the pad is set in
+   * carries 70 glyphs and no others — no digits, no hyphens, no brackets, no
+   * ampersand — and troika draws what it cannot find as nothing at all, so a
+   * year or a dash here comes out as a hole in the sentence.
    */
   message?: string;
 };
@@ -62,7 +67,7 @@ const produced: ProducedTrack[] = [
     seconds: 180,
     date: "2026-04-18",
     note: "placeholder — say what this one is here.",
-    message: "placeholder — the note for this one goes here.",
+    message: "placeholder: the note for this one goes here.",
   },
   {
     id: "mine-2",
@@ -74,7 +79,7 @@ const produced: ProducedTrack[] = [
     seconds: 180,
     date: "2025-11-02",
     note: "placeholder — say what this one is here.",
-    message: "placeholder — the note for this one goes here.",
+    message: "placeholder: the note for this one goes here.",
   },
 ];
 
@@ -116,27 +121,27 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Nights",
     artist: "Frank Ocean",
-    message: "placeholder — the note for this one goes here.",
+    message: "placeholder: the note for this one goes here.",
   },
   {
     title: "Passionfruit",
     artist: "Drake",
-    message: "placeholder — the note for this one goes here.",
+    message: "placeholder: the note for this one goes here.",
   },
   {
     title: "Redbone",
     artist: "Childish Gambino",
-    message: "placeholder — the note for this one goes here.",
+    message: "placeholder: the note for this one goes here.",
   },
   {
     title: "Sunflower",
     artist: "Rex Orange County",
-    message: "placeholder — the note for this one goes here.",
+    message: "placeholder: the note for this one goes here.",
   },
   {
     title: "Time Moves Slow",
     artist: "BADBADNOTGOOD",
-    message: "placeholder — the note for this one goes here.",
+    message: "placeholder: the note for this one goes here.",
   },
 ];
 

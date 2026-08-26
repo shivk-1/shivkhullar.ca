@@ -11,6 +11,7 @@ import {
 } from "@react-three/drei";
 import { markRoomReady, resetRoomReady } from "./room-ready";
 import { Lamps } from "./lamps";
+import { Notepad } from "./notepad";
 import { Plant } from "./plant";
 import { Speakers } from "./speakers";
 import { Turntable, type TurntableProps } from "./turntable";
@@ -28,7 +29,12 @@ import { Turntable, type TurntableProps } from "./turntable";
  * more floor than three did, and at the old distance the lamps had nowhere to
  * stand that was not off the bottom of the frame.
  */
-export function TurntableScene(props: TurntableProps) {
+export type SceneProps = TurntableProps & {
+  /** The current track's note, written on the pad on the floor. */
+  message?: string;
+};
+
+export function TurntableScene({ message, ...props }: SceneProps) {
   /**
    * Starts below native retina density on purpose. At dpr 2 this is a four
    * megapixel pass every frame for a deck that reads identically at 1.5, and
@@ -102,6 +108,7 @@ export function TurntableScene(props: TurntableProps) {
         <Plant />
         <Speakers />
         <Lamps />
+        <Notepad message={message} />
 
         {/*
           The floor is a real surface now, not a shadow catcher. It has to be:

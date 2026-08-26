@@ -97,6 +97,7 @@ export function MusicRoom() {
           // the stylus nowhere.
           progress={duration > 0 ? time / duration : 0}
           artwork={track?.artwork}
+          message={track?.message}
         />
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 p-4 sm:p-6">
