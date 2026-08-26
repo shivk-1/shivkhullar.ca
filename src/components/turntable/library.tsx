@@ -106,6 +106,9 @@ export function Library({
             note={track.note}
           />
         ))}
+        <p className="px-3 py-6 text-center text-[12.5px] text-white/35">
+          more tracks to be added soon…
+        </p>
       </div>
     </aside>
   );
