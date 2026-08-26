@@ -179,6 +179,8 @@ export async function GET() {
           seconds: song.trackTimeMillis
             ? Math.round(song.trackTimeMillis / 1000)
             : undefined,
+          // Mine, not itunes': the notepad in the room prints this verbatim.
+          message: seed.message,
         };
       }),
     );

@@ -14,6 +14,17 @@ export type Track = {
   /** Seconds. Known up front for pulled tracks, so the row can print a
       duration without waiting for the audio element to load metadata. */
   seconds?: number;
+  /**
+   * The line that lands on the notepad in the room while this is playing.
+   *
+   * Hand written for every track, mine and pulled alike — nothing derives it,
+   * because the whole point is that it is a note from me rather than metadata.
+   * Absent leaves the page blank, which is better than printing a stand-in.
+   *
+   * Keep it to a line or two: the pad is on the floor and foreshortened, and
+   * a paragraph there is decoration nobody can read.
+   */
+  message?: string;
 };
 
 /**
@@ -26,7 +37,9 @@ export type ProducedTrack = Track & {
   /** ISO date, e.g. "2026-04-18". Only the year is rendered. */
   date: string;
   /** One line: the sample, the intent, the gear. Kept short enough to sit
-      under the title without wrapping past two lines. */
+      under the title without wrapping past two lines. This is the library
+      row's subtitle, not the notepad — that is `message`, on `Track`, and the
+      two are written for different places. */
   note: string;
 };
 
@@ -35,8 +48,8 @@ export type ProducedTrack = Track & {
  * path — these load even when the on-repeat fetch fails.
  *
  * TODO: placeholder rows. Drop the real mp3s in public/music/tracks and the
- * covers in public/music/art, then fix the titles, dates, notes and lengths
- * below.
+ * covers in public/music/art, then fix the titles, dates, notes, messages and
+ * lengths below.
  */
 const produced: ProducedTrack[] = [
   {
@@ -49,6 +62,7 @@ const produced: ProducedTrack[] = [
     seconds: 180,
     date: "2026-04-18",
     note: "placeholder — say what this one is here.",
+    message: "placeholder — the note for this one goes here.",
   },
   {
     id: "mine-2",
@@ -60,6 +74,7 @@ const produced: ProducedTrack[] = [
     seconds: 180,
     date: "2025-11-02",
     note: "placeholder — say what this one is here.",
+    message: "placeholder — the note for this one goes here.",
   },
 ];
 
@@ -78,6 +93,8 @@ export type OnRepeatSeed = {
    * any music.apple.com/…/song/…/<id> url and the search is skipped.
    */
   itunesId?: string;
+  /** Copied onto the resolved track by /api/on-repeat. See `Track.message`. */
+  message?: string;
 };
 
 /**
@@ -96,11 +113,31 @@ export type OnRepeatSeed = {
  * TODO: placeholder picks — replace with the real rotation.
  */
 export const onRepeatSeeds: OnRepeatSeed[] = [
-  { title: "Nights", artist: "Frank Ocean" },
-  { title: "Passionfruit", artist: "Drake" },
-  { title: "Redbone", artist: "Childish Gambino" },
-  { title: "Sunflower", artist: "Rex Orange County" },
-  { title: "Time Moves Slow", artist: "BADBADNOTGOOD" },
+  {
+    title: "Nights",
+    artist: "Frank Ocean",
+    message: "placeholder — the note for this one goes here.",
+  },
+  {
+    title: "Passionfruit",
+    artist: "Drake",
+    message: "placeholder — the note for this one goes here.",
+  },
+  {
+    title: "Redbone",
+    artist: "Childish Gambino",
+    message: "placeholder — the note for this one goes here.",
+  },
+  {
+    title: "Sunflower",
+    artist: "Rex Orange County",
+    message: "placeholder — the note for this one goes here.",
+  },
+  {
+    title: "Time Moves Slow",
+    artist: "BADBADNOTGOOD",
+    message: "placeholder — the note for this one goes here.",
+  },
 ];
 
 /** Just the year, for the produced rows. */

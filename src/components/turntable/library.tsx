@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import Image from "next/image";
 import { clock, trackYear, type ProducedTrack, type Track } from "@/data/music";
+import { searchTracks } from "./search";
 
 type Tab = "on-repeat" | "produced";
 
@@ -33,6 +34,20 @@ export function Library({
   onSelect: (track: Track) => void;
 }) {
   const [tab, setTab] = useState<Tab>("on-repeat");
+  const [query, setQuery] = useState("");
+
+  // Typing stays ahead of the list: the input renders on every keystroke,
+  // the filtered rows catch up a frame later.
+  const deferredQuery = useDeferredValue(query);
+  const foundOnRepeat = useMemo(
+    () => searchTracks(onRepeat, deferredQuery),
+    [onRepeat, deferredQuery],
+  );
+  const foundProduced = useMemo(
+    () => searchTracks(produced, deferredQuery),
+    [produced, deferredQuery],
+  );
+  const searching = deferredQuery.trim().length > 0;
 
   return (
     <aside className="flex h-full w-full flex-col border-l border-white/10 bg-white/[0.05] backdrop-blur">
@@ -45,7 +60,7 @@ export function Library({
           id="on-repeat"
           active={tab === "on-repeat"}
           onSelect={setTab}
-          count={onRepeatState === "ready" ? onRepeat.length : null}
+          count={onRepeatState === "ready" ? foundOnRepeat.length : null}
         >
           on repeat
         </TabButton>
@@ -53,11 +68,13 @@ export function Library({
           id="produced"
           active={tab === "produced"}
           onSelect={setTab}
-          count={produced.length}
+          count={foundProduced.length}
         >
           produced
         </TabButton>
       </div>
+
+      <Search value={query} onChange={setQuery} />
 
       <div
         role="tabpanel"
@@ -70,10 +87,15 @@ export function Library({
         {onRepeatState === "unavailable" && (
           <Note>rotation unavailable right now.</Note>
         )}
-        {onRepeatState === "ready" && (
+        {onRepeatState === "ready" &&
+          searching &&
+          foundOnRepeat.length === 0 && (
+            <Note>nothing here matches “{deferredQuery.trim()}”.</Note>
+          )}
+        {onRepeatState === "ready" && foundOnRepeat.length > 0 && (
           <>
             <Header trailing="album" />
-            {onRepeat.map((track) => (
+            {foundOnRepeat.map((track) => (
               <Row
                 key={track.id}
                 track={track}
@@ -94,23 +116,87 @@ export function Library({
         hidden={tab !== "produced"}
         className="min-h-0 flex-1 overflow-y-auto px-2 py-2"
       >
-        <Header trailing="year" />
-        {produced.map((track) => (
-          <Row
-            key={track.id}
-            track={track}
-            active={current?.id === track.id}
-            playing={playing}
-            onSelect={onSelect}
-            trailing={trackYear(track.date)}
-            note={track.note}
-          />
-        ))}
-        <p className="px-3 py-6 text-center text-[12.5px] text-white/35">
-          more tracks to be added soon…
-        </p>
+        {searching && foundProduced.length === 0 ? (
+          <Note>nothing here matches “{deferredQuery.trim()}”.</Note>
+        ) : (
+          <>
+            <Header trailing="year" />
+            {foundProduced.map((track) => (
+              <Row
+                key={track.id}
+                track={track}
+                active={current?.id === track.id}
+                playing={playing}
+                onSelect={onSelect}
+                trailing={trackYear(track.date)}
+                note={track.note}
+              />
+            ))}
+            {/* Only when the whole crate is on screen: while a search is
+                narrowing it, a promise of more is answering a question
+                nobody asked. */}
+            {!searching && (
+              <p className="px-3 py-6 text-center text-[12.5px] text-white/35">
+                more tracks to be added soon…
+              </p>
+            )}
+          </>
+        )}
       </div>
     </aside>
+  );
+}
+
+/**
+ * Filters as it is typed — there is no submit, so the input is deliberately
+ * not in a form and enter does nothing. Escape clears it, which is the one
+ * keystroke people expect a search field to answer for.
+ */
+function Search({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
+      <div className="flex items-center gap-2 rounded-lg bg-white/[0.06] px-2.5 py-2 focus-within:bg-white/[0.09]">
+        <SearchGlyph />
+        <input
+          type="search"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") onChange("");
+          }}
+          placeholder="search the crate"
+          aria-label="search the library"
+          // The webkit clear affordance sits in the middle of the dark field
+          // as a light blob; escape and backspace already cover clearing.
+          className="min-w-0 flex-1 bg-transparent text-[13px] text-white placeholder:text-white/35 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+        />
+      </div>
+    </div>
+  );
+}
+
+function SearchGlyph() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+      className="shrink-0 text-white/35"
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
   );
 }
 
@@ -162,12 +248,12 @@ function Header({ trailing }: { trailing: string }) {
   return (
     <div
       aria-hidden="true"
-      className="mb-1 flex items-center gap-3 border-b border-white/[0.07] px-3 pb-1.5 text-[10.5px] uppercase tracking-[0.14em] text-white/30"
+      className="mb-1 flex items-center gap-3.5 border-b border-white/[0.07] px-3 pb-1.5 text-[10.5px] uppercase tracking-[0.14em] text-white/30"
     >
-      <span className="w-10 shrink-0" />
+      <span className="w-14 shrink-0" />
       <span className="min-w-0 flex-1">title</span>
       <span className="hidden min-w-0 flex-1 md:block">{trailing}</span>
-      <span className="w-10 shrink-0 text-right">time</span>
+      <span className="w-11 shrink-0 text-right">time</span>
     </div>
   );
 }
@@ -203,16 +289,16 @@ function Row({
       type="button"
       onClick={() => onSelect(track)}
       aria-label={`${sounding ? "pause" : "play"} ${track.title} by ${track.artist}`}
-      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
+      className={`group flex w-full items-center gap-3.5 rounded-lg px-3 py-2.5 text-left transition-colors ${
         active ? "bg-white/[0.10]" : "hover:bg-white/[0.06]"
       }`}
     >
-      <span className="relative size-10 shrink-0 overflow-hidden rounded bg-white/10">
+      <span className="relative size-14 shrink-0 overflow-hidden rounded-md bg-white/10">
         <Image
           src={track.artwork}
           alt=""
           fill
-          sizes="40px"
+          sizes="56px"
           // Covers come straight from apple's cdn, which next/image is not
           // configured for; unoptimized keeps them working without opening the
           // optimizer to an arbitrary host.
@@ -232,24 +318,24 @@ function Row({
 
       <span className="min-w-0 flex-1">
         <span
-          className={`block truncate text-[13.5px] font-medium ${
+          className={`block truncate text-[14.5px] font-medium ${
             active ? "text-white" : "text-white/90"
           }`}
         >
           {track.title}
         </span>
-        <span className="block truncate text-[12.5px] text-white/50">
+        <span className="mt-0.5 block truncate text-[13px] text-white/50">
           {note ?? track.artist}
         </span>
       </span>
 
       {/* Dropped below md: the panel is too narrow there for a third column,
           and the album is the least load-bearing thing in the row. */}
-      <span className="hidden min-w-0 flex-1 truncate text-[12.5px] text-white/40 md:block">
+      <span className="hidden min-w-0 flex-1 truncate text-[13px] text-white/40 md:block">
         {trailing ?? ""}
       </span>
 
-      <span className="w-10 shrink-0 text-right tabular-nums text-[12px] text-white/35">
+      <span className="w-11 shrink-0 text-right tabular-nums text-[12.5px] text-white/35">
         {clock(track.seconds)}
       </span>
     </button>
