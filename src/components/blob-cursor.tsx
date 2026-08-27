@@ -71,9 +71,9 @@ function useMediaQuery(query: string) {
 
 export function BlobCursor({
   scale = 0.6,
-  opacity = 0.9,
-  color = "#5ec9f2",
-  dotColor = "rgba(12, 105, 182, 0.8)",
+  opacity = 0.85,
+  color = "#dfeffc",
+  dotColor = "rgba(158, 205, 240, 0.8)",
 }: {
   /**
    * One dial for the whole thing. The goo is scale dependent: the colour
