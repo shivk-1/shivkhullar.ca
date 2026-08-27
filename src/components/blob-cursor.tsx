@@ -71,8 +71,9 @@ function useMediaQuery(query: string) {
 
 export function BlobCursor({
   scale = 0.6,
-  color = "lightcoral",
-  dotColor = "rgba(255, 0, 0, 0.8)",
+  opacity = 0.9,
+  color = "#5ec9f2",
+  dotColor = "rgba(12, 105, 182, 0.8)",
 }: {
   /**
    * One dial for the whole thing. The goo is scale dependent: the colour
@@ -82,7 +83,10 @@ export function BlobCursor({
    * only changes how big it is.
    */
   scale?: number;
+  opacity?: number;
+  /** The bubble. Light enough that the deeper dot inside reads as depth. */
   color?: string;
+  /** The core, a few shades down from `color` rather than a contrast to it. */
   dotColor?: string;
 }) {
   const x = useMotionValue(AWAY);
@@ -187,7 +191,7 @@ export function BlobCursor({
                 boxShadow: `${SHADOW.x * scale}px ${SHADOW.y * scale}px ${
                   SHADOW.spread * scale
                 }px 0 rgba(0, 0, 0, 0.75)`,
-                opacity: 0.6,
+                opacity,
                 willChange: "transform",
                 x: positions[index].x,
                 y: positions[index].y,
