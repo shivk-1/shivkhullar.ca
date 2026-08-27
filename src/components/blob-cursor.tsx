@@ -26,15 +26,21 @@ const FAST = { stiffness: 1200, damping: 40, mass: 1 };
 const SLOW = { stiffness: 200, damping: 50, mass: 10 };
 
 /**
- * Sizes and inner-dot geometry, straight from the original's stylesheet. The
- * dots are real elements here rather than ::after, since these are inline
- * styles and a pseudo-element cannot be one.
+ * Sizes and inner-dot geometry, straight from the original's stylesheet, at
+ * the scale it was drawn for. Everything below is derived from these by
+ * `scale` rather than written out again. The dots are real elements here
+ * rather than ::after, since these are inline styles and a pseudo-element
+ * cannot be one.
  */
 const BLOBS = [
   { size: 60, dot: 20, dotAt: 20 },
   { size: 125, dot: 35, dotAt: 35 },
   { size: 75, dot: 25, dotAt: 25 },
 ] as const;
+
+/** Blur, and the drop shadow, at that same reference scale. */
+const BLUR = 30;
+const SHADOW = { x: 10, y: 10, spread: 5 };
 
 /** Off screen, so nothing sits in the corner before the pointer first moves. */
 const AWAY = -300;
@@ -64,9 +70,18 @@ function useMediaQuery(query: string) {
 }
 
 export function BlobCursor({
+  scale = 0.6,
   color = "lightcoral",
   dotColor = "rgba(255, 0, 0, 0.8)",
 }: {
+  /**
+   * One dial for the whole thing. The goo is scale dependent: the colour
+   * matrix keeps only what survives the blur, so shrinking the blobs without
+   * shrinking the blur by the same amount thins them until they drop under
+   * the threshold and disappear. Scaling both together keeps the shape and
+   * only changes how big it is.
+   */
+  scale?: number;
   color?: string;
   dotColor?: string;
 }) {
@@ -125,7 +140,11 @@ export function BlobCursor({
         style={{ position: "absolute", width: 0, height: 0 }}
       >
         <filter id="blob-cursor-goo">
-          <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="30" />
+          <feGaussianBlur
+            in="SourceGraphic"
+            result="blur"
+            stdDeviation={BLUR * scale}
+          />
           <feColorMatrix
             in="blur"
             values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -10"
@@ -147,41 +166,47 @@ export function BlobCursor({
           zIndex: 50,
         }}
       >
-        {BLOBS.map((blob, index) => (
-          <motion.div
-            key={blob.size}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: blob.size,
-              height: blob.size,
-              // Centres the blob on the pointer without a translate, which
-              // would fight the one the motion values are already writing.
-              marginLeft: -blob.size / 2,
-              marginTop: -blob.size / 2,
-              borderRadius: "50%",
-              backgroundColor: color,
-              boxShadow: "10px 10px 5px 0 rgba(0, 0, 0, 0.75)",
-              opacity: 0.6,
-              willChange: "transform",
-              x: positions[index].x,
-              y: positions[index].y,
-            }}
-          >
-            <span
+        {BLOBS.map((blob, index) => {
+          const size = blob.size * scale;
+
+          return (
+            <motion.div
+              key={blob.size}
               style={{
                 position: "absolute",
-                top: blob.dotAt,
-                left: blob.dotAt,
-                width: blob.dot,
-                height: blob.dot,
+                top: 0,
+                left: 0,
+                width: size,
+                height: size,
+                // Centres the blob on the pointer without a translate, which
+                // would fight the one the motion values are already writing.
+                marginLeft: -size / 2,
+                marginTop: -size / 2,
                 borderRadius: "50%",
-                backgroundColor: dotColor,
+                backgroundColor: color,
+                boxShadow: `${SHADOW.x * scale}px ${SHADOW.y * scale}px ${
+                  SHADOW.spread * scale
+                }px 0 rgba(0, 0, 0, 0.75)`,
+                opacity: 0.6,
+                willChange: "transform",
+                x: positions[index].x,
+                y: positions[index].y,
               }}
-            />
-          </motion.div>
-        ))}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  top: blob.dotAt * scale,
+                  left: blob.dotAt * scale,
+                  width: blob.dot * scale,
+                  height: blob.dot * scale,
+                  borderRadius: "50%",
+                  backgroundColor: dotColor,
+                }}
+              />
+            </motion.div>
+          );
+        })}
       </div>
     </>
   );
