@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { FadeLink } from "@/components/fade-link";
 import { MusicRoom } from "@/components/turntable/music-room";
 import { RoomFade } from "@/components/turntable/room-fade";
 import { site } from "@/data/site";
@@ -17,7 +17,7 @@ export default function MusicPage() {
     // also what the fade below comes up out of.
     <div className="relative h-dvh w-full overflow-hidden bg-black">
       <RoomFade>
-        <Link
+        <FadeLink
           href="/"
           aria-label={`back to ${site.name}`}
           className="absolute left-4 top-4 z-10 grid size-10 place-items-center rounded-full text-white/50 transition-colors hover:bg-white/10 hover:text-white sm:left-6 sm:top-6"
@@ -35,7 +35,7 @@ export default function MusicPage() {
           >
             <path d="M15 18l-6-6 6-6" />
           </svg>
-        </Link>
+        </FadeLink>
 
         <MusicRoom />
       </RoomFade>

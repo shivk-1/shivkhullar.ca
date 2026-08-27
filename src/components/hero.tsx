@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { FadeLink } from "@/components/fade-link";
 import { intro, site } from "@/data/site";
 import { Socials } from "@/components/socials";
 
@@ -9,6 +9,10 @@ const LINK_SPAN = /\[([^\]]+)\]\(([^)]+)\)/g;
 /**
  * Renders the `[label](/href)` spans in an intro paragraph as links so the copy
  * in site.ts stays plain data instead of turning into markup.
+ *
+ * FadeLink rather than Link because one of these spans points at the vinyl
+ * room, which fades rather than cuts. It behaves as a plain link everywhere
+ * else, so the rest of the copy is unaffected.
  */
 function prose(text: string): ReactNode[] {
   const out: ReactNode[] = [];
@@ -18,9 +22,9 @@ function prose(text: string): ReactNode[] {
     const [span, label, href] = match;
     if (match.index > cursor) out.push(text.slice(cursor, match.index));
     out.push(
-      <Link key={href} href={href} className="link text-foreground">
+      <FadeLink key={href} href={href} className="link text-foreground">
         {label}
-      </Link>,
+      </FadeLink>,
     );
     cursor = match.index + span.length;
   }

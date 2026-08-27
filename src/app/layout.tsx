@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
+import { Curtain } from "@/components/curtain";
 import { ThemeProvider } from "@/components/theme-provider";
 import { site } from "@/data/site";
 
@@ -59,6 +60,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          {/* Outside every route on purpose: it has to survive the navigation
+              it is covering. */}
+          <Curtain />
         </ThemeProvider>
       </body>
     </html>
