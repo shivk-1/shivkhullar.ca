@@ -1,4 +1,4 @@
-import { DifferenceCursor } from "@/components/difference-cursor";
+import { SpotlightCursor } from "@/components/spotlight-cursor";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
@@ -14,7 +14,7 @@ export default function SiteLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="mx-auto w-full max-w-5xl px-5 sm:px-8 lg:px-10">
-      <DifferenceCursor />
+      <SpotlightCursor />
       <div className="flex justify-end pt-5">
         <ThemeToggle />
       </div>
