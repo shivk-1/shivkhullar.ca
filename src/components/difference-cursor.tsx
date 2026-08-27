@@ -22,8 +22,36 @@ import { usePointerDecoration } from "@/lib/use-media-query";
  * are over. The disc rides along with them rather than replacing them.
  */
 
-/** Across. Big enough to read as a highlight, small enough not to cover words. */
-const SIZE = 28;
+/**
+ * Across. Larger than a hard edged disc would need to be, because the outer
+ * part of this one is nearly transparent by design and the core is what reads.
+ */
+const SIZE = 46;
+
+/**
+ * The falloff: white in the middle, fading out by alpha rather than by colour.
+ *
+ * The obvious version of this ramps white to black, on the reasoning that
+ * difference against black is the identity. It ramps the blend's *input*, and
+ * |backdrop - source| is not monotonic in the source: on the dark theme, whose
+ * page is about 37, a source near 37 returns near 0, so the ramp passes
+ * through pure black on its way out and rings the cursor in a dark halo.
+ *
+ * Alpha ramps the blend's *result* instead. Compositing gives
+ * (1 - a) * backdrop + a * |backdrop - 255|, a straight interpolation between
+ * fully inverted and untouched, which cannot overshoot either end on any
+ * backdrop.
+ *
+ * closest-side, so the fade completes at the edge of the inscribed circle and
+ * the corners of the box are inert.
+ */
+const FALLOFF = `radial-gradient(circle closest-side,
+  rgba(255, 255, 255, 1) 0%,
+  rgba(255, 255, 255, 0.96) 28%,
+  rgba(255, 255, 255, 0.74) 50%,
+  rgba(255, 255, 255, 0.42) 70%,
+  rgba(255, 255, 255, 0.15) 86%,
+  rgba(255, 255, 255, 0) 100%)`;
 
 /** Tight, with just enough give that it trails rather than teleports. */
 const FOLLOW = { stiffness: 700, damping: 40, mass: 0.5 };
@@ -86,10 +114,10 @@ export function DifferenceCursor({ size = SIZE }: { size?: number }) {
         width: size,
         height: size,
         borderRadius: "50%",
-        // White is what makes difference a straight inversion of the backdrop.
-        // Any other colour tints the result and reintroduces the very problem
-        // this blend mode is here to avoid.
-        backgroundColor: "#fff",
+        // White throughout, varying only in alpha. Any other hue tints the
+        // difference and reintroduces the very problem this blend mode is here
+        // to avoid.
+        backgroundImage: FALLOFF,
         mixBlendMode: "difference",
         opacity: fade,
         x: springX,
