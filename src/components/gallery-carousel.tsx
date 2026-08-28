@@ -40,6 +40,20 @@ export function GalleryCarousel() {
   const [step, setStep] = useState(0);
   const [active, setActive] = useState<GalleryPhoto | null>(null);
 
+  /**
+   * The offset an arrow-driven scroll is heading for, while it is still
+   * moving. Null when the strip is wherever the reader left it.
+   */
+  const heading = useRef<number | null>(null);
+  const settle = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (settle.current !== null) clearTimeout(settle.current);
+    },
+    [],
+  );
+
   if (gallery.length === 0) return null;
 
   /**
@@ -63,18 +77,48 @@ export function GalleryCarousel() {
     if (!el) return;
     const next = Math.min(STOPS.length - 1, Math.max(0, step + delta));
     if (next === step) return;
+
+    heading.current = STOPS[next];
     el.scrollTo({ left: STOPS[next] * photoStep(el), behavior: "smooth" });
     setStep(next);
+
+    // Backstop, in case the strip never quite reaches the target and the
+    // arrival below therefore never fires: an interrupted scroll must not
+    // leave the reader's own scrolling permanently ignored.
+    if (settle.current !== null) clearTimeout(settle.current);
+    settle.current = window.setTimeout(() => {
+      heading.current = null;
+      settle.current = null;
+    }, 700);
   };
 
   /**
    * Free scrolling can leave the strip anywhere, and the stops are not evenly
    * spaced any more, so this picks the nearest one rather than rounding.
+   *
+   * It stays out of the way while an arrow is driving. A smooth scroll fires
+   * this on every frame of its animation, and for the first half of the
+   * journey the strip is still nearer the stop it is leaving than the one it
+   * is heading for, so re-deriving the step mid-flight drove it backwards and
+   * then forwards again. That was one frame of the arrow appearing, a stretch
+   * of it gone, then it returning: the flicker.
    */
   const syncStep = () => {
     const el = track.current;
     if (!el) return;
     const at = el.scrollLeft / photoStep(el);
+
+    if (heading.current !== null) {
+      if (Math.abs(at - heading.current) < 0.02) {
+        heading.current = null;
+        if (settle.current !== null) {
+          clearTimeout(settle.current);
+          settle.current = null;
+        }
+      }
+      return;
+    }
+
     let nearest = 0;
     STOPS.forEach((stop, i) => {
       if (Math.abs(stop - at) < Math.abs(STOPS[nearest] - at)) nearest = i;

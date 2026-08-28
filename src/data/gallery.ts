@@ -54,12 +54,12 @@ export const gallery: GalleryPhoto[] = [
   },
   {
     src: "/gallery/golf.jpg",
-    caption: "rooftop, last night of the term.",
+    caption: "definitely did not double/triple bogey every hole here.",
     date: "2026-06-05",
   },
   {
     src: "/gallery/toronto.jpg",
-    caption: "digging for records i will absolutely sample later.",
+    caption: "i love this city.",
     date: "2026-05-26",
   },
 ];
