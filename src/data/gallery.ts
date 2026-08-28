@@ -14,22 +14,22 @@ export type GalleryPhoto = {
 export const gallery: GalleryPhoto[] = [
   {
     src: "/gallery/family.jpg",
-    caption: "first week on campus at waterloo.",
+    caption: "with my family in chinatown, chicago.",
     date: "2026-08-24",
   },
   {
     src: "/gallery/chicago.jpg",
-    caption: "semi-pro season, somewhere around the 70th minute.",
+    caption: "skyline pic part of the chicago architecture tour.",
     date: "2026-08-23",
   },
   {
     src: "/gallery/apple.jpg",
-    caption: "the corner of my room that became a studio.",
+    caption: "best apple store i've ever seen.",
     date: "2026-08-23",
   },
   {
     src: "/gallery/soccer.jpg",
-    caption: "toronto in the summer, walking home the long way.",
+    caption: "flick .",
     date: "2026-08-09",
   },
   {

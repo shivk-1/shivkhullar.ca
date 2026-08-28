@@ -13,11 +13,27 @@ function formatDate(iso: string) {
     .toLowerCase();
 }
 
-/** Splits the photos into the slides the carousel steps through. */
+/**
+ * Splits the photos into the slides the carousel steps through.
+ *
+ * The last slide is pulled back to sit flush against the end rather than
+ * starting where the arithmetic says it should. Ten photos three at a time
+ * leaves one on its own with two empty columns beside it; instead that slide
+ * starts three from the end and overlaps the one before, so every slide is
+ * full and the last photo still lands last.
+ *
+ * The cost is that the trailing photos appear twice across two slides, which
+ * is the right trade: a repeat reads as a slide overlapping, a stub reads as
+ * the page having run out of content.
+ */
 function paginate(photos: GalleryPhoto[]) {
+  if (photos.length <= PER_PAGE) return photos.length > 0 ? [photos] : [];
+
   const pages: GalleryPhoto[][] = [];
-  for (let i = 0; i < photos.length; i += PER_PAGE) {
-    pages.push(photos.slice(i, i + PER_PAGE));
+  const last = photos.length - PER_PAGE;
+  for (let start = 0; start < photos.length; start += PER_PAGE) {
+    const from = Math.min(start, last);
+    pages.push(photos.slice(from, from + PER_PAGE));
   }
   return pages;
 }
@@ -39,13 +55,17 @@ export function GalleryCarousel() {
     el.clientWidth + (parseFloat(getComputedStyle(el).columnGap) || 0);
 
   /**
-   * Wraps at both ends so the arrows never dead-end. Free scrolling can leave
-   * the strip between two slides, so this steps off the nearest one.
+   * Clamped rather than wrapping. The arrows now disappear at the ends, so
+   * there is no way to ask for a step past them, and wrapping from the last
+   * slide back to the first would contradict what the controls are showing.
+   * Free scrolling can leave the strip between two slides, so this steps off
+   * the nearest one.
    */
   const go = (delta: number) => {
     const el = track.current;
     if (!el) return;
-    const next = (page + delta + pages.length) % pages.length;
+    const next = Math.min(pages.length - 1, Math.max(0, page + delta));
+    if (next === page) return;
     el.scrollTo({ left: next * stepWidth(el), behavior: "smooth" });
     setPage(next);
   };
@@ -65,7 +85,11 @@ export function GalleryCarousel() {
       */}
       <div className="flex items-center gap-2 sm:gap-4">
         {pages.length > 1 && (
-          <NavButton label="previous photos" onClick={() => go(-1)}>
+          <NavButton
+            label="previous photos"
+            onClick={() => go(-1)}
+            hidden={page === 0}
+          >
             ←
           </NavButton>
         )}
@@ -114,7 +138,11 @@ export function GalleryCarousel() {
         </div>
 
         {pages.length > 1 && (
-          <NavButton label="next photos" onClick={() => go(1)}>
+          <NavButton
+            label="next photos"
+            onClick={() => go(1)}
+            hidden={page === pages.length - 1}
+          >
             →
           </NavButton>
         )}
@@ -191,13 +219,22 @@ function Lightbox({
   );
 }
 
+/**
+ * `hidden` here means invisible but still occupying its slot, not unmounted.
+ * Removing the element would hand its width back to the strip and shove every
+ * photo sideways on the first and last slide, so the arrow goes transparent
+ * instead and the row stays put. It leaves the tab order and the a11y tree
+ * with it, so nothing offers a step that cannot be taken.
+ */
 function NavButton({
   label,
   onClick,
+  hidden = false,
   children,
 }: {
   label: string;
   onClick: () => void;
+  hidden?: boolean;
   children: string;
 }) {
   return (
@@ -205,7 +242,12 @@ function NavButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="flex size-8 shrink-0 items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-foreground"
+      disabled={hidden}
+      aria-hidden={hidden || undefined}
+      tabIndex={hidden ? -1 : undefined}
+      className={`flex size-8 shrink-0 items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-foreground ${
+        hidden ? "invisible" : ""
+      }`}
     >
       {children}
     </button>
