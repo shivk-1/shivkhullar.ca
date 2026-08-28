@@ -33,7 +33,7 @@ export const gallery: GalleryPhoto[] = [
     date: "2026-08-09",
   },
   {
-    src: "/gallery/eng.png",
+    src: "/gallery/eng.jpg",
     caption: "hour 26 of a 36 hour hackathon.",
     date: "2026-07-25",
   },
