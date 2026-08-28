@@ -48,23 +48,23 @@ export function Hero() {
     <header className="pt-4 sm:pt-8">
       <div className="flex flex-col gap-6 sm:flex-row-reverse sm:items-stretch sm:justify-end sm:gap-10">
         {/*
-          Width is fixed and height stretches to the text column, so the photo
-          runs from the top of the heading all the way down to the socials,
-          which is why those live inside the column rather than under the row.
+          A fixed square, centred against the text column rather than stretched
+          to it. Stretching made the height whatever the prose happened to wrap
+          to, which is what forced the near-square compromise; at a set size it
+          is exactly square, and centring leaves the same gap above it as below
+          without either being written down.
 
-          The width is picked to land close to square against that height. It
-          cannot be exactly square: the column's height is whatever the prose
-          wraps to, which depends on the width left over once this photo has
-          taken its share, so the two chase each other. `object-cover` absorbs
-          the remaining few percent either way.
+          The socials stay inside the column. Nothing needs them there now, but
+          they belong with the prose they follow, and moving them back out
+          would put a second thing in the row for no reason.
         */}
-        <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-2xl border border-border sm:aspect-auto sm:h-auto sm:w-80 sm:self-stretch">
+        <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-2xl border border-border sm:w-72 sm:self-center">
           <Image
             src={site.photo}
             alt={site.name}
             fill
             priority
-            sizes="(max-width: 640px) 160px, 320px"
+            sizes="(max-width: 640px) 160px, 288px"
             className="object-cover"
           />
         </div>
