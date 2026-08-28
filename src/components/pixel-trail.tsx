@@ -22,8 +22,14 @@ import { usePointerDecoration } from "@/lib/use-media-query";
  * canvas, and the loop stops itself once the trail is empty.
  */
 
-/** Side of one pixel, and the distance the pointer must travel to drop one. */
-const PIXEL_SIZE = 12;
+/**
+ * Side of one pixel, and the distance the pointer must travel to drop the
+ * next. The two are deliberately the same number: at that spacing consecutive
+ * squares just touch, so the trail reads as a continuous run rather than a
+ * dotted line. Shrinking the square without shrinking the step would open gaps
+ * between them, which is why this is one value and not two.
+ */
+const PIXEL_SIZE = 8;
 
 /** How many are alive at once before the oldest is dropped. */
 const TRAIL_LENGTH = 40;
@@ -46,7 +52,7 @@ const SENTINEL = "#ff00ff";
 
 type Pixel = { x: number; y: number; born: number };
 
-export function PixelTrail() {
+export function PixelTrail({ size = PIXEL_SIZE }: { size?: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const wanted = usePointerDecoration();
 
@@ -139,7 +145,7 @@ export function PixelTrail() {
         context.globalAlpha = Math.max(0, 1 - alive * (FADE_PER_SECOND / 1000));
 
         // Older pixels are smaller, down to the floor.
-        const side = PIXEL_SIZE * Math.max(SHRINK_FLOOR, 1 - alive / SHRINK_MS);
+        const side = size * Math.max(SHRINK_FLOOR, 1 - alive / SHRINK_MS);
 
         // Rounded to whole pixels. These are squares with hard edges and the
         // point of them is to look like pixels, so half-covered edge columns
@@ -163,9 +169,9 @@ export function PixelTrail() {
       if (event.pointerType !== "mouse") return;
       const to = { x: event.clientX, y: event.clientY };
 
-      // One pixel per PIXEL_SIZE travelled, so the trail is evenly spaced
-      // however fast the hand moves rather than bunching up when it is slow.
-      if (last && Math.hypot(to.x - last.x, to.y - last.y) <= PIXEL_SIZE) {
+      // One pixel per `size` travelled, so the trail is evenly spaced however
+      // fast the hand moves rather than bunching up when it is slow.
+      if (last && Math.hypot(to.x - last.x, to.y - last.y) <= size) {
         return;
       }
 
@@ -192,7 +198,7 @@ export function PixelTrail() {
       document.removeEventListener("pointerleave", leave);
       window.removeEventListener("resize", resize);
     };
-  }, [wanted]);
+  }, [wanted, size]);
 
   if (!wanted) return null;
 
