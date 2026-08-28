@@ -65,6 +65,7 @@ const HALFTONE_FRAG = `
   uniform float uCellSize;
   uniform vec3 uColor;
   uniform float uOpacity;
+  uniform float uDotScale;
   varying vec2 vUv;
 
   void main() {
@@ -76,7 +77,7 @@ const HALFTONE_FRAG = `
     float density = texture2D(uTrailTexture, cellCenterUv).r;
     float dist = length(fract(pixel / uCellSize) - 0.5);
 
-    float radius = density * 0.47;
+    float radius = density * uDotScale;
     float aa = fwidth(dist);
     float inDot = 1.0 - smoothstep(radius - aa, radius, dist);
     float alpha = inDot * smoothstep(0.05, 0.2, density);
@@ -117,6 +118,7 @@ interface EngineConfig {
   hoverOpacity: number;
   speedScale: number;
   cellSize: number;
+  dotScale: number;
   hoverSelector: string;
 }
 
@@ -244,6 +246,7 @@ class HalftoneTrailEngine {
   private hCellLoc: WebGLUniformLocation | null;
   private hColorLoc: WebGLUniformLocation | null;
   private hOpacityLoc: WebGLUniformLocation | null;
+  private hDotScaleLoc: WebGLUniformLocation | null;
   private hPosLoc: number;
 
   private width = 0;
@@ -302,6 +305,7 @@ class HalftoneTrailEngine {
     this.hCellLoc = gl.getUniformLocation(halftoneProgram, "uCellSize");
     this.hColorLoc = gl.getUniformLocation(halftoneProgram, "uColor");
     this.hOpacityLoc = gl.getUniformLocation(halftoneProgram, "uOpacity");
+    this.hDotScaleLoc = gl.getUniformLocation(halftoneProgram, "uDotScale");
 
     this.fboA = createFBO(gl, FIELD);
     this.fboB = createFBO(gl, FIELD);
@@ -444,6 +448,7 @@ class HalftoneTrailEngine {
       this.colorRGB[2],
     );
     gl.uniform1f(this.hOpacityLoc, this.currentOpacity);
+    gl.uniform1f(this.hDotScaleLoc, this.config.dotScale);
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -476,6 +481,17 @@ class HalftoneTrailEngine {
 
 export function HalftoneTrail({
   cellSize = 11,
+  /**
+   * Peak dot radius, as a fraction of the cell.
+   *
+   * The shader this came from uses 0.47, at which a dot covers 69% of its cell
+   * and the middle of the blob, where the field saturates, stops being a
+   * halftone and becomes a solid disc. Inverting a solid disc leaves the text
+   * under it with nowhere to show through. At 0.34 the dot covers 36% and
+   * nearly two thirds of every cell is still the page, so a word crossed by
+   * the blob keeps most of itself and only picks up speckle.
+   */
+  dotScale = 0.34,
   // White, and only white. The overlay is blended with difference, where
   // white is a straight inversion of whatever is behind it; any other ink
   // tints the result and starts hiding what it crosses instead of flipping
@@ -503,6 +519,7 @@ export function HalftoneTrail({
   hoverSelector = "img",
 }: {
   cellSize?: number;
+  dotScale?: number;
   color?: string;
   decay?: number;
   brushSize?: number;
@@ -533,6 +550,7 @@ export function HalftoneTrail({
         hoverOpacity,
         speedScale,
         cellSize,
+        dotScale,
         hoverSelector,
       });
     } catch {
@@ -576,6 +594,7 @@ export function HalftoneTrail({
     opacity,
     hoverOpacity,
     speedScale,
+    dotScale,
     hoverSelector,
     color,
   ]);
