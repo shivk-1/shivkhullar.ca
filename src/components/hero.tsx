@@ -25,9 +25,11 @@ function prose(text: string): ReactNode[] {
       <FadeLink
         key={href}
         href={href}
-        // The room gets a marker behind it. It is the one link here that goes
-        // somewhere rather than to more prose, and it is worth pointing at.
-        className={`link text-foreground${href === "/music" ? " marker" : ""}`}
+        // The room gets a solid block behind it. It is the one link here that
+        // goes somewhere rather than to more prose, and it is worth pointing
+        // at. It carries its own colours, so it takes neither `link` nor
+        // `text-foreground`, which would only fight it.
+        className={href === "/music" ? "marker" : "link text-foreground"}
       >
         {label}
       </FadeLink>,

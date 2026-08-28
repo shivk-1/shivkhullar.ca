@@ -10,9 +10,6 @@
   --border: oklch(89% 0.002 67.8);
   --accent: var(--foreground);
   --card: oklch(100% 0 0);
-  /* Marker behind the vinyl room link. The warm orange the room's own lamps
-     throw, so the link looks like the place it goes. */
-  --marker: rgba(255, 138, 46, 0.42);
 }
 
 .dark {
@@ -24,9 +21,6 @@
   --border: oklch(26.9% 0 0);
   --accent: var(--foreground);
   --card: oklch(19% 0 0);
-  /* Same orange, a touch lighter: against near-black it has to carry the
-     highlight on its own rather than tinting an already pale page. */
-  --marker: rgba(255, 138, 46, 0.3);
 }
 
 @theme inline {
@@ -81,22 +75,36 @@ body {
 }
 
 /*
-  Highlighter behind a word, for the one link worth pointing at. Padded and
-  nudged back by the same amount so the ink sits proud of the text without
-  moving it, and cloned across line breaks so a wrapped phrase gets a marked
-  box on each line rather than one long one straddling both.
+  A solid block behind the one link worth pointing at, with the word knocked
+  out dark inside it. The room's own lamp colour, so the link looks like the
+  place it goes.
+
+  Opaque rather than a wash, which is what lets one pair of colours serve both
+  themes: the block never mixes with the page behind it, so it looks the same
+  on the off white and the near black. The ink has to be dark either way. On
+  this orange, near black reads 7.8:1 and the page's own background would read
+  2.2:1, so knocking the word out in the background colour, the way ::selection
+  does against the foreground, is not an option here.
+
+  Square on purpose, and cloned across line breaks so a phrase that wraps gets
+  a block per line rather than one straddling both.
 */
 .marker {
-  background-color: var(--marker);
-  padding: 0.12em 0.24em;
-  margin: 0 -0.12em;
-  border-radius: 0.22em;
+  background-color: rgb(255, 138, 46);
+  color: rgb(28, 18, 6);
+  padding: 0.1em 0.18em;
+  /* Pulled back by most of the padding, so the block sits proud of the word
+     without pushing the rest of the sentence along. */
+  margin: 0 -0.1em;
+  /* The block is the affordance, and a block is a shape rather than a hue, so
+     this does not fall back on colour alone to say the word is a link. */
+  text-decoration: none;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   transition: background-color 150ms ease;
 }
 .marker:hover {
-  background-color: rgba(255, 138, 46, 0.48);
+  background-color: rgb(255, 158, 82);
 }
 
 /* Scrollable strips that keep their own arrows instead of a visible bar */
