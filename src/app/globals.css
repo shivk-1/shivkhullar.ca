@@ -126,3 +126,37 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+  Fade for the gallery lightbox.
+
+  A native <dialog> has nothing to transition by default: showModal flips
+  display from none to block and moves it into the top layer, both of which
+  are discrete, so it simply appears. Marking them allow-discrete lets them
+  hold off until the fade has run, and @starting-style supplies the value to
+  animate *from*, which an element that did not exist a frame ago otherwise
+  has no way to state.
+
+  The backdrop needs the same treatment separately: it is its own box and does
+  not inherit the dialog's transition.
+*/
+.lightbox,
+.lightbox::backdrop {
+  opacity: 0;
+  transition:
+    opacity 140ms ease-out,
+    display 140ms allow-discrete,
+    overlay 140ms allow-discrete;
+}
+
+.lightbox[open],
+.lightbox[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .lightbox[open],
+  .lightbox[open]::backdrop {
+    opacity: 0;
+  }
+}

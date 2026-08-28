@@ -224,6 +224,20 @@ function Lightbox({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
 
+  /**
+   * `photo` goes null the instant the dialog is dismissed, which would strip
+   * the image out a frame before the fade-out had run and leave an empty box
+   * dissolving. This holds the last one so it stays on screen for the way out,
+   * and is deliberately never cleared.
+   *
+   * State rather than a ref: a ref read during render does not re-render when
+   * it changes, so the picture could lag a frame behind the one that was
+   * clicked. Assigning during render is the documented way to derive state
+   * from props, and costs one extra pass before anything is painted.
+   */
+  const [shown, setShown] = useState(photo);
+  if (photo !== null && photo !== shown) setShown(photo);
+
   useEffect(() => {
     const el = dialog.current;
     if (!el) return;
@@ -248,14 +262,14 @@ function Lightbox({
       // Anywhere outside the photo is backdrop as far as the eye is concerned,
       // including the letterboxing around a tall or wide image.
       onClick={onClose}
-      className="m-auto max-h-none max-w-none bg-transparent p-4 backdrop:bg-black/70 sm:p-8"
+      className="lightbox m-auto max-h-none max-w-none bg-transparent p-4 backdrop:bg-black/70 sm:p-8"
     >
-      {photo && (
+      {shown && (
         <figure className="flex cursor-zoom-out flex-col items-center gap-4">
           <div className="relative h-[70vh] w-[88vw] max-w-5xl">
             <Image
-              src={photo.src}
-              alt={photo.caption}
+              src={shown.src}
+              alt={shown.caption}
               fill
               sizes="88vw"
               priority
@@ -263,7 +277,7 @@ function Lightbox({
             />
           </div>
           <figcaption className="max-w-2xl text-center text-sm leading-relaxed text-white/80">
-            {photo.caption}
+            {shown.caption}
           </figcaption>
         </figure>
       )}
