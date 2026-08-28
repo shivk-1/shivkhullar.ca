@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePointerDecoration } from "@/lib/use-media-query";
 
 /**
- * A halftone dot trail that follows the pointer, thinning over links.
+ * A halftone dot trail that follows the pointer, inverting what it crosses.
  *
  * Two webgl passes. The first keeps a low resolution scalar field in a
  * ping-ponged framebuffer: last frame's field is multiplied by a decay and a
@@ -454,26 +454,26 @@ class HalftoneTrailEngine {
 }
 
 export function HalftoneTrail({
-  // Tuned to sit under body copy rather than on an empty card, which is what
-  // the demo these numbers came from was. The trail is texture here, not an
-  // object: coarser cells, a smaller blob, and low enough opacity that prose
-  // stays fully readable through it.
-  cellSize = 13,
-  // Deliberately not the foreground. At full weight in the text's own colour
-  // the dots and the words camouflage each other, white on white in the dark
-  // theme and dark on dark in the light one, so the sentence under the blob
-  // disappears without anything actually covering it. Muted is a mid grey in
-  // both themes and cannot collide with either.
-  color = "var(--muted)",
+  cellSize = 11,
+  // White, and only white. The overlay is blended with difference, where
+  // white is a straight inversion of whatever is behind it; any other ink
+  // tints the result and starts hiding what it crosses instead of flipping
+  // it. It is also why this needs no theme handling at all.
+  color = "#ffffff",
   decay = 0.965,
-  brushSize = 0.03,
+  brushSize = 0.035,
   hoverBrushSize = 0.012,
-  opacity = 0.18,
-  // Scaled with the base, so thinning over a link is still a visible drop
-  // rather than a change from faint to identically faint.
-  hoverOpacity = 0.06,
+  // Full strength is safe here in a way it never was before. Turning the
+  // opacity down was the only lever when the dots sat on top of the text;
+  // inverting instead, the text stays legible at full weight, so the effect
+  // does not have to be quiet to be usable.
+  opacity = 1,
+  hoverOpacity = 0.15,
   speedScale = 38,
-  hoverSelector = "a, button, [data-hover]",
+  // Empty: the trail keeps its full size and weight over links and photos
+  // rather than shrinking away from them. Set a selector to bring the
+  // reaction back.
+  hoverSelector = "",
 }: {
   cellSize?: number;
   color?: string;
@@ -582,11 +582,23 @@ export function HalftoneTrail({
         position: "fixed",
         inset: 0,
         overflow: "hidden",
-        // Never between anyone and what they are clicking.
+        // Painted over the page and subtracted from it, so a dot crossing a
+        // word inverts that word rather than covering it. Measured: light
+        // theme, page 247 becomes 8 and text 46 becomes 209; dark theme, page
+        // 37 becomes 218 and text 255 becomes 0. Strong in both, legible in
+        // both, and adapting to the theme without being told which is active.
+        //
+        // Hiding behind the text was the alternative, and it cannot work: the
+        // dots were then drawn in a colour that had to differ from the text
+        // to be visible and differ from the page to be seen at all, which
+        // left only faint greys.
+        mixBlendMode: "difference",
+        // Never between anyone and what they are clicking. This is the only
+        // thing keeping the overlay out of the way now that it sits on top of
+        // the page: clicks on a link or a photo pass straight through.
         pointerEvents: "none",
-        // Behind the words. A blob of dots this size in the foreground colour
-        // would bury the text it crossed if it were painted over it.
-        zIndex: -1,
+        // Below the curtain, so the page fade still covers this.
+        zIndex: 50,
       }}
     >
       <canvas
