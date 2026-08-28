@@ -13,9 +13,9 @@ export type GalleryPhoto = {
  */
 export const gallery: GalleryPhoto[] = [
   {
-    src: "/gallery/waterloo.svg",
+    src: "/gallery/family.jpg",
     caption: "first week on campus at waterloo.",
-    date: "2023-09-05",
+    date: "2026-08-24",
   },
   {
     src: "/gallery/pitch.svg",
