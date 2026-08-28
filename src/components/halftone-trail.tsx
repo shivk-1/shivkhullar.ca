@@ -85,6 +85,16 @@ const HALFTONE_FRAG = `
   }
 `;
 
+/**
+ * How often the thing under the pointer is looked up.
+ *
+ * elementFromPoint forces layout, and running it on every pointer event is
+ * upwards of a hundred a second on a fast mouse. The reaction it feeds eases
+ * over roughly two hundred milliseconds, so sampling this often is well inside
+ * what anyone can see while costing a fraction as much.
+ */
+const HIT_MS = 60;
+
 /** Side of the scalar field. Low on purpose; the halftone reads it per cell. */
 const FIELD = 512;
 
@@ -249,6 +259,7 @@ class HalftoneTrailEngine {
   private currentOpacity: number;
   private colorRGB: [number, number, number] = [0.5, 0.5, 0.5];
   private lastActivity = 0;
+  private lastHitAt = 0;
 
   constructor(canvas: HTMLCanvasElement, config: EngineConfig) {
     this.config = config;
@@ -339,12 +350,22 @@ class HalftoneTrailEngine {
       this.dirY = dy / dist;
     }
 
-    const over = document.elementFromPoint(clientX, clientY);
-    this.hovering = this.config.hoverSelector
-      ? !!over?.closest(this.config.hoverSelector)
-      : false;
+    const now = performance.now();
 
-    this.lastActivity = performance.now();
+    // Only hit test when something asked for it, and not on every event. The
+    // original called elementFromPoint unconditionally, even with no selector
+    // set, which is a forced layout on every pointer move for an answer
+    // nobody was going to use.
+    if (!this.config.hoverSelector) {
+      this.hovering = false;
+    } else if (now - this.lastHitAt > HIT_MS) {
+      this.lastHitAt = now;
+      this.hovering = !!document
+        .elementFromPoint(clientX, clientY)
+        ?.closest(this.config.hoverSelector);
+    }
+
+    this.lastActivity = now;
     this.wake();
   }
 
@@ -462,18 +483,24 @@ export function HalftoneTrail({
   color = "#ffffff",
   decay = 0.965,
   brushSize = 0.035,
-  hoverBrushSize = 0.012,
+  // Same as the base, so crossing a photo changes how hard the trail bites
+  // and not how big it is. Shrinking as well would read as the effect
+  // breaking at the edge of the image rather than easing off over it.
+  hoverBrushSize = brushSize,
   // Full strength is safe here in a way it never was before. Turning the
   // opacity down was the only lever when the dots sat on top of the text;
   // inverting instead, the text stays legible at full weight, so the effect
   // does not have to be quiet to be usable.
   opacity = 1,
-  hoverOpacity = 0.15,
+  // Over a photo, though, a full inversion is destructive in a way it is not
+  // over a word: text has two tones and flips cleanly between them, a
+  // photograph has hundreds and comes back as a negative. At this weight the
+  // image is washed rather than inverted, and stays itself.
+  hoverOpacity = 0.22,
   speedScale = 38,
-  // Empty: the trail keeps its full size and weight over links and photos
-  // rather than shrinking away from them. Set a selector to bring the
-  // reaction back.
-  hoverSelector = "",
+  // Images only. Links keep the trail at full strength, since a word inverted
+  // is still a readable word.
+  hoverSelector = "img",
 }: {
   cellSize?: number;
   color?: string;
