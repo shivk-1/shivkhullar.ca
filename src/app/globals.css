@@ -10,6 +10,9 @@
   --border: oklch(89% 0.002 67.8);
   --accent: var(--foreground);
   --card: oklch(100% 0 0);
+  /* Marker behind the vinyl room link. The warm orange the room's own lamps
+     throw, so the link looks like the place it goes. */
+  --marker: rgba(255, 138, 46, 0.42);
 }
 
 .dark {
@@ -21,6 +24,9 @@
   --border: oklch(26.9% 0 0);
   --accent: var(--foreground);
   --card: oklch(19% 0 0);
+  /* Same orange, a touch lighter: against near-black it has to carry the
+     highlight on its own rather than tinting an already pale page. */
+  --marker: rgba(255, 138, 46, 0.3);
 }
 
 @theme inline {
@@ -66,10 +72,31 @@ body {
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
   text-decoration-color: var(--border);
-  transition: text-decoration-color 150ms ease, opacity 150ms ease;
+  transition:
+    text-decoration-color 150ms ease,
+    opacity 150ms ease;
 }
 .link:hover {
   text-decoration-color: var(--foreground);
+}
+
+/*
+  Highlighter behind a word, for the one link worth pointing at. Padded and
+  nudged back by the same amount so the ink sits proud of the text without
+  moving it, and cloned across line breaks so a wrapped phrase gets a marked
+  box on each line rather than one long one straddling both.
+*/
+.marker {
+  background-color: var(--marker);
+  padding: 0.12em 0.24em;
+  margin: 0 -0.12em;
+  border-radius: 0.22em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-color 150ms ease;
+}
+.marker:hover {
+  background-color: rgba(255, 138, 46, 0.48);
 }
 
 /* Scrollable strips that keep their own arrows instead of a visible bar */

@@ -22,7 +22,13 @@ function prose(text: string): ReactNode[] {
     const [span, label, href] = match;
     if (match.index > cursor) out.push(text.slice(cursor, match.index));
     out.push(
-      <FadeLink key={href} href={href} className="link text-foreground">
+      <FadeLink
+        key={href}
+        href={href}
+        // The room gets a marker behind it. It is the one link here that goes
+        // somewhere rather than to more prose, and it is worth pointing at.
+        className={`link text-foreground${href === "/music" ? " marker" : ""}`}
+      >
         {label}
       </FadeLink>,
     );

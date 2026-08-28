@@ -30,6 +30,6 @@ export const features = {
  * `[label](/href)` spans render as links.
  */
 export const intro: string[] = [
-  "currently software engineering intern at baseleaf. working on paper-to-implementation r&d, replicating results + pressure-testing, and building projects i actually want to build.",
+  "prev. swe intern at baseleaf. working on paper-to-implementation r&d, replicating results + pressure-testing, and building projects i actually want to build.",
   "not just a nerd. played semi-pro soccer. music producer with over 100k+ streams. check out my [vinyl room](/music) and my writing.", "seeking winter 2027 internships.",
 ];
