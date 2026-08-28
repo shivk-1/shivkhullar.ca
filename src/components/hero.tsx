@@ -49,16 +49,22 @@ export function Hero() {
       <div className="flex flex-col gap-6 sm:flex-row-reverse sm:items-stretch sm:justify-end sm:gap-10">
         {/*
           Width is fixed and height stretches to the text column, so the photo
-          runs from the top of the heading down to the last intro line. The
-          social row sits outside this flex, below both.
+          runs from the top of the heading all the way down to the socials,
+          which is why those live inside the column rather than under the row.
+
+          The width is picked to land close to square against that height. It
+          cannot be exactly square: the column's height is whatever the prose
+          wraps to, which depends on the width left over once this photo has
+          taken its share, so the two chase each other. `object-cover` absorbs
+          the remaining few percent either way.
         */}
-        <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-2xl border border-border sm:aspect-auto sm:h-auto sm:w-64 sm:self-stretch">
+        <div className="relative aspect-square w-40 shrink-0 overflow-hidden rounded-2xl border border-border sm:aspect-auto sm:h-auto sm:w-80 sm:self-stretch">
           <Image
             src={site.photo}
             alt={site.name}
             fill
             priority
-            sizes="(max-width: 640px) 160px, 256px"
+            sizes="(max-width: 640px) 160px, 320px"
             className="object-cover"
           />
         </div>
@@ -89,10 +95,12 @@ export function Hero() {
               {prose(para)}
             </p>
           ))}
+
+          {/* Inside the column, so the photo beside it has something to
+              stretch down to. */}
+          <Socials className="mt-8" />
         </div>
       </div>
-
-      <Socials className="mt-8" />
     </header>
   );
 }
