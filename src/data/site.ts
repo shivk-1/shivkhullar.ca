@@ -7,7 +7,7 @@ export const site = {
   url: "https://shivkhullar.com",
   description:
     "computer engineering @ university of waterloo. working on paper-to-implementation r&d and building projects i actually want to build.",
-  photo: "/me.svg",
+  photo: "/profile.jpg",
   email: "shivansh.khullar@gmail.com",
   resume: "/Shivansh_Khullar_Resume.pdf",
   socials: {
@@ -31,5 +31,6 @@ export const features = {
  */
 export const intro: string[] = [
   "prev. swe intern at baseleaf. working on paper-to-implementation r&d, replicating results + pressure-testing, and building projects i actually want to build.",
-  "not just a nerd. played semi-pro soccer. music producer with over 100k+ streams. check out my [vinyl room](/music) and my writing.", "seeking winter 2027 internships.",
+  "not just a nerd. played semi-pro soccer. music producer with over 100k+ streams. check out my [vinyl room](/music) and my writing.",
+  "seeking winter 2027 internships.",
 ];
