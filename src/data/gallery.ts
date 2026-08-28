@@ -29,27 +29,27 @@ export const gallery: GalleryPhoto[] = [
   },
   {
     src: "/gallery/soccer.jpg",
-    caption: "flick .",
+    caption: "flick while playing for a mens league team.",
     date: "2026-08-09",
   },
   {
     src: "/gallery/eng.jpg",
-    caption: "hour 26 of a 36 hour hackathon.",
+    caption: "lifting the engsoc vs mathsoc matchup cup, with a 14-2 win. i scored btw.",
     date: "2026-07-25",
   },
   {
     src: "/gallery/synth.jpg",
-    caption: "the desk where most of this site got built.",
+    caption: "admiring the expensive equipment. hope to get one of these one day.",
     date: "2026-07-14",
   },
   {
     src: "/gallery/badiali.jpg",
-    caption: "the desk where most of this site got built.",
+    caption: "top 3 pizzas i've ever had. one word: badiali's.",
     date: "2026-07-12",
   },
   {
     src: "/gallery/fanfest.jpg",
-    caption: "trail run that turned into a two hour detour.",
+    caption: "saw my team germany win. great match, not a great wc run.",
     date: "2026-06-20",
   },
   {

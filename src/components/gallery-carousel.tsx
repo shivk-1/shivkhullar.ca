@@ -14,66 +14,72 @@ function formatDate(iso: string) {
 }
 
 /**
- * Splits the photos into the slides the carousel steps through.
+ * The photo index each step of the carousel lands on.
  *
- * The last slide is pulled back to sit flush against the end rather than
- * starting where the arithmetic says it should. Ten photos three at a time
- * leaves one on its own with two empty columns beside it; instead that slide
- * starts three from the end and overlaps the one before, so every slide is
- * full and the last photo still lands last.
+ * The strip is one continuous row, not a set of slides, and the arrows scroll
+ * it a page at a time. The last step is the exception: rather than advancing
+ * another full page and running off the end, it stops three from the end, so
+ * it travels only the distance needed to bring the remaining photos into view.
+ * Ten photos give 0, 3, 6, 7 - the final step shifts by one, not three.
  *
- * The cost is that the trailing photos appear twice across two slides, which
- * is the right trade: a repeat reads as a slide overlapping, a stub reads as
- * the page having run out of content.
+ * That keeps every photo in the dom exactly once. Paging it into slides and
+ * padding the short one meant repeating photos to fill it; here the same
+ * elements simply stop at a different offset.
  */
-function paginate(photos: GalleryPhoto[]) {
-  if (photos.length <= PER_PAGE) return photos.length > 0 ? [photos] : [];
-
-  const pages: GalleryPhoto[][] = [];
-  const last = photos.length - PER_PAGE;
-  for (let start = 0; start < photos.length; start += PER_PAGE) {
-    const from = Math.min(start, last);
-    pages.push(photos.slice(from, from + PER_PAGE));
-  }
-  return pages;
-}
+const STOPS: number[] = (() => {
+  if (gallery.length <= PER_PAGE) return [0];
+  const last = gallery.length - PER_PAGE;
+  const out: number[] = [];
+  for (let i = 0; i < gallery.length; i += PER_PAGE)
+    out.push(Math.min(i, last));
+  return [...new Set(out)];
+})();
 
 export function GalleryCarousel() {
-  const pages = paginate(gallery);
   const track = useRef<HTMLDivElement>(null);
-  const [page, setPage] = useState(0);
+  const [step, setStep] = useState(0);
   const [active, setActive] = useState<GalleryPhoto | null>(null);
 
-  if (pages.length === 0) return null;
+  if (gallery.length === 0) return null;
 
   /**
-   * A slide is one viewport wide, and the track's own gap keeps the last photo
-   * of one slide off the first photo of the next, so a page is that gap wider
-   * than the visible strip.
+   * Width of one photo plus the gap after it, which is what a single index of
+   * travel costs. Three photos and the two gaps between them fill the strip,
+   * so one photo is (width - 2 gaps) / 3 and the pitch is that plus a gap,
+   * which reduces to (width + gap) / 3.
    */
-  const stepWidth = (el: HTMLDivElement) =>
-    el.clientWidth + (parseFloat(getComputedStyle(el).columnGap) || 0);
+  const photoStep = (el: HTMLDivElement) => {
+    const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+    return (el.clientWidth + gap) / PER_PAGE;
+  };
 
   /**
-   * Clamped rather than wrapping. The arrows now disappear at the ends, so
-   * there is no way to ask for a step past them, and wrapping from the last
-   * slide back to the first would contradict what the controls are showing.
-   * Free scrolling can leave the strip between two slides, so this steps off
-   * the nearest one.
+   * Clamped rather than wrapping. The arrows disappear at the ends, so there
+   * is no way to ask for a step past them, and wrapping from the last stop
+   * back to the first would contradict what the controls are showing.
    */
   const go = (delta: number) => {
     const el = track.current;
     if (!el) return;
-    const next = Math.min(pages.length - 1, Math.max(0, page + delta));
-    if (next === page) return;
-    el.scrollTo({ left: next * stepWidth(el), behavior: "smooth" });
-    setPage(next);
+    const next = Math.min(STOPS.length - 1, Math.max(0, step + delta));
+    if (next === step) return;
+    el.scrollTo({ left: STOPS[next] * photoStep(el), behavior: "smooth" });
+    setStep(next);
   };
 
-  const syncPage = () => {
+  /**
+   * Free scrolling can leave the strip anywhere, and the stops are not evenly
+   * spaced any more, so this picks the nearest one rather than rounding.
+   */
+  const syncStep = () => {
     const el = track.current;
     if (!el) return;
-    setPage(Math.round(el.scrollLeft / stepWidth(el)));
+    const at = el.scrollLeft / photoStep(el);
+    let nearest = 0;
+    STOPS.forEach((stop, i) => {
+      if (Math.abs(stop - at) < Math.abs(STOPS[nearest] - at)) nearest = i;
+    });
+    setStep(nearest);
   };
 
   return (
@@ -84,11 +90,11 @@ export function GalleryCarousel() {
         They are centred on the whole track, captions included.
       */}
       <div className="flex items-center gap-2 sm:gap-4">
-        {pages.length > 1 && (
+        {STOPS.length > 1 && (
           <NavButton
             label="previous photos"
             onClick={() => go(-1)}
-            hidden={page === 0}
+            hidden={step === 0}
           >
             ←
           </NavButton>
@@ -96,61 +102,63 @@ export function GalleryCarousel() {
 
         <div
           ref={track}
-          onScroll={syncPage}
+          onScroll={syncStep}
           // min-w-0 or the flex item refuses to shrink below its content and
           // the track pushes the arrows off the edge instead of scrolling.
           className="no-scrollbar flex min-w-0 flex-1 gap-3 overflow-x-auto overscroll-x-contain scroll-smooth sm:gap-5"
         >
-          {pages.map((photos, index) => (
-            <div
-              key={index}
-              className="grid w-full shrink-0 grid-cols-3 gap-3 sm:gap-5"
+          {gallery.map((photo) => (
+            /*
+              Three across the visible strip: two gaps sit between them, so a
+              photo is a third of what is left once those are taken out. The
+              track's own gap does the spacing, and shrink-0 stops flex from
+              compressing them to fit instead of overflowing into a scroll.
+            */
+            <figure
+              key={photo.src}
+              className="w-[calc((100%-1.5rem)/3)] shrink-0 sm:w-[calc((100%-2.5rem)/3)]"
             >
-              {photos.map((photo) => (
-                <figure key={photo.src}>
-                  <button
-                    type="button"
-                    onClick={() => setActive(photo)}
-                    aria-label={`open photo: ${photo.caption}`}
-                    className="relative block aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-md border border-border bg-background"
-                  >
-                    <Image
-                      src={photo.src}
-                      alt={photo.caption}
-                      fill
-                      sizes="(min-width: 640px) 240px, 30vw"
-                      draggable={false}
-                      className="object-cover"
-                    />
-                  </button>
-                  <figcaption className="mt-2 text-[13px] leading-relaxed text-muted sm:text-sm">
-                    {photo.caption}{" "}
-                    {/* Dimmer than the caption so the date reads as a footnote
-                        to it rather than as part of the sentence. */}
-                    <span className="text-muted/70 tabular-nums">
-                      {formatDate(photo.date)}
-                    </span>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+              <button
+                type="button"
+                onClick={() => setActive(photo)}
+                aria-label={`open photo: ${photo.caption}`}
+                className="relative block aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-md border border-border bg-background"
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.caption}
+                  fill
+                  sizes="(min-width: 640px) 240px, 30vw"
+                  draggable={false}
+                  className="object-cover"
+                />
+              </button>
+              <figcaption className="mt-2 text-[13px] leading-relaxed text-muted sm:text-sm">
+                {photo.caption}{" "}
+                {/* Dimmer than the caption so the date reads as a footnote
+                    to it rather than as part of the sentence. */}
+                <span className="text-muted/70 tabular-nums">
+                  {formatDate(photo.date)}
+                </span>
+              </figcaption>
+            </figure>
           ))}
         </div>
 
-        {pages.length > 1 && (
+        {STOPS.length > 1 && (
           <NavButton
             label="next photos"
             onClick={() => go(1)}
-            hidden={page === pages.length - 1}
+            hidden={step === STOPS.length - 1}
           >
             →
           </NavButton>
         )}
       </div>
 
-      {pages.length > 1 && (
+      {STOPS.length > 1 && (
         <p className="mt-5 text-center text-sm text-muted tabular-nums">
-          {page + 1} / {pages.length}
+          {step + 1} / {STOPS.length}
         </p>
       )}
 
