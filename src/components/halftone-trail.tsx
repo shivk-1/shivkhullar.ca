@@ -454,13 +454,24 @@ class HalftoneTrailEngine {
 }
 
 export function HalftoneTrail({
-  cellSize = 10,
-  color = "var(--foreground)",
+  // Tuned to sit under body copy rather than on an empty card, which is what
+  // the demo these numbers came from was. The trail is texture here, not an
+  // object: coarser cells, a smaller blob, and low enough opacity that prose
+  // stays fully readable through it.
+  cellSize = 13,
+  // Deliberately not the foreground. At full weight in the text's own colour
+  // the dots and the words camouflage each other, white on white in the dark
+  // theme and dark on dark in the light one, so the sentence under the blob
+  // disappears without anything actually covering it. Muted is a mid grey in
+  // both themes and cannot collide with either.
+  color = "var(--muted)",
   decay = 0.965,
-  brushSize = 0.045,
+  brushSize = 0.03,
   hoverBrushSize = 0.012,
-  opacity = 1,
-  hoverOpacity = 0.15,
+  opacity = 0.18,
+  // Scaled with the base, so thinning over a link is still a visible drop
+  // rather than a change from faint to identically faint.
+  hoverOpacity = 0.06,
   speedScale = 38,
   hoverSelector = "a, button, [data-hover]",
 }: {
