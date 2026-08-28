@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePointerDecoration } from "@/lib/use-media-query";
 
 /**
- * A halftone dot trail that follows the pointer, thinning over links.
+ * A halftone dot trail that follows the pointer, inverting what it crosses.
  *
  * Two webgl passes. The first keeps a low resolution scalar field in a
  * ping-ponged framebuffer: last frame's field is multiplied by a decay and a
@@ -18,6 +18,13 @@ import { usePointerDecoration } from "@/lib/use-media-query";
  * how it is mounted: the original is `absolute inset-0` with `zIndex: 0`, meant
  * to sit inside one `relative` card, and it wants a container rect on every
  * pointer event.
+ *
+ * The dots are drawn white and the whole overlay is blended with difference, so
+ * they subtract from the page instead of sitting on it. That is what keeps text
+ * readable underneath: a word crossed by a dot is inverted rather than covered.
+ * White specifically, because difference against white is a straight inversion
+ * of the backdrop; any other ink tints the result and starts hiding things.
+ * It is also why nothing here needs to know which theme is active.
  */
 
 const VERT_SHADER = `
@@ -339,9 +346,12 @@ class HalftoneTrailEngine {
       this.dirY = dy / dist;
     }
 
-    const over = document.elementFromPoint(clientX, clientY);
+    // Only hit test when something asked for it. elementFromPoint forces
+    // layout, and it ran on every pointer event even with no selector set.
     this.hovering = this.config.hoverSelector
-      ? !!over?.closest(this.config.hoverSelector)
+      ? !!document
+          .elementFromPoint(clientX, clientY)
+          ?.closest(this.config.hoverSelector)
       : false;
 
     this.lastActivity = performance.now();
@@ -455,14 +465,17 @@ class HalftoneTrailEngine {
 
 export function HalftoneTrail({
   cellSize = 10,
-  color = "var(--foreground)",
+  color = "#ffffff",
   decay = 0.965,
-  brushSize = 0.045,
+  brushSize = 0.038,
   hoverBrushSize = 0.012,
   opacity = 1,
   hoverOpacity = 0.15,
   speedScale = 38,
-  hoverSelector = "a, button, [data-hover]",
+  // Empty: the trail keeps its full size and weight over links and images
+  // rather than shrinking away from them. Set a selector to bring the
+  // reaction back.
+  hoverSelector = "",
 }: {
   cellSize?: number;
   color?: string;
@@ -571,11 +584,20 @@ export function HalftoneTrail({
         position: "fixed",
         inset: 0,
         overflow: "hidden",
-        // Never between anyone and what they are clicking.
+        // Painted over the page and subtracted from it, so a dot crossing a
+        // word inverts that word rather than covering it: dark dots on the
+        // light theme with the text inside them going light, and the reverse
+        // on the dark theme. Measured, light theme: page 247 becomes 8 and
+        // text 46 becomes 209. Dark theme: page 37 becomes 218 and text 255
+        // becomes 0. Legible either way, and adapting to the theme for free.
+        mixBlendMode: "difference",
+        // Never between anyone and what they are clicking. This is the only
+        // thing keeping the overlay out of the way now that it is on top of
+        // the page rather than behind it: every click, on a link or an image
+        // or anything else, passes straight through to what is underneath.
         pointerEvents: "none",
-        // Behind the words. A blob of dots this size in the foreground colour
-        // would bury the text it crossed if it were painted over it.
-        zIndex: -1,
+        // Below the curtain, so the page fade still covers this.
+        zIndex: 50,
       }}
     >
       <canvas
