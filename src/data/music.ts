@@ -120,32 +120,496 @@ export type OnRepeatSeed = {
  */
 export const onRepeatSeeds: OnRepeatSeed[] = [
   {
-    title: "Nights",
-    artist: "Frank Ocean",
-    message: "two words.",
-  },
-  {
-    title: "Passionfruit",
-    artist: "Drake",
-    message: "a short placeholder note.",
-  },
-  {
-    title: "Redbone",
-    artist: "Childish Gambino",
+    title: "Face Card",
+    artist: "Nate Sib",
     message:
-      "a middling placeholder note, long enough that it has to wrap onto a couple of lines before it will sit on the paper.",
+      "",
   },
   {
-    title: "Sunflower",
-    artist: "Rex Orange County",
+    title: "Let You Go",
+    artist: "Nate Sib",
     message:
-      "a longer placeholder note. the lettering is measured after troika has laid it out, then stepped down until the whole block sits inside the margins of the page, however many lines that turns out to take.",
+      "",
   },
   {
-    title: "Time Moves Slow",
-    artist: "BADBADNOTGOOD",
+    title: "Sexiest",
+    artist: "Nate Sib",
     message:
-      "the longest placeholder of the set, here to prove the other end of the range. it keeps going for a while yet, so that the fitting pass has to bring the writing right down to the smallest size the page allows before all of it will fit between the margins.",
+      "",
+  },
+  {
+    title: "Too",
+    artist: "Nate Sib",
+    message:
+      "",
+  },
+  {
+    title: "don't fall",
+    artist: "Nate Sib",
+    message:
+      "",
+  },
+  {
+    title: "trauma",
+    artist: "2hollis",
+    message:
+      "",
+  },
+  {
+    title: "mountain",
+    artist: "2hollis",
+    message:
+      "",
+  },
+  {
+    title: "act xi: she ain't no angel",
+    artist: "4batz",
+    message:
+      "",
+  },
+  {
+    title: "wrong faces.",
+    artist: "Brent Faiyaz",
+    message:
+      "",
+  },
+  {
+    title: "peter pan.",
+    artist: "Brent Faiyaz",
+    message:
+      "i wish that i could flyyy",
+  },
+  {
+    title: "Rehab",
+    artist: "Brent Faiyaz",
+    message:
+      "",
+  },
+  {
+    title: "Raindance",
+    artist: "Dave",
+    message:
+      "",
+  },
+  {
+    title: "Free Mind",
+    artist: "Tems",
+    message:
+      "",
+  },
+  {
+    title: "Paradise",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Lightspeed",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Songhai",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Lady",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Marbles",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Desert Oasis",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Mirage",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "TRACK 02 (Dangerous Lover)",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "WHO DO U LUV",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "DIFFERENT",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "LINK UP",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "AFTER HOURS",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "D4U",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Shameless",
+    artist: "Avenoir",
+    message:
+      "",
+  },
+  {
+    title: "Rush",
+    artist: "Odeal",
+    message:
+      "",
+  },
+  {
+    title: "Nights in The Sun",
+    artist: "Odeal",
+    message:
+      "",
+  },
+  {
+    title: "London Summers",
+    artist: "Odeal",
+    message:
+      "",
+  },
+  {
+    title: "Gaslight 101",
+    artist: "Odeal",
+    message:
+      "",
+  },
+  {
+    title: "Fine by Myself",
+    artist: "Odeal",
+    message:
+      "",
+  },
+  {
+    title: "Reprecussions",
+    artist: "Odeal",
+    message:
+      "",
+  },
+  {
+    title: "Always",
+    artist: "Daniel Caesar",
+    message:
+      "",
+  },
+  {
+    title: "Who Knows",
+    artist: "Daniel Caesar",
+    message:
+      "",
+  },
+  {
+    title: "What You Heard",
+    artist: "Sonder",
+    message:
+      "",
+  },
+  {
+    title: "Baldwin Park",
+    artist: "Sonder",
+    message:
+      "",
+  },
+  {
+    title: "LUV IN DA 6",
+    artist: "Chase Shakur",
+    message:
+      "",
+  },
+  {
+    title: "FACE IT",
+    artist: "Chase Shakur",
+    message:
+      "",
+  },
+  {
+    title: "CAN'T BLOCK DA SUN",
+    artist: "Chase Shakur",
+    message:
+      "",
+  },
+  {
+    title: "you're so lovely",
+    artist: "Chase Shakur",
+    message:
+      "",
+  },
+  {
+    title: "you need an angel",
+    artist: "Chase Shakur",
+    message:
+      "",
+  },
+  {
+    title: "comes with the damage",
+    artist: "Chase Shakur",
+    message:
+      "",
+  },
+  {
+    title: "A Cold Sunday",
+    artist: "Lil Yachty",
+    message:
+      "",
+  },
+  {
+    title: "Ambrosia",
+    artist: "EMIL",
+    message:
+      "",
+  },
+  {
+    title: "Coast to Coast",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "Forgive Me",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "Found",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "Crime of Passion",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "My Witness",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "No Cares",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "White Collar Dreams",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "Receipts",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "Iman's Interlude",
+    artist: "Maz B",
+    message:
+      "",
+  },
+  {
+    title: "Snooze",
+    artist: "SZA",
+    message:
+      "",
+  },
+  {
+    title: "Waiting For You",
+    artist: "Majid Jordan",
+    message:
+      "",
+  },
+  {
+    title: "Led Me On - Live at the Lair, Orlando, 2023",
+    artist: "Jay Safari",
+    message:
+      "",
+  },
+  {
+    title: "Drama",
+    artist: "Roy Woods",
+    message:
+      "",
+  },
+  {
+    title: "Some of Your Love",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "SPIDER-MAN SUPERMAN",
+    artist: "PARTYNEXTDOOR, Drake",
+    message:
+      "",
+  },
+  {
+    title: "DEEPER",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "PIMMIE'S DILEMMA",
+    artist: "Pimmie, PARTYNEXTDOOR, Drake",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "PARTYNEXTDOOR",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
+  },
+  {
+    title: "",
+    artist: "",
+    message:
+      "",
   },
 ];
 
