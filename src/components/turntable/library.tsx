@@ -169,7 +169,9 @@ function TabNote({ id, tab }: { id: string; tab: Tab }) {
   const note = libraryNotes[tab];
 
   return (
-    <div id={id} className="shrink-0 px-3 pb-3">
+    // Padded top and bottom, not just bottom: without it the lead line sits
+    // flush against the rule under the tabs.
+    <div id={id} className="shrink-0 px-3 pb-3 pt-3.5">
       <p className="text-[13px] leading-relaxed text-white/65">{note.lead}</p>
       <p className="mt-1 text-[12px] leading-relaxed text-white/35">
         {note.body}
