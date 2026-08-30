@@ -2,7 +2,13 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 import Image from "next/image";
-import { clock, trackYear, type ProducedTrack, type Track } from "@/data/music";
+import {
+  clock,
+  libraryNotes,
+  trackYear,
+  type ProducedTrack,
+  type Track,
+} from "@/data/music";
 import { searchTracks } from "./search";
 
 type Tab = "on-repeat" | "produced";
@@ -74,12 +80,15 @@ export function Library({
         </TabButton>
       </div>
 
+      <TabNote id="library-note" tab={tab} />
+
       <Search value={query} onChange={setQuery} />
 
       <div
         role="tabpanel"
         id="panel-on-repeat"
         aria-labelledby="tab-on-repeat"
+        aria-describedby="library-note"
         hidden={tab !== "on-repeat"}
         className="min-h-0 flex-1 overflow-y-auto px-2 py-2"
       >
@@ -113,6 +122,7 @@ export function Library({
         role="tabpanel"
         id="panel-produced"
         aria-labelledby="tab-produced"
+        aria-describedby="library-note"
         hidden={tab !== "produced"}
         className="min-h-0 flex-1 overflow-y-auto px-2 py-2"
       >
@@ -144,6 +154,27 @@ export function Library({
         )}
       </div>
     </aside>
+  );
+}
+
+/**
+ * What each tab is, in a line, with the longer thought under it.
+ *
+ * It sits outside the panels so it can hold still while they swap, which is
+ * why both panels point their `aria-describedby` at it: read on its own it is
+ * a floating sentence, but as the description of whichever list is showing it
+ * says the same thing to a screen reader that it says on screen.
+ */
+function TabNote({ id, tab }: { id: string; tab: Tab }) {
+  const note = libraryNotes[tab];
+
+  return (
+    <div id={id} className="shrink-0 px-3 pb-3">
+      <p className="text-[13px] leading-relaxed text-white/65">{note.lead}</p>
+      <p className="mt-1 text-[12px] leading-relaxed text-white/35">
+        {note.body}
+      </p>
+    </div>
   );
 }
 

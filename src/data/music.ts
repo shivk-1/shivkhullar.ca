@@ -89,6 +89,26 @@ export const producedTracks: ProducedTrack[] = [...produced].sort((a, b) =>
   a.date < b.date ? 1 : -1,
 );
 
+/**
+ * The blurb under each library tab, between the tabs and the search field.
+ *
+ * Here rather than in the component because it is copy, and copy belongs with
+ * the rest of the words in this file rather than buried in markup.
+ */
+export const libraryNotes = {
+  "on-repeat": {
+    lead: "my top 50 songs in rotation.",
+    body: "updated every month.",
+  },
+  produced: {
+    lead: "check out some tracks i produced myself.",
+    body:
+      "haven't made anything in a while. these are from when i was producing " +
+      "for other artists, so they lean mechanical. right now i'm working with " +
+      "real instruments to bring tracks to life.",
+  },
+} as const;
+
 /** One song I want on the "on repeat" tab, named the way I'd say it out loud. */
 export type OnRepeatSeed = {
   title: string;
@@ -122,494 +142,412 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Face Card",
     artist: "Nate Sib",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Let You Go",
     artist: "Nate Sib",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Sexiest",
     artist: "Nate Sib",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Too",
     artist: "Nate Sib",
-    message:
-      "",
+    message: "",
   },
   {
     title: "don't fall",
     artist: "Nate Sib",
-    message:
-      "",
+    message: "",
   },
   {
     title: "trauma",
     artist: "2hollis",
-    message:
-      "",
+    message: "",
   },
   {
     title: "mountain",
     artist: "2hollis",
-    message:
-      "",
+    message: "",
   },
   {
     title: "act xi: she ain't no angel",
     artist: "4batz",
-    message:
-      "",
+    message: "",
   },
   {
     title: "wrong faces.",
     artist: "Brent Faiyaz",
-    message:
-      "",
+    message: "",
   },
   {
     title: "peter pan.",
     artist: "Brent Faiyaz",
-    message:
-      "i wish that i could flyyy",
+    message: "i wish that i could flyyy",
   },
   {
     title: "Rehab",
     artist: "Brent Faiyaz",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Raindance",
     artist: "Dave",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Free Mind",
     artist: "Tems",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Paradise",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Lightspeed",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Songhai",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Lady",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Marbles",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Desert Oasis",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Mirage",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "TRACK 02 (Dangerous Lover)",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "WHO DO U LUV",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "DIFFERENT",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "LINK UP",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "AFTER HOURS",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "D4U",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Shameless",
     artist: "Avenoir",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Rush",
     artist: "Odeal",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Nights in The Sun",
     artist: "Odeal",
-    message:
-      "",
+    message: "",
   },
   {
     title: "London Summers",
     artist: "Odeal",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Gaslight 101",
     artist: "Odeal",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Fine by Myself",
     artist: "Odeal",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Reprecussions",
     artist: "Odeal",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Always",
     artist: "Daniel Caesar",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Who Knows",
     artist: "Daniel Caesar",
-    message:
-      "",
+    message: "",
   },
   {
     title: "What You Heard",
     artist: "Sonder",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Baldwin Park",
     artist: "Sonder",
-    message:
-      "",
+    message: "",
   },
   {
     title: "LUV IN DA 6",
     artist: "Chase Shakur",
-    message:
-      "",
+    message: "",
   },
   {
     title: "FACE IT",
     artist: "Chase Shakur",
-    message:
-      "",
+    message: "",
   },
   {
     title: "CAN'T BLOCK DA SUN",
     artist: "Chase Shakur",
-    message:
-      "",
+    message: "",
   },
   {
     title: "you're so lovely",
     artist: "Chase Shakur",
-    message:
-      "",
+    message: "",
   },
   {
     title: "you need an angel",
     artist: "Chase Shakur",
-    message:
-      "",
+    message: "",
   },
   {
     title: "comes with the damage",
     artist: "Chase Shakur",
-    message:
-      "",
+    message: "",
   },
   {
     title: "A Cold Sunday",
     artist: "Lil Yachty",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Ambrosia",
     artist: "EMIL",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Coast to Coast",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Forgive Me",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Found",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Crime of Passion",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "My Witness",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "No Cares",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "White Collar Dreams",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Receipts",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Iman's Interlude",
     artist: "Maz B",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Snooze",
     artist: "SZA",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Waiting For You",
     artist: "Majid Jordan",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Led Me On - Live at the Lair, Orlando, 2023",
     artist: "Jay Safari",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Drama",
     artist: "Roy Woods",
-    message:
-      "",
+    message: "",
   },
   {
     title: "Some of Your Love",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "SPIDER-MAN SUPERMAN",
     artist: "PARTYNEXTDOOR, Drake",
-    message:
-      "",
+    message: "",
   },
   {
     title: "DEEPER",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "PIMMIE'S DILEMMA",
     artist: "Pimmie, PARTYNEXTDOOR, Drake",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "PARTYNEXTDOOR",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
   {
     title: "",
     artist: "",
-    message:
-      "",
+    message: "",
   },
 ];
 
