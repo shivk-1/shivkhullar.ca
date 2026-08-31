@@ -5,10 +5,12 @@ import Image from "next/image";
 import {
   clock,
   libraryNotes,
+  runtime,
   trackYear,
   type ProducedTrack,
   type Track,
 } from "@/data/music";
+import { site } from "@/data/site";
 import { searchTracks } from "./search";
 
 type Tab = "on-repeat" | "produced";
@@ -80,7 +82,15 @@ export function Library({
         </TabButton>
       </div>
 
-      <TabNote id="library-note" tab={tab} />
+      <TabNote
+        id="library-note"
+        tab={tab}
+        // The whole list, not the filtered one. A header describes the
+        // playlist; narrowing it with a search does not make it a shorter
+        // playlist.
+        tracks={tab === "produced" ? produced : onRepeat}
+        counted={tab === "produced" || onRepeatState === "ready"}
+      />
 
       <Search value={query} onChange={setQuery} />
 
@@ -165,17 +175,63 @@ export function Library({
  * a floating sentence, but as the description of whichever list is showing it
  * says the same thing to a screen reader that it says on screen.
  */
-function TabNote({ id, tab }: { id: string; tab: Tab }) {
+function TabNote({
+  id,
+  tab,
+  tracks,
+  counted,
+}: {
+  id: string;
+  tab: Tab;
+  tracks: Track[];
+  /** False while the rotation is still loading, when a count would be a lie. */
+  counted: boolean;
+}) {
   const note = libraryNotes[tab];
+  const seconds = tracks.reduce(
+    (total, track) => total + (track.seconds ?? 0),
+    0,
+  );
 
   return (
-    // Padded top and bottom, not just bottom: without it the lead line sits
+    // Padded top and bottom, not just bottom: without it the kind line sits
     // flush against the rule under the tabs.
-    <div id={id} className="shrink-0 px-3 pb-3 pt-3.5">
-      <p className="text-[13px] leading-relaxed text-white/65">{note.lead}</p>
-      <p className="mt-1 text-[12px] leading-relaxed text-white/35">
+    <div id={id} className="shrink-0 px-3 pb-3.5 pt-3.5">
+      {/* The category, set small and wide and quiet. It carries almost no
+          information; what it does is establish that everything under it is
+          one thing with a name, which is the job the word "playlist" does at
+          the top of a playlist. */}
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
+        {note.kind}
+      </p>
+
+      {/* The one line that is allowed to be loud. */}
+      <p className="mt-1.5 text-[15px] font-semibold leading-snug tracking-[-0.01em] text-white">
+        {note.lead}
+      </p>
+
+      <p className="mt-1.5 text-[12.5px] leading-relaxed text-white/45">
         {note.body}
       </p>
+
+      {counted && (
+        /* Owner, then the numbers. The name is the only part in a brighter
+           weight, so the line reads as "mine, and this much of it" rather than
+           as three equal facts. */
+        <p className="mt-2.5 text-[11.5px] text-white/35">
+          <span className="font-medium text-white/70">{site.name}</span>
+          <span aria-hidden="true"> · </span>
+          <span className="tabular-nums">
+            {tracks.length} {tracks.length === 1 ? "song" : "songs"}
+          </span>
+          {seconds > 0 && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span className="tabular-nums">{runtime(seconds)}</span>
+            </>
+          )}
+        </p>
+      )}
     </div>
   );
 }

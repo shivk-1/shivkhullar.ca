@@ -97,15 +97,18 @@ export const producedTracks: ProducedTrack[] = [...produced].sort((a, b) =>
  */
 export const libraryNotes = {
   "on-repeat": {
+    /** The small label above the lead, the way a playlist page names itself. */
+    kind: "playlist",
     lead: "my top 50 songs in rotation.",
     body: "updated every month.",
   },
   produced: {
+    kind: "originals",
     lead: "check out some tracks i produced myself.",
     body:
       "haven't made anything in a while. these are from when i was producing " +
-      "for other artists, so they lean mechanical. right now i'm working with " +
-      "real instruments to bring tracks to life.",
+      "for other artists, so they sound mechanical/beat like. currently i'm working with " +
+      "real instruments to bring tracks to life. updating soon...",
   },
 } as const;
 
@@ -454,6 +457,20 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
 /** Just the year, for the produced rows. */
 export function trackYear(iso: string) {
   return iso.slice(0, 4);
+}
+
+/**
+ * Total runtime of a list, in the coarse form a playlist header uses: minutes
+ * up to an hour, then hours and minutes. Rows print mm:ss; a header printing
+ * "1:12:04" would be reading out a stopwatch rather than saying how long the
+ * thing is.
+ */
+export function runtime(seconds: number) {
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest > 0 ? `${hours} hr ${rest} min` : `${hours} hr`;
 }
 
 /**
