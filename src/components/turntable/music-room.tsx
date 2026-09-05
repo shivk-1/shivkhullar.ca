@@ -10,6 +10,24 @@ import { useBpm } from "./use-bpm";
 type OnRepeatState = "loading" | "ready" | "unavailable";
 
 /**
+ * Fisher-Yates, on a copy. The rotation is written in a deliberate order in
+ * music.ts, and the route hands it back that way every time, so the shuffle
+ * belongs here rather than in the response: the route is revalidated daily,
+ * and shuffling behind that cache would pick one order and hold it all day.
+ *
+ * Only ever called from the fetch below, which runs after hydration, so the
+ * randomness never has a server render to disagree with.
+ */
+function shuffle<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/**
  * Owns the one <audio> element on the page and the state the deck animates
  * from. Deliberately not a context: nothing about this player should survive
  * leaving /music.
@@ -38,7 +56,7 @@ export function MusicRoom() {
       .then((response) => response.json())
       .then(({ tracks }: { tracks: Track[] }) => {
         if (stale) return;
-        setOnRepeat(tracks);
+        setOnRepeat(shuffle(tracks));
         // The route answers 200 with an empty list when the lookup failed,
         // so an empty list is the signal rather than a status code.
         setOnRepeatState(tracks.length > 0 ? "ready" : "unavailable");

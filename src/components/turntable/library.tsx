@@ -68,7 +68,6 @@ export function Library({
           id="on-repeat"
           active={tab === "on-repeat"}
           onSelect={setTab}
-          count={onRepeatState === "ready" ? foundOnRepeat.length : null}
         >
           on repeat
         </TabButton>
@@ -76,7 +75,6 @@ export function Library({
           id="produced"
           active={tab === "produced"}
           onSelect={setTab}
-          count={foundProduced.length}
         >
           produced
         </TabButton>
@@ -292,15 +290,11 @@ function SearchGlyph() {
 function TabButton({
   id,
   active,
-  count,
   onSelect,
   children,
 }: {
   id: Tab;
   active: boolean;
-  /** Null while the count is not known yet, which hides the pill entirely
-      rather than flashing a zero that is about to be wrong. */
-  count: number | null;
   onSelect: (tab: Tab) => void;
   children: React.ReactNode;
 }) {
@@ -312,18 +306,13 @@ function TabButton({
       aria-selected={active}
       aria-controls={`panel-${id}`}
       onClick={() => onSelect(id)}
-      className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${
+      className={`rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${
         active
           ? "bg-white/[0.12] text-white"
           : "text-white/45 hover:bg-white/[0.06] hover:text-white/70"
       }`}
     >
       {children}
-      {count !== null && (
-        <span className="tabular-nums text-[11.5px] text-white/35">
-          {count}
-        </span>
-      )}
     </button>
   );
 }

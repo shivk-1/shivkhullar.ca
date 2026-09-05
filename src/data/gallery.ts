@@ -13,6 +13,11 @@ export type GalleryPhoto = {
  */
 export const gallery: GalleryPhoto[] = [
   {
+    src: "/gallery/pasta.jpg",
+    caption: "top 3 vodka pastas ive ever had.",
+    date: "2026-08-27",
+  },
+  {
     src: "/gallery/family.jpg",
     caption: "with my family in chinatown, chicago.",
     date: "2026-08-24",

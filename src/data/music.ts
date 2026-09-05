@@ -52,35 +52,121 @@ export type ProducedTrack = Track & {
  * My own productions. Full length, served from /public, no third party in the
  * path — these load even when the on-repeat fetch fails.
  *
- * TODO: placeholder rows. Drop the real mp3s in public/music/tracks and the
- * covers in public/music/art, then fix the titles, dates, notes, messages and
- * lengths below.
+ * The notes carry what the files actually tell me: the tempo I cut them at and
+ * who else was on them. Covers are still the placeholder, and `message` is
+ * left off rather than invented — the notepad prints nothing until there is a
+ * real line to put on it.
  */
 const produced: ProducedTrack[] = [
   {
-    id: "mine-1",
-    title: "first track",
-    artist: "shivansh",
+    id: "attention",
+    title: "attention",
+    artist: "@prodshivk",
     artwork: "/music/art/placeholder.svg",
-    audioSrc: "/music/tracks/first-track.mp3",
+    audioSrc: "/music/tracks/attention.mp3",
     source: "produced",
-    seconds: 180,
-    date: "2026-04-18",
-    note: "placeholder — say what this one is here.",
-    message: "placeholder note. replace this with something about the track.",
+    seconds: 225,
+    date: "2023-08-14",
+    note: "140 bpm, with lucid, yoshi and pol.",
   },
   {
-    id: "mine-2",
-    title: "second track",
-    artist: "shivansh",
+    id: "zebrafur",
+    title: "zebrafur",
+    artist: "@prodshivk",
     artwork: "/music/art/placeholder.svg",
-    audioSrc: "/music/tracks/second-track.mp3",
+    audioSrc: "/music/tracks/zebrafur.mp3",
     source: "produced",
-    seconds: 180,
-    date: "2025-11-02",
-    note: "placeholder — say what this one is here.",
-    message:
-      "placeholder note, a good deal longer than the other one, so that the two of them do not come out the same size on the page.",
+    seconds: 210,
+    date: "2023-06-02",
+    note: "121 bpm, with kunomane, rick anthony and malb.",
+  },
+  {
+    id: "memoguitar",
+    title: "memoguitar",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/memoguitar.mp3",
+    source: "produced",
+    seconds: 208,
+    date: "2023-03-27",
+    note: "120 bpm, with rio leyva and noah mejia.",
+  },
+  {
+    id: "queen",
+    title: "queen",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/queen.mp3",
+    source: "produced",
+    seconds: 210,
+    date: "2023-01-19",
+    note: "94 bpm, with aatuiljin.",
+  },
+  {
+    id: "uchiha",
+    title: "uchiha",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/uchiha.mp3",
+    source: "produced",
+    seconds: 210,
+    date: "2022-10-08",
+    note: "168 bpm.",
+  },
+  {
+    id: "the6",
+    title: "the6",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/the6.mp3",
+    source: "produced",
+    seconds: 185,
+    date: "2022-07-21",
+    note: "92 bpm, rimshots, with lh.",
+  },
+  {
+    id: "ken",
+    title: "ken",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/ken.mp3",
+    source: "produced",
+    seconds: 184,
+    date: "2022-05-05",
+    note: "136 bpm, with pinkgrillz.",
+  },
+  {
+    id: "ohio",
+    title: "ohio",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/ohio.mp3",
+    source: "produced",
+    seconds: 158,
+    date: "2022-02-11",
+    note: "155 bpm.",
+  },
+  {
+    id: "ag-pov",
+    title: "ag pov",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/ag-pov.mp3",
+    source: "produced",
+    seconds: 188,
+    date: "2021-11-30",
+    note: "drill.",
+  },
+  {
+    id: "picnic-in-paris",
+    title: "picnic in paris",
+    artist: "@prodshivk",
+    artwork: "/music/art/placeholder.svg",
+    audioSrc: "/music/tracks/picnic-in-paris.mp3",
+    source: "produced",
+    seconds: 110,
+    date: "2021-09-16",
+    note: "80 bpm.",
   },
 ];
 
@@ -98,12 +184,10 @@ export const producedTracks: ProducedTrack[] = [...produced].sort((a, b) =>
 export const libraryNotes = {
   "on-repeat": {
     /** The small label above the lead, the way a playlist page names itself. */
-    kind: "playlist",
-    lead: "my top 50 songs in rotation.",
+    lead: "my top 40 songs in rotation.",
     body: "updated every month.",
   },
   produced: {
-    kind: "originals",
     lead: "check out some tracks i produced myself.",
     body:
       "haven't made anything in a while. these are from when i was producing " +
@@ -148,63 +232,53 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
     message: "",
   },
   {
-    title: "Let You Go",
-    artist: "Nate Sib",
+    title: "No Interviews",
+    artist: "Lil Durk",
+    message: "heard this when someone was blasting it on their yacht in chicago. such a sick song.",
+  },
+  {
+    title: "Some Of Your Love",
+    artist: "PARTYNEXTDOOR",
+    message: "waited for this leak to release for SOO long. one of my fav late night tracks currently.",
+  },
+  {
+    title: "Warmth",
+    artist: "C418",
+    message: "ifykyk, this is probably the best minecraft track out there. the ambience gets me locked in. listened to it while making this site lol.",
+  },
+  {
+    title: "Never Let Go",
+    artist: "Gurinder Gill",
+    message: "the melody giving very nostaligic puna",
+  },
+  {
+    title: "BLEED",
+    artist: "Ryael",
     message: "",
   },
   {
-    title: "Sexiest",
-    artist: "Nate Sib",
+    title: "Morni",
+    artist: "Raf Saperra",
     message: "",
   },
   {
-    title: "Too",
-    artist: "Nate Sib",
+    title: "Rush",
+    artist: "Odeal",
     message: "",
   },
   {
-    title: "don't fall",
-    artist: "Nate Sib",
+    title: "D1",
+    artist: "Lil Tecca",
     message: "",
   },
   {
-    title: "trauma",
-    artist: "2hollis",
+    title: "London Summers",
+    artist: "Odeal",
     message: "",
   },
   {
-    title: "mountain",
-    artist: "2hollis",
-    message: "",
-  },
-  {
-    title: "act xi: she ain't no angel",
-    artist: "4batz",
-    message: "",
-  },
-  {
-    title: "wrong faces.",
-    artist: "Brent Faiyaz",
-    message: "",
-  },
-  {
-    title: "peter pan.",
-    artist: "Brent Faiyaz",
-    message: "i wish that i could flyyy",
-  },
-  {
-    title: "Rehab",
-    artist: "Brent Faiyaz",
-    message: "",
-  },
-  {
-    title: "Raindance",
-    artist: "Dave",
-    message: "",
-  },
-  {
-    title: "Free Mind",
-    artist: "Tems",
+    title: "Waiting For You",
+    artist: "Majid Jordan",
     message: "",
   },
   {
@@ -212,11 +286,7 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
     artist: "Avenoir",
     message: "",
   },
-  {
-    title: "Lightspeed",
-    artist: "Avenoir",
-    message: "",
-  },
+
   {
     title: "Songhai",
     artist: "Avenoir",
@@ -228,58 +298,8 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
     message: "",
   },
   {
-    title: "Marbles",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "Desert Oasis",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "Mirage",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "TRACK 02 (Dangerous Lover)",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "WHO DO U LUV",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "DIFFERENT",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "LINK UP",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "AFTER HOURS",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
     title: "D4U",
     artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "Shameless",
-    artist: "Avenoir",
-    message: "",
-  },
-  {
-    title: "Rush",
-    artist: "Odeal",
     message: "",
   },
   {
@@ -287,39 +307,44 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
     artist: "Odeal",
     message: "",
   },
-  {
-    title: "London Summers",
-    artist: "Odeal",
+    {
+    title: "you need an angel",
+    artist: "Chase Shakur",
     message: "",
   },
   {
-    title: "Gaslight 101",
-    artist: "Odeal",
+    title: "Burning Bridges",
+    artist: "Drake",
     message: "",
   },
   {
-    title: "Fine by Myself",
-    artist: "Odeal",
+    title: "Firm Friends",
+    artist: "Drake",
     message: "",
   },
   {
-    title: "Reprecussions",
-    artist: "Odeal",
+    title: "WNBA",
+    artist: "Drake",
     message: "",
   },
   {
-    title: "Always",
-    artist: "Daniel Caesar",
+    title: "I'm Spent",
+    artist: "Drake, Loe Shimmy",
     message: "",
   },
   {
-    title: "Who Knows",
-    artist: "Daniel Caesar",
+    title: "ICEMAN FREESTYLE",
+    artist: "Central Cee",
     message: "",
   },
   {
-    title: "What You Heard",
-    artist: "Sonder",
+    title: "Virginia Beach",
+    artist: "Drake",
+    message: "",
+  },
+  {
+    title: "Champagne Poetry",
+    artist: "Drake",
     message: "",
   },
   {
@@ -328,43 +353,8 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
     message: "",
   },
   {
-    title: "LUV IN DA 6",
-    artist: "Chase Shakur",
-    message: "",
-  },
-  {
-    title: "FACE IT",
-    artist: "Chase Shakur",
-    message: "",
-  },
-  {
-    title: "CAN'T BLOCK DA SUN",
-    artist: "Chase Shakur",
-    message: "",
-  },
-  {
-    title: "you're so lovely",
-    artist: "Chase Shakur",
-    message: "",
-  },
-  {
-    title: "you need an angel",
-    artist: "Chase Shakur",
-    message: "",
-  },
-  {
-    title: "comes with the damage",
-    artist: "Chase Shakur",
-    message: "",
-  },
-  {
-    title: "A Cold Sunday",
-    artist: "Lil Yachty",
-    message: "",
-  },
-  {
-    title: "Ambrosia",
-    artist: "EMIL",
+    title: "plan b",
+    artist: "Nettspend",
     message: "",
   },
   {
@@ -383,17 +373,7 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
     message: "",
   },
   {
-    title: "Crime of Passion",
-    artist: "Maz B",
-    message: "",
-  },
-  {
     title: "My Witness",
-    artist: "Maz B",
-    message: "",
-  },
-  {
-    title: "No Cares",
     artist: "Maz B",
     message: "",
   },
@@ -403,53 +383,63 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
     message: "",
   },
   {
-    title: "Receipts",
-    artist: "Maz B",
+    title: "Star Girl",
+    artist: "Navaan Sandhu, Mickey Singh, JayB Singh",
     message: "",
   },
   {
-    title: "Iman's Interlude",
-    artist: "Maz B",
+    title: "For A Reason",
+    artist: "Karan Aujla, Ikky",
     message: "",
   },
   {
-    title: "Snooze",
-    artist: "SZA",
+    title: "I'ma Do My Thiiing",
+    artist: "Karan Aujla, Ikky",
     message: "",
   },
   {
-    title: "Waiting For You",
-    artist: "Majid Jordan",
+    title: "Bachke Bachke - Unplugged",
+    artist: "Karan Aujla",
     message: "",
   },
   {
-    title: "Led Me On - Live at the Lair, Orlando, 2023",
-    artist: "Jay Safari",
+    title: "Punjaban",
+    artist: "Sukha, Manni Sandhu, Kahlon",
     message: "",
   },
   {
-    title: "Drama",
-    artist: "Roy Woods",
+    title: "On The Loose",
+    artist: "Sukha, Money Musik",
     message: "",
   },
   {
-    title: "Some of Your Love",
-    artist: "PARTYNEXTDOOR",
+    title: "Vanjhali Vaja",
+    artist: "Amrinder Gill",
     message: "",
   },
   {
-    title: "SPIDER-MAN SUPERMAN",
-    artist: "PARTYNEXTDOOR, Drake",
+    title: "Grateful",
+    artist: "Bhalwaan, Manna Music",
     message: "",
   },
   {
-    title: "DEEPER",
-    artist: "PARTYNEXTDOOR",
+    title: "Arz Kiya Hai | Coke Studio Bharat",
+    artist: "Anuv Jain",
     message: "",
   },
   {
-    title: "PIMMIE'S DILEMMA",
-    artist: "Pimmie, PARTYNEXTDOOR, Drake",
+    title: "Gehra Hua",
+    artist: "Shashwat Sachdev, Arijit Singh, Irshad Kamil, Armaan Khan",
+    message: "",
+  },
+  {
+    title: "GEEKIN",
+    artist: "Nemzzz",
+    message: "",
+  },
+  {
+    title: "RAANI",
+    artist: "Shergill, Virsa",
     message: "",
   },
 ];
