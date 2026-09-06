@@ -1,31 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { producedTracks, type Track } from "@/data/music";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { producedTracks, type ProducedTrack, type Track } from "@/data/music";
 import { Library } from "./library";
 import { PlayerDock } from "./player-dock";
 import { TurntableScene } from "./scene";
+import { shuffle } from "./sort";
 import { useBpm } from "./use-bpm";
 
 type OnRepeatState = "loading" | "ready" | "unavailable";
 
-/**
- * Fisher-Yates, on a copy. The rotation is written in a deliberate order in
- * music.ts, and the route hands it back that way every time, so the shuffle
- * belongs here rather than in the response: the route is revalidated daily,
- * and shuffling behind that cache would pick one order and hold it all day.
- *
- * Only ever called from the fetch below, which runs after hydration, so the
- * randomness never has a server render to disagree with.
- */
-function shuffle<T>(items: T[]): T[] {
-  const out = [...items];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
+/** The crate order never changes after the first paint, so there is nothing
+    to subscribe to. */
+const never = () => () => {};
 
 /**
  * Owns the one <audio> element on the page and the state the deck animates
@@ -40,6 +33,7 @@ export function MusicRoom() {
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [rpm, setRpm] = useState(33);
+  const [libraryOpen, setLibraryOpen] = useState(true);
   const [volume, setVolume] = useState(0.8);
 
   // Measured from the audio itself, and only used to set how fast the platter
@@ -48,6 +42,27 @@ export function MusicRoom() {
 
   const [onRepeat, setOnRepeat] = useState<Track[]>([]);
   const [onRepeatState, setOnRepeatState] = useState<OnRepeatState>("loading");
+
+  /**
+   * Both crates land in a fresh order on every visit, so the tab is never the
+   * same wall of rows twice and nothing is permanently buried at the bottom.
+   *
+   * The rotation is shuffled where it arrives rather than in the route: that
+   * response is revalidated daily, and shuffling behind the cache would pick
+   * one order and hold it for the day.
+   *
+   * My own list has no fetch to hide behind — it is server rendered, so a
+   * shuffle during render would hand the client a different list than the html
+   * it is hydrating. The store below is the sanctioned way to say that: the
+   * server and the first hydration pass both read the file's order, and the
+   * client swaps to the shuffled one on the render straight after.
+   */
+  const shuffled = useMemo(() => shuffle(producedTracks), []);
+  const produced = useSyncExternalStore<ProducedTrack[]>(
+    never,
+    () => shuffled,
+    () => producedTracks,
+  );
 
   useEffect(() => {
     let stale = false;
@@ -106,7 +121,22 @@ export function MusicRoom() {
 
   return (
     <div className="flex h-full w-full flex-col sm:flex-row">
-      <div className="relative min-h-0 flex-1">
+      {/* min-w-0 is load bearing, not tidiness. The canvas is sized in pixels
+          by r3f from whatever this box measures, so once the crate collapses
+          and the canvas grows to fill the row, that pixel width becomes this
+          item's intrinsic content width — and a flex item defaults to
+          `min-width: auto`, which refuses to shrink below it. Without this the
+          room grows when the crate closes and then will not give the width
+          back when it reopens, pushing the crate off the side of the page. */}
+      {/* min-w-0 is load bearing, not tidiness. r3f sizes the canvas in pixels
+          from whatever this box measures, so once the crate closes and the
+          canvas grows to fill the row, that pixel width becomes this item's
+          intrinsic content width — and a flex item defaults to
+          `min-width: auto`, which refuses to shrink below its content. Without
+          it the room keeps the full width when the crate reopens, the row adds
+          up to more than the window, and the crate comes back off the right
+          hand edge of the page where nothing can reach it. */}
+      <div className="relative min-h-0 min-w-0 flex-1">
         <TurntableScene
           playing={playing}
           rpm={rpm}
@@ -137,15 +167,73 @@ export function MusicRoom() {
         </div>
       </div>
 
-      <div className="h-72 shrink-0 sm:h-full sm:w-[24rem] md:w-[30rem]">
-        <Library
-          produced={producedTracks}
-          onRepeat={onRepeat}
-          onRepeatState={onRepeatState}
-          current={track}
-          playing={playing}
-          onSelect={select}
-        />
+      {/* The crate, and the tab that pulls it out of the way.
+
+          Collapsing is a width (a height, on a phone) rather than an unmount:
+          the list keeps its scroll position, its tab and whatever was typed
+          into its search, so putting it away and bringing it back is free
+          rather than something you have to redo. Nothing here tells the scene
+          it grew — the canvas is measured from its own box, and the camera
+          orbits a fixed point, so widening the box re-centres the room on its
+          own. */}
+      <div
+        className={`relative shrink-0 transition-[height,width] duration-300 ease-out sm:h-full ${
+          libraryOpen
+            ? "h-72 sm:w-[24rem] md:w-[30rem]"
+            : "h-0 sm:w-0"
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => setLibraryOpen((open) => !open)}
+          aria-expanded={libraryOpen}
+          aria-controls="library"
+          aria-label={libraryOpen ? "collapse the library" : "open the library"}
+          // Hung off the panel's own edge rather than placed on the page, so
+          // it travels with the panel and is always the thing nearest to what
+          // it controls.
+          //
+          // The padding is the point: the tab is a five millimetre sliver, and
+          // once the crate is closed that sliver is against the edge of the
+          // window with the room behind it, where a miss of two pixels is a
+          // click on the deck instead. The padded box is the target; the span
+          // inside is only what you can see. The margin then holds the whole
+          // thing off the window edge while it is closed, so there is somewhere
+          // to miss into.
+          className={`group absolute z-20 grid select-none place-items-center pt-2 [touch-action:manipulation] sm:pb-0 sm:pl-2 sm:pt-0 ${
+            libraryOpen ? "" : "-mt-2 sm:ml-[-0.5rem] sm:mt-0"
+          } left-1/2 top-0 -translate-x-1/2 -translate-y-full sm:left-0 sm:top-1/2 sm:-translate-x-full sm:-translate-y-1/2`}
+        >
+          <span className="grid h-5 w-11 place-items-center rounded-t-lg border border-b-0 border-white/10 bg-white/[0.08] text-white/50 backdrop-blur transition-colors group-hover:bg-white/[0.16] group-hover:text-white/90 sm:h-11 sm:w-5 sm:rounded-l-lg sm:rounded-tr-none sm:border-b sm:border-r-0">
+            {/* One glyph, pointed at wherever the panel is about to go: down
+                and up on a phone, where the crate is a drawer under the room,
+                and right and left on a desk, where it is a column beside it. */}
+            <ChevronsGlyph
+              className={`transition-transform duration-300 ${
+                libraryOpen
+                  ? "rotate-90 sm:rotate-0"
+                  : "-rotate-90 sm:rotate-180"
+              }`}
+            />
+          </span>
+        </button>
+
+        {/* Clipped, and taken out of the tab order while it is closed: a
+            column of buttons you cannot see is still a column of buttons a
+            keyboard will walk through. */}
+        <div className="h-full w-full overflow-hidden" inert={!libraryOpen}>
+          <div className="h-full w-full sm:w-[24rem] md:w-[30rem]">
+            <Library
+              id="library"
+              produced={produced}
+              onRepeat={onRepeat}
+              onRepeatState={onRepeatState}
+              current={track}
+              playing={playing}
+              onSelect={select}
+            />
+          </div>
+        </div>
       </div>
 
       <audio
@@ -165,5 +253,27 @@ export function MusicRoom() {
         }}
       />
     </div>
+  );
+}
+
+/** The `»` on the tab, drawn rather than typed so it takes the panel's stroke
+    weight instead of whatever the body font has for the character. */
+function ChevronsGlyph({ className }: { className?: string }) {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M2.5 2.5L6 6l-3.5 3.5" />
+      <path d="M6.5 2.5L10 6l-3.5 3.5" />
+    </svg>
   );
 }

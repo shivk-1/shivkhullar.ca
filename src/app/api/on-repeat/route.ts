@@ -22,6 +22,7 @@ type ItunesSong = {
   artworkUrl100?: string;
   previewUrl?: string;
   trackTimeMillis?: number;
+  releaseDate?: string;
 };
 
 /** itunes serves 100px covers by default; the label on the record wants more. */
@@ -179,6 +180,8 @@ export async function GET() {
           seconds: song.trackTimeMillis
             ? Math.round(song.trackTimeMillis / 1000)
             : undefined,
+          // Nothing prints this; it is here so the tab can be sorted by age.
+          released: song.releaseDate,
           // Mine, not itunes': the notepad in the room prints this verbatim.
           message: seed.message,
         };

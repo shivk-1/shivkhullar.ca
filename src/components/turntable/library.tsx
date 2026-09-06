@@ -6,27 +6,28 @@ import {
   clock,
   libraryNotes,
   runtime,
-  trackYear,
   type ProducedTrack,
   type Track,
 } from "@/data/music";
 import { site } from "@/data/site";
 import { searchTracks } from "./search";
+import { SORT_KEYS, SORT_LABELS, sortTracks, type SortKey } from "./sort";
 
 type Tab = "on-repeat" | "produced";
 
 /**
  * The record crate, laid out like an apple music song list: cover, title over
  * artist, album, duration. Two tabs rather than two stacked groups — the
- * produced rows carry a year and a note in place of the album, so stacking the
- * two lists pushed one of them off the top of the scroll as soon as the
- * playlist loaded.
+ * produced rows carry a note in place of the album, so stacking the two lists
+ * pushed one of them off the top of the scroll as soon as the playlist
+ * loaded.
  *
  * Opens on "on repeat", which is the first tab. The open tab and the leading
  * tab are deliberately the same thing: a tablist that opens on its second
  * entry reads as though something has already been clicked.
  */
 export function Library({
+  id,
   produced,
   onRepeat,
   onRepeatState,
@@ -34,6 +35,8 @@ export function Library({
   playing,
   onSelect,
 }: {
+  /** So the collapse tab outside can point `aria-controls` at this. */
+  id: string;
   produced: ProducedTrack[];
   onRepeat: Track[];
   onRepeatState: "loading" | "ready" | "unavailable";
@@ -44,21 +47,36 @@ export function Library({
   const [tab, setTab] = useState<Tab>("on-repeat");
   const [query, setQuery] = useState("");
 
+  // One per tab. A sort is a statement about the list you are looking at, so
+  // ordering the rotation by length should not silently reorder my own crate
+  // behind the other tab.
+  const [sort, setSort] = useState<Record<Tab, SortKey>>({
+    "on-repeat": "shuffle",
+    produced: "shuffle",
+  });
+
   // Typing stays ahead of the list: the input renders on every keystroke,
   // the filtered rows catch up a frame later.
   const deferredQuery = useDeferredValue(query);
+
+  // Search first, then order. Both lists arrive shuffled, and "shuffle" hands
+  // its input straight back — so while a search is running and no order has
+  // been picked, what survives is the search's own relevance ranking.
   const foundOnRepeat = useMemo(
-    () => searchTracks(onRepeat, deferredQuery),
-    [onRepeat, deferredQuery],
+    () => sortTracks(searchTracks(onRepeat, deferredQuery), sort["on-repeat"]),
+    [onRepeat, deferredQuery, sort],
   );
   const foundProduced = useMemo(
-    () => searchTracks(produced, deferredQuery),
-    [produced, deferredQuery],
+    () => sortTracks(searchTracks(produced, deferredQuery), sort.produced),
+    [produced, deferredQuery, sort],
   );
   const searching = deferredQuery.trim().length > 0;
 
   return (
-    <aside className="flex h-full w-full flex-col border-l border-white/10 bg-white/[0.05] backdrop-blur">
+    <aside
+      id={id}
+      className="flex h-full w-full flex-col border-l border-white/10 bg-white/[0.05] backdrop-blur"
+    >
       <div
         role="tablist"
         aria-label="library"
@@ -90,7 +108,12 @@ export function Library({
         counted={tab === "produced" || onRepeatState === "ready"}
       />
 
-      <Search value={query} onChange={setQuery} />
+      <Filters
+        query={query}
+        onQuery={setQuery}
+        sort={sort[tab]}
+        onSort={(key) => setSort((current) => ({ ...current, [tab]: key }))}
+      />
 
       <div
         role="tabpanel"
@@ -138,7 +161,7 @@ export function Library({
           <Note>nothing here matches “{deferredQuery.trim()}”.</Note>
         ) : (
           <>
-            <Header trailing="year" />
+            <Header trailing="" />
             {foundProduced.map((track) => (
               <Row
                 key={track.id}
@@ -146,7 +169,6 @@ export function Library({
                 active={current?.id === track.id}
                 playing={playing}
                 onSelect={onSelect}
-                trailing={trackYear(track.date)}
                 note={track.note}
               />
             ))}
@@ -235,27 +257,36 @@ function TabNote({
 }
 
 /**
- * Filters as it is typed — there is no submit, so the input is deliberately
- * not in a form and enter does nothing. Escape clears it, which is the one
- * keystroke people expect a search field to answer for.
+ * The two ways to narrow a tab, on one line: what it is, and what order it is
+ * in. They share a row because they are the same gesture — neither changes
+ * what the playlist *is*, which is why the header above counts the whole list
+ * regardless of both.
+ *
+ * The search filters as it is typed. There is no submit, so the input is
+ * deliberately not in a form and enter does nothing; escape clears it, which
+ * is the one keystroke people expect a search field to answer for.
  */
-function Search({
-  value,
-  onChange,
+function Filters({
+  query,
+  onQuery,
+  sort,
+  onSort,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  query: string;
+  onQuery: (value: string) => void;
+  sort: SortKey;
+  onSort: (key: SortKey) => void;
 }) {
   return (
-    <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
-      <div className="flex items-center gap-2 rounded-lg bg-white/[0.06] px-2.5 py-2 focus-within:bg-white/[0.09]">
+    <div className="flex shrink-0 items-center gap-2 border-b border-white/10 px-3 py-2.5">
+      <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-white/[0.06] px-2.5 py-2 focus-within:bg-white/[0.09]">
         <SearchGlyph />
         <input
           type="search"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
+          value={query}
+          onChange={(event) => onQuery(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Escape") onChange("");
+            if (event.key === "Escape") onQuery("");
           }}
           placeholder="search the crate"
           aria-label="search the library"
@@ -264,7 +295,63 @@ function Search({
           className="min-w-0 flex-1 bg-transparent text-[13px] text-white placeholder:text-white/35 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
         />
       </div>
+      <SortPicker value={sort} onChange={onSort} />
     </div>
+  );
+}
+
+/**
+ * A real <select>, not a custom menu: it is a single choice out of a short
+ * fixed list, which is the one control the platform already does well — and
+ * doing it natively is what makes it work with a keyboard, a screen reader
+ * and a phone's wheel picker without any of that being written here.
+ *
+ * The options are painted dark explicitly. A styled <select> does not pass
+ * its colours down to its own popup, so without it the list opens as black
+ * text on white against everything around it.
+ */
+function SortPicker({
+  value,
+  onChange,
+}: {
+  value: SortKey;
+  onChange: (key: SortKey) => void;
+}) {
+  return (
+    <div className="relative shrink-0">
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value as SortKey)}
+        aria-label="order the library"
+        className="cursor-pointer appearance-none rounded-lg bg-white/[0.06] py-2 pl-2.5 pr-7 text-[12.5px] text-white/70 hover:bg-white/[0.09] focus:outline-none focus-visible:bg-white/[0.09]"
+      >
+        {SORT_KEYS.map((key) => (
+          <option key={key} value={key} className="bg-neutral-900 text-white">
+            {SORT_LABELS[key]}
+          </option>
+        ))}
+      </select>
+      <ChevronGlyph />
+    </div>
+  );
+}
+
+function ChevronGlyph() {
+  return (
+    <svg
+      width="9"
+      height="9"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/35"
+    >
+      <path d="M2.5 4.5L6 8l3.5-3.5" />
+    </svg>
   );
 }
 
@@ -342,7 +429,8 @@ function Note({ children }: { children: React.ReactNode }) {
 
 /**
  * One song. Everything is on the same grid on both tabs — only the third
- * column differs, album for a pulled track and the year for one of mine.
+ * column differs: the album for a pulled track, and nothing at all for one of
+ * mine, whose note is already sitting under the title.
  */
 function Row({
   track,

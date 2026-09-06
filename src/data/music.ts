@@ -11,6 +11,12 @@ export type Track = {
   source: "produced" | "on-repeat";
   /** Album name, shown in the middle column of a row. Absent for my own. */
   album?: string;
+  /**
+   * ISO release date, when it is known. Nothing renders it — it exists so the
+   * list can be ordered by age. Pulled rows get itunes' `releaseDate`; mine
+   * carry the day I finished them.
+   */
+  released?: string;
   /** Seconds. Known up front for pulled tracks, so the row can print a
       duration without waiting for the audio element to load metadata. */
   seconds?: number;
@@ -33,14 +39,12 @@ export type Track = {
 };
 
 /**
- * One of mine. Carries the two things a pulled row cannot: when I made it,
- * and a line about what it is. Both are only ever shown on the produced tab,
- * which is why they live here rather than on `Track`.
+ * One of mine. Carries the one thing a pulled row cannot: a line about what
+ * it is, which is only ever shown on the produced tab — which is why it lives
+ * here rather than on `Track`.
  */
 export type ProducedTrack = Track & {
   source: "produced";
-  /** ISO date, e.g. "2026-04-18". Only the year is rendered. */
-  date: string;
   /** One line: the sample, the intent, the gear. Kept short enough to sit
       under the title without wrapping past two lines. This is the library
       row's subtitle, not the notepad — that is `message`, on `Track`, and the
@@ -66,7 +70,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/attention.mp3",
     source: "produced",
     seconds: 225,
-    date: "2023-08-14",
+    released: "2023-08-14",
     note: "140 bpm, with lucid, yoshi and pol.",
   },
   {
@@ -77,7 +81,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/zebrafur.mp3",
     source: "produced",
     seconds: 210,
-    date: "2023-06-02",
+    released: "2023-06-02",
     note: "121 bpm, with kunomane, rick anthony and malb.",
   },
   {
@@ -88,7 +92,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/memoguitar.mp3",
     source: "produced",
     seconds: 208,
-    date: "2023-03-27",
+    released: "2023-03-27",
     note: "120 bpm, with rio leyva and noah mejia.",
   },
   {
@@ -99,7 +103,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/queen.mp3",
     source: "produced",
     seconds: 210,
-    date: "2023-01-19",
+    released: "2023-01-19",
     note: "94 bpm, with aatuiljin.",
   },
   {
@@ -110,7 +114,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/uchiha.mp3",
     source: "produced",
     seconds: 210,
-    date: "2022-10-08",
+    released: "2022-10-08",
     note: "168 bpm.",
   },
   {
@@ -121,7 +125,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/the6.mp3",
     source: "produced",
     seconds: 185,
-    date: "2022-07-21",
+    released: "2022-07-21",
     note: "92 bpm, rimshots, with lh.",
   },
   {
@@ -132,7 +136,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/ken.mp3",
     source: "produced",
     seconds: 184,
-    date: "2022-05-05",
+    released: "2022-05-05",
     note: "136 bpm, with pinkgrillz.",
   },
   {
@@ -143,7 +147,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/ohio.mp3",
     source: "produced",
     seconds: 158,
-    date: "2022-02-11",
+    released: "2022-02-11",
     note: "155 bpm.",
   },
   {
@@ -154,7 +158,7 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/ag-pov.mp3",
     source: "produced",
     seconds: 188,
-    date: "2021-11-30",
+    released: "2021-11-30",
     note: "drill.",
   },
   {
@@ -165,14 +169,17 @@ const produced: ProducedTrack[] = [
     audioSrc: "/music/tracks/picnic-in-paris.mp3",
     source: "produced",
     seconds: 110,
-    date: "2021-09-16",
+    released: "2021-09-16",
     note: "80 bpm.",
   },
 ];
 
-/** Newest first, so the top of the tab is always the most recent thing. */
+/**
+ * Newest first. The tab shuffles this on load, so what this ordering really
+ * buys is a stable, sensible server render before the client reorders.
+ */
 export const producedTracks: ProducedTrack[] = [...produced].sort((a, b) =>
-  a.date < b.date ? 1 : -1,
+  (a.released ?? "") < (b.released ?? "") ? 1 : -1,
 );
 
 /**
@@ -184,10 +191,12 @@ export const producedTracks: ProducedTrack[] = [...produced].sort((a, b) =>
 export const libraryNotes = {
   "on-repeat": {
     /** The small label above the lead, the way a playlist page names itself. */
+    kind: "playlist",
     lead: "my top 40 songs in rotation.",
     body: "updated every month.",
   },
   produced: {
+    kind: "productions",
     lead: "check out some tracks i produced myself.",
     body:
       "haven't made anything in a while. these are from when i was producing " +
@@ -249,206 +258,200 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Never Let Go",
     artist: "Gurinder Gill",
-    message: "the melody giving very nostaligic puna",
+    message: "the melody gives very early 2020's punjabi vibes. one of my new fav's by GG.",
   },
   {
     title: "BLEED",
     artist: "Ryael",
-    message: "",
+    message: "was first introduced to him at avenoir's concert. one of the most beautiful voices i have ever heard. i recommend checking out his music.",
   },
   {
     title: "Morni",
     artist: "Raf Saperra",
-    message: "",
+    message: "been doing bhangra for a little over a month and this is by far my fav song to dance on. can mix up a variety of moves, and ofc, the morni (peacoock).",
   },
   {
     title: "Rush",
     artist: "Odeal",
-    message: "",
+    message: "one of odeals new drops, it is soo good. i always love his use of percussion, mixed with the unique chord progressions. 9.1/10",
   },
   {
     title: "D1",
     artist: "Lil Tecca",
-    message: "",
+    message: "this hits everytime im in the car, probably one of my hype songs right now. first discovered this while i was still playing soccer, but still never misses.",
   },
   {
     title: "London Summers",
     artist: "Odeal",
-    message: "",
+    message: "im a big fan of afrobeats, and odeal only perfects it. this song was playing everyday in summer, and still portrays my love for his percussion.",
   },
   {
     title: "Waiting For You",
     artist: "Majid Jordan",
-    message: "",
+    message: "there's acc a vlog that exists abt the production of this song. this is arguably one of my favourite 'chill' songs. the tempo, drums, and lead melody all met with naomi sharons vocals make it one of a kind. give it a listen.",
   },
   {
     title: "Paradise",
     artist: "Avenoir",
-    message: "",
+    message: "top 3 intros ever. this album gives me so much nostaliga to september of first year uni. going to DC library, fall time, this is the perfect song.",
   },
 
   {
     title: "Songhai",
     artist: "Avenoir",
-    message: "",
+    message: "a continuation of an album i believe is perfect. there are no words to describe the beauty of this album. one of my personal favourites.",
   },
   {
     title: "Lady",
     artist: "Avenoir",
-    message: "",
+    message: "a really cool, higher-energy song from avenoir that hits every time. loved when he performed this live 2 metres infront of me lol.",
   },
   {
     title: "D4U",
     artist: "Avenoir",
-    message: "",
+    message: "the dark vibes of avenoir. love this song for a late night drive, and was one of the first songs i've heard by him. one of the best decisions ever.",
   },
   {
     title: "Nights in The Sun",
     artist: "Odeal",
-    message: "",
+    message: "a new collab with odela and wizkid, this is one of the top songs im bumping this summer.",
   },
     {
     title: "you need an angel",
     artist: "Chase Shakur",
-    message: "",
+    message: "this song means a lot to me. its my confort song, helps me with my stress, and i play this when i need to wind down. i go for long walks and talk to myself while this song plays. have a listen :P",
   },
   {
     title: "Burning Bridges",
     artist: "Drake",
-    message: "",
+    message: "crazy disses and even crazier catch.",
   },
   {
     title: "Firm Friends",
     artist: "Drake",
-    message: "",
+    message: "all collabs with drake and conductor are FIRE idc what anyone says. drake drops absolute bars here and conductor signs it off.",
   },
   {
     title: "WNBA",
     artist: "Drake",
-    message: "",
+    message: "probably one of my fav off of habibti, i just like the bass here lol. low frequency's are hittinggg on my bose quietcomforts.",
   },
   {
     title: "I'm Spent",
     artist: "Drake, Loe Shimmy",
-    message: "",
+    message: "what if i go broke and i got no more racks to spend on youuuuu",
   },
   {
     title: "ICEMAN FREESTYLE",
     artist: "Central Cee",
-    message: "",
+    message: "when this played during one of drake's livestreams for iceman rollout, i knew this was a banger. missed that style of cench until we got this.",
   },
   {
     title: "Virginia Beach",
     artist: "Drake",
-    message: "",
+    message: "fall is cominggg, so you know what time it isss. i love this album with my heart, such nostalgia to october 2023.",
   },
   {
     title: "Champagne Poetry",
     artist: "Drake",
-    message: "",
+    message: "one of my all time favs from the boy. spits so beautifully on this, and the sample breakdown to this song makes me reevaluate the capabilities of his producers.",
   },
   {
     title: "Baldwin Park",
     artist: "Sonder",
-    message: "",
+    message: "one of my late night grind songs. brilliant slow beat, and gets me in the mood to lock in everytime.",
   },
   {
     title: "plan b",
     artist: "Nettspend",
-    message: "",
+    message: "a previosuly leaked nettspend song, im glad it finally dropped. i like ug music so hearing this was insane.",
   },
   {
     title: "Coast to Coast",
     artist: "Maz B",
-    message: "",
+    message: "new drop by maz, this has the bossanova flow to it. happy to hear a different vibe by maz here.",
   },
   {
     title: "Forgive Me",
     artist: "Maz B",
-    message: "",
+    message: "the song speaks for itself. his songs always get me feeling a type of way. ",
   },
   {
     title: "Found",
     artist: "Maz B",
-    message: "",
+    message: "sounds like rc20 slapped on the song. i love the vintage sound to this. this song genuinely brings tears to my eyes.",
   },
   {
     title: "My Witness",
     artist: "Maz B",
-    message: "",
+    message: "again, one of the best intro's i've heard on an album. this one got a mysterious vibe to it and sets up the album perfectly. check it out.",
   },
   {
     title: "White Collar Dreams",
     artist: "Maz B",
-    message: "",
+    message: "the guitar flow switch midway is what keeps me waiting in this song. not to mention the outro, BEAUTIFUL. plz listen to this thanks.",
   },
   {
     title: "Star Girl",
     artist: "Navaan Sandhu, Mickey Singh, JayB Singh",
-    message: "",
+    message: "punjabi songs are never pop/melodically oriented, but this one felt different, especially with the chorus. love blasting this in the car.",
   },
   {
     title: "For A Reason",
     artist: "Karan Aujla, Ikky",
-    message: "",
+    message: "spoke to ikky (producer) 2 years back. he said the shift to live instruments makes the song real, which i am currently doing, and which is evident here. one of my favs by karan.",
   },
   {
     title: "I'ma Do My Thiiing",
     artist: "Karan Aujla, Ikky",
-    message: "",
+    message: "another song to blast in the car. makes me feel like a guyyyy.",
   },
   {
     title: "Bachke Bachke - Unplugged",
     artist: "Karan Aujla",
-    message: "",
+    message: "one of the 3 unplugged songs that are performed with such eloquence. i think karan is definitely top 5 punjabi lyricists, and you can see it here. one of my favs.",
   },
   {
     title: "Punjaban",
     artist: "Sukha, Manni Sandhu, Kahlon",
-    message: "",
+    message: "bhangra goes crazyyy on this song. word for word bar for bar, gets me hype everytime.",
   },
   {
     title: "On The Loose",
     artist: "Sukha, Money Musik",
-    message: "",
+    message: "never expected money to pop out with this type of beat honestly. tuff song though.",
   },
   {
     title: "Vanjhali Vaja",
     artist: "Amrinder Gill",
-    message: "",
+    message: "one of the bestttt songs to do jhummar (type of bhangra) on. slow, melodic, and amrinder gill has such gracious lyrics. ",
   },
   {
     title: "Grateful",
     artist: "Bhalwaan, Manna Music",
-    message: "",
+    message: "just got on this song. manna did his thing with the melody.",
   },
   {
     title: "Arz Kiya Hai | Coke Studio Bharat",
     artist: "Anuv Jain",
-    message: "",
+    message: "anuv jain is my go to for winters and rainy day cozy study sessions. i miss the old him before he got married though, thats when the real emotional songs were coming along.",
   },
   {
     title: "Gehra Hua",
     artist: "Shashwat Sachdev, Arijit Singh, Irshad Kamil, Armaan Khan",
-    message: "",
+    message: "this movie is probably my favourite bollywood movie ever, and this song in the movie adds percetly to the scenes it covers. arijit singh once again delivers with the poetry and another banger added to his list.",
   },
   {
     title: "GEEKIN",
     artist: "Nemzzz",
-    message: "",
+    message: "when im running soccer with my boys, this is the song im blasting lol. when you think of uk soccer and edits, you're hundred percent think of nemzzz.",
   },
   {
     title: "RAANI",
     artist: "Shergill, Virsa",
-    message: "",
+    message: "fun fact: i played against this guy in school soccer lmao. great player but now he's popping out with greater songs. commends to shergill and hope to see him go big.",
   },
 ];
-
-/** Just the year, for the produced rows. */
-export function trackYear(iso: string) {
-  return iso.slice(0, 4);
-}
-
 /**
  * Total runtime of a list, in the coarse form a playlist header uses: minutes
  * up to an hour, then hours and minutes. Rows print mm:ss; a header printing
