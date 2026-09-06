@@ -10,17 +10,26 @@ import {
   type Track,
 } from "@/data/music";
 import { site } from "@/data/site";
+import { Recommend } from "./recommend";
 import { searchTracks } from "./search";
 import { SORT_KEYS, SORT_LABELS, sortTracks, type SortKey } from "./sort";
 
-type Tab = "on-repeat" | "produced";
+type Tab = "on-repeat" | "produced" | "recommend";
+
+/** The two tabs that are lists. "recommend" is a form, and everything that
+    narrows or counts a list has nothing to say about it. */
+type ListTab = Exclude<Tab, "recommend">;
 
 /**
  * The record crate, laid out like an apple music song list: cover, title over
- * artist, album, duration. Two tabs rather than two stacked groups — the
- * produced rows carry a note in place of the album, so stacking the two lists
- * pushed one of them off the top of the scroll as soon as the playlist
- * loaded.
+ * artist, album, duration. Tabs rather than stacked groups — the produced
+ * rows carry a note in place of the album, so stacking the two lists pushed
+ * one of them off the top of the scroll as soon as the playlist loaded.
+ *
+ * The third tab is not a list at all: it is the box people put song
+ * recommendations into. It lives here because this is where someone is
+ * already looking at what I listen to, which is the moment they have an
+ * opinion about it.
  *
  * Opens on "on repeat", which is the first tab. The open tab and the leading
  * tab are deliberately the same thing: a tablist that opens on its second
@@ -50,7 +59,7 @@ export function Library({
   // One per tab. A sort is a statement about the list you are looking at, so
   // ordering the rotation by length should not silently reorder my own crate
   // behind the other tab.
-  const [sort, setSort] = useState<Record<Tab, SortKey>>({
+  const [sort, setSort] = useState<Record<ListTab, SortKey>>({
     "on-repeat": "shuffle",
     produced: "shuffle",
   });
@@ -89,12 +98,15 @@ export function Library({
         >
           on repeat
         </TabButton>
+        <TabButton id="produced" active={tab === "produced"} onSelect={setTab}>
+          produced
+        </TabButton>
         <TabButton
-          id="produced"
-          active={tab === "produced"}
+          id="recommend"
+          active={tab === "recommend"}
           onSelect={setTab}
         >
-          produced
+          recommend
         </TabButton>
       </div>
 
@@ -105,15 +117,25 @@ export function Library({
         // playlist; narrowing it with a search does not make it a shorter
         // playlist.
         tracks={tab === "produced" ? produced : onRepeat}
-        counted={tab === "produced" || onRepeatState === "ready"}
+        // Never on the recommend tab: there is no list under it, so a song
+        // count there would be describing the wrong thing entirely.
+        counted={
+          tab === "produced" ||
+          (tab === "on-repeat" && onRepeatState === "ready")
+        }
       />
 
-      <Filters
-        query={query}
-        onQuery={setQuery}
-        sort={sort[tab]}
-        onSort={(key) => setSort((current) => ({ ...current, [tab]: key }))}
-      />
+      {/* Hidden on the recommend tab rather than disabled. Nothing there is
+          searchable or sortable, and a dead search field above a form invites
+          someone to type into the wrong box. */}
+      {tab !== "recommend" && (
+        <Filters
+          query={query}
+          onQuery={setQuery}
+          sort={sort[tab]}
+          onSort={(key) => setSort((current) => ({ ...current, [tab]: key }))}
+        />
+      )}
 
       <div
         role="tabpanel"
@@ -169,7 +191,7 @@ export function Library({
                 active={current?.id === track.id}
                 playing={playing}
                 onSelect={onSelect}
-                note={track.note}
+                subtitle={`${track.artist} · ${track.bpm} BPM`}
               />
             ))}
             {/* Only when the whole crate is on screen: while a search is
@@ -183,6 +205,17 @@ export function Library({
           </>
         )}
       </div>
+
+      <div
+        role="tabpanel"
+        id="panel-recommend"
+        aria-labelledby="tab-recommend"
+        aria-describedby="library-note"
+        hidden={tab !== "recommend"}
+        className="min-h-0 flex-1 overflow-y-auto"
+      >
+        <Recommend />
+      </div>
     </aside>
   );
 }
@@ -191,9 +224,9 @@ export function Library({
  * What each tab is, in a line, with the longer thought under it.
  *
  * It sits outside the panels so it can hold still while they swap, which is
- * why both panels point their `aria-describedby` at it: read on its own it is
- * a floating sentence, but as the description of whichever list is showing it
- * says the same thing to a screen reader that it says on screen.
+ * why every panel points its `aria-describedby` at it: read on its own it is
+ * a floating sentence, but as the description of whichever panel is showing
+ * it says the same thing to a screen reader that it says on screen.
  */
 function TabNote({
   id,
@@ -430,22 +463,26 @@ function Note({ children }: { children: React.ReactNode }) {
 /**
  * One song. Everything is on the same grid on both tabs — only the third
  * column differs: the album for a pulled track, and nothing at all for one of
- * mine, whose note is already sitting under the title.
+ * mine, which has no album to name.
  */
 function Row({
   track,
   active,
   playing,
   trailing,
-  note,
+  subtitle,
   onSelect,
 }: {
   track: Track;
   active: boolean;
   playing: boolean;
   trailing?: string;
-  /** Produced only: the one-liner, tucked under the title. */
-  note?: string;
+  /**
+   * The line under the title, when the artist alone is not what belongs
+   * there. Produced rows pass the tempo along with it: every one of them is
+   * by me, so the name on its own says nothing the tab has not already said.
+   */
+  subtitle?: string;
   onSelect: (track: Track) => void;
 }) {
   const sounding = active && playing;
@@ -491,7 +528,7 @@ function Row({
           {track.title}
         </span>
         <span className="mt-0.5 block truncate text-[13px] text-white/50">
-          {note ?? track.artist}
+          {subtitle ?? track.artist}
         </span>
       </span>
 

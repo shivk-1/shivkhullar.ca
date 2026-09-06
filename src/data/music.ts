@@ -39,138 +39,151 @@ export type Track = {
 };
 
 /**
- * One of mine. Carries the one thing a pulled row cannot: a line about what
- * it is, which is only ever shown on the produced tab — which is why it lives
- * here rather than on `Track`.
+ * One of mine. Carries the one thing a pulled row cannot: the tempo it was
+ * cut at, which is only ever shown on the produced tab — which is why it
+ * lives here rather than on `Track`.
  */
 export type ProducedTrack = Track & {
   source: "produced";
-  /** One line: the sample, the intent, the gear. Kept short enough to sit
-      under the title without wrapping past two lines. This is the library
-      row's subtitle, not the notepad — that is `message`, on `Track`, and the
-      two are written for different places. */
-  note: string;
+  /**
+   * The project tempo, printed in the row beside the artist.
+   *
+   * Copied out of each file's id3 `TBPM`, which fl studio writes on export —
+   * so this is the tempo the beat was actually made at, not the one the
+   * room's detector arrives at from the audio. The detector still runs for
+   * the platter, because it has to work for pulled tracks too.
+   */
+  bpm: number;
 };
 
 /**
  * My own productions. Full length, served from /public, no third party in the
  * path — these load even when the on-repeat fetch fails.
  *
- * The notes carry what the files actually tell me: the tempo I cut them at and
- * who else was on them. Covers are still the placeholder, and `message` is
- * left off rather than invented — the notepad prints nothing until there is a
- * real line to put on it.
+ * Each cover is a flat colour of its own — there is no sleeve art for a beat
+ * that was never released, and a solid field reads as a deliberate label on
+ * the record rather than as artwork that failed to arrive. Mostly dark, so
+ * the two bright ones stand out in the crate.
+ *
+ * `bpm` is read out of each file's id3 tag
+ * rather than typed from memory, and `message` is the line that lands on the
+ * notepad while the beat plays — written in words, because the pad's font has
+ * no digits.
  */
 const produced: ProducedTrack[] = [
   {
     id: "attention",
     title: "attention",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/attention.svg",
     audioSrc: "/music/tracks/attention.mp3",
     source: "produced",
     seconds: 225,
-    released: "2023-08-14",
-    note: "140 bpm, with lucid, yoshi and pol.",
+    released: "2022-08-14",
+    bpm: 140,
+    message:
+      "friend made a rough version of this beat so i almost redid and mastered it. funny enough a canadian artist acydik hopped on this!",
   },
   {
     id: "zebrafur",
     title: "zebrafur",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/zebrafur.svg",
     audioSrc: "/music/tracks/zebrafur.mp3",
     source: "produced",
     seconds: 210,
-    released: "2023-06-02",
-    note: "121 bpm, with kunomane, rick anthony and malb.",
+    released: "2022-06-02",
+    bpm: 121,
+    message:
+      "made this beat with couple of record producers during one of my first studio sessions ever.",
   },
   {
     id: "memoguitar",
     title: "memoguitar",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/memoguitar.svg",
     audioSrc: "/music/tracks/memoguitar.mp3",
     source: "produced",
     seconds: 208,
-    released: "2023-03-27",
-    note: "120 bpm, with rio leyva and noah mejia.",
+    released: "2022-03-27",
+    bpm: 120,
+    message:
+      "my cousin loved this so much she used it as her study beat and asked for more haha.",
   },
   {
     id: "queen",
     title: "queen",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/queen.svg",
     audioSrc: "/music/tracks/queen.mp3",
     source: "produced",
     seconds: 210,
     released: "2023-01-19",
-    note: "94 bpm, with aatuiljin.",
+    bpm: 94,
+    message:
+      "i love experimenting so this was one of my first times trying rnb and mixing styles.",
   },
   {
     id: "uchiha",
     title: "uchiha",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/uchiha.svg",
     audioSrc: "/music/tracks/uchiha.mp3",
     source: "produced",
     seconds: 210,
-    released: "2022-10-08",
-    note: "168 bpm.",
-  },
-  {
-    id: "the6",
-    title: "the6",
-    artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
-    audioSrc: "/music/tracks/the6.mp3",
-    source: "produced",
-    seconds: 185,
-    released: "2022-07-21",
-    note: "92 bpm, rimshots, with lh.",
+    released: "2020-10-08",
+    bpm: 168,
+    message:
+      "one of my first beats made in grade eight, where i started falling in love with music. all my friends liked anime, hence 'uchiha'.",
   },
   {
     id: "ken",
     title: "ken",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/ken.svg",
     audioSrc: "/music/tracks/ken.mp3",
     source: "produced",
     seconds: 184,
-    released: "2022-05-05",
-    note: "136 bpm, with pinkgrillz.",
+    released: "2023-05-05",
+    bpm: 136,
+    message: "another experimental track, i love the melody on this one.",
   },
   {
     id: "ohio",
     title: "ohio",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/ohio.svg",
     audioSrc: "/music/tracks/ohio.mp3",
     source: "produced",
     seconds: 158,
-    released: "2022-02-11",
-    note: "155 bpm.",
+    released: "2020-02-11",
+    bpm: 155,
+    message: "bro dont ask me what this is haha.",
   },
   {
     id: "ag-pov",
     title: "ag pov",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/ag-pov.svg",
     audioSrc: "/music/tracks/ag-pov.mp3",
     source: "produced",
     seconds: 188,
-    released: "2021-11-30",
-    note: "drill.",
+    released: "2022-11-30",
+    bpm: 144,
+    message: "imagine ariana grande on a drill beat. boom.",
   },
   {
     id: "picnic-in-paris",
     title: "picnic in paris",
     artist: "@prodshivk",
-    artwork: "/music/art/placeholder.svg",
+    artwork: "/music/art/picnic-in-paris.svg",
     audioSrc: "/music/tracks/picnic-in-paris.mp3",
     source: "produced",
     seconds: 110,
-    released: "2021-09-16",
-    note: "80 bpm.",
+    released: "2023-09-16",
+    bpm: 80,
+    message:
+      "this sample maybe has under three thousand streams, and is such a niche track that i found through cbc. thats where i picked up jazz and classical music, and this was one of my first attempts on a lofi flip.",
   },
 ];
 
@@ -202,6 +215,13 @@ export const libraryNotes = {
       "haven't made anything in a while. these are from when i was producing " +
       "for other artists, so they sound mechanical/beat like. currently i'm working with " +
       "real instruments to bring tracks to life. updating soon...",
+  },
+  recommend: {
+    kind: "requests",
+    lead: "tell me what i should be listening to.",
+    body:
+      "leave your name and the song. i read every one, and the ones that stick " +
+      "end up on the rotation tab with a shoutout to whoever sent them.",
   },
 } as const;
 
@@ -238,88 +258,105 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Face Card",
     artist: "Nate Sib",
-    message: "",
+    message:
+      "i missed his concert brooo hes such a great artist and i first discovered him 2 years ago. nate shows his vocal skills in this album and smashes it.",
   },
   {
     title: "No Interviews",
     artist: "Lil Durk",
-    message: "heard this when someone was blasting it on their yacht in chicago. such a sick song.",
+    message:
+      "heard this when someone was blasting it on their yacht in chicago. such a sick song.",
   },
   {
     title: "Some Of Your Love",
     artist: "PARTYNEXTDOOR",
-    message: "waited for this leak to release for SOO long. one of my fav late night tracks currently.",
+    message:
+      "waited for this leak to release for SOO long. one of my fav late night tracks currently.",
   },
   {
     title: "Warmth",
     artist: "C418",
-    message: "ifykyk, this is probably the best minecraft track out there. the ambience gets me locked in. listened to it while making this site lol.",
+    message:
+      "ifykyk, this is probably the best minecraft track out there. the ambience gets me locked in. listened to it while making this site lol.",
   },
   {
     title: "Never Let Go",
     artist: "Gurinder Gill",
-    message: "the melody gives very early 2020's punjabi vibes. one of my new fav's by GG.",
+    message:
+      "the melody gives very early 2020's punjabi vibes. one of my new fav's by GG.",
   },
   {
     title: "BLEED",
     artist: "Ryael",
-    message: "was first introduced to him at avenoir's concert. one of the most beautiful voices i have ever heard. i recommend checking out his music.",
+    message:
+      "was first introduced to him at avenoir's concert. one of the most beautiful voices i have ever heard. i recommend checking out his music.",
   },
   {
     title: "Morni",
     artist: "Raf Saperra",
-    message: "been doing bhangra for a little over a month and this is by far my fav song to dance on. can mix up a variety of moves, and ofc, the morni (peacoock).",
+    message:
+      "been doing bhangra for a little over a month and this is by far my fav song to dance on. can mix up a variety of moves, and ofc, the morni (peacoock).",
   },
   {
     title: "Rush",
     artist: "Odeal",
-    message: "one of odeals new drops, it is soo good. i always love his use of percussion, mixed with the unique chord progressions. 9.1/10",
+    message:
+      "one of odeals new drops, it is soo good. i always love his use of percussion, mixed with the unique chord progressions. 9.1/10",
   },
   {
     title: "D1",
     artist: "Lil Tecca",
-    message: "this hits everytime im in the car, probably one of my hype songs right now. first discovered this while i was still playing soccer, but still never misses.",
+    message:
+      "this hits everytime im in the car, probably one of my hype songs right now. first discovered this while i was still playing soccer, but still never misses.",
   },
   {
     title: "London Summers",
     artist: "Odeal",
-    message: "im a big fan of afrobeats, and odeal only perfects it. this song was playing everyday in summer, and still portrays my love for his percussion.",
+    message:
+      "im a big fan of afrobeats, and odeal only perfects it. this song was playing everyday in summer, and still portrays my love for his percussion.",
   },
   {
     title: "Waiting For You",
     artist: "Majid Jordan",
-    message: "there's acc a vlog that exists abt the production of this song. this is arguably one of my favourite 'chill' songs. the tempo, drums, and lead melody all met with naomi sharons vocals make it one of a kind. give it a listen.",
+    message:
+      "there's acc a vlog that exists abt the production of this song. this is arguably one of my favourite 'chill' songs. the tempo, drums, and lead melody all met with naomi sharons vocals make it one of a kind. give it a listen.",
   },
   {
     title: "Paradise",
     artist: "Avenoir",
-    message: "top 3 intros ever. this album gives me so much nostaliga to september of first year uni. going to DC library, fall time, this is the perfect song.",
+    message:
+      "top 3 intros ever. this album gives me so much nostaliga to september of first year uni. going to DC library, fall time, this is the perfect song.",
   },
 
   {
     title: "Songhai",
     artist: "Avenoir",
-    message: "a continuation of an album i believe is perfect. there are no words to describe the beauty of this album. one of my personal favourites.",
+    message:
+      "a continuation of an album i believe is perfect. there are no words to describe the beauty of this album. one of my personal favourites.",
   },
   {
     title: "Lady",
     artist: "Avenoir",
-    message: "a really cool, higher-energy song from avenoir that hits every time. loved when he performed this live 2 metres infront of me lol.",
+    message:
+      "a really cool, higher-energy song from avenoir that hits every time. loved when he performed this live 2 metres infront of me lol.",
   },
   {
     title: "D4U",
     artist: "Avenoir",
-    message: "the dark vibes of avenoir. love this song for a late night drive, and was one of the first songs i've heard by him. one of the best decisions ever.",
+    message:
+      "the dark vibes of avenoir. love this song for a late night drive, and was one of the first songs i've heard by him. one of the best decisions ever.",
   },
   {
     title: "Nights in The Sun",
     artist: "Odeal",
-    message: "a new collab with odela and wizkid, this is one of the top songs im bumping this summer.",
+    message:
+      "a new collab with odela and wizkid, this is one of the top songs im bumping this summer.",
   },
-    {
+  {
     title: "you need an angel",
     artist: "Chase Shakur",
-    message: "this song means a lot to me. its my confort song, helps me with my stress, and i play this when i need to wind down. i go for long walks and talk to myself while this song plays. have a listen :P",
+    message:
+      "this song means a lot to me. its my confort song, helps me with my stress, and i play this when i need to wind down. i go for long walks and talk to myself while this song plays. have a listen :P",
   },
   {
     title: "Burning Bridges",
@@ -329,12 +366,14 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Firm Friends",
     artist: "Drake",
-    message: "all collabs with drake and conductor are FIRE idc what anyone says. drake drops absolute bars here and conductor signs it off.",
+    message:
+      "all collabs with drake and conductor are FIRE idc what anyone says. drake drops absolute bars here and conductor signs it off.",
   },
   {
     title: "WNBA",
     artist: "Drake",
-    message: "probably one of my fav off of habibti, i just like the bass here lol. low frequency's are hittinggg on my bose quietcomforts.",
+    message:
+      "probably one of my fav off of habibti, i just like the bass here lol. low frequency's are hittinggg on my bose quietcomforts.",
   },
   {
     title: "I'm Spent",
@@ -344,62 +383,74 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "ICEMAN FREESTYLE",
     artist: "Central Cee",
-    message: "when this played during one of drake's livestreams for iceman rollout, i knew this was a banger. missed that style of cench until we got this.",
+    message:
+      "when this played during one of drake's livestreams for iceman rollout, i knew this was a banger. missed that style of cench until we got this.",
   },
   {
     title: "Virginia Beach",
     artist: "Drake",
-    message: "fall is cominggg, so you know what time it isss. i love this album with my heart, such nostalgia to october 2023.",
+    message:
+      "fall is cominggg, so you know what time it isss. i love this album with my heart, such nostalgia to october 2023.",
   },
   {
     title: "Champagne Poetry",
     artist: "Drake",
-    message: "one of my all time favs from the boy. spits so beautifully on this, and the sample breakdown to this song makes me reevaluate the capabilities of his producers.",
+    message:
+      "one of my all time favs from the boy. spits so beautifully on this, and the sample breakdown to this song makes me reevaluate the capabilities of his producers.",
   },
   {
     title: "Baldwin Park",
     artist: "Sonder",
-    message: "one of my late night grind songs. brilliant slow beat, and gets me in the mood to lock in everytime.",
+    message:
+      "one of my late night grind songs. brilliant slow beat, and gets me in the mood to lock in everytime.",
   },
   {
     title: "plan b",
     artist: "Nettspend",
-    message: "a previosuly leaked nettspend song, im glad it finally dropped. i like ug music so hearing this was insane.",
+    message:
+      "a previosuly leaked nettspend song, im glad it finally dropped. i like ug music so hearing this was insane.",
   },
   {
     title: "Coast to Coast",
     artist: "Maz B",
-    message: "new drop by maz, this has the bossanova flow to it. happy to hear a different vibe by maz here.",
+    message:
+      "new drop by maz, this has the bossanova flow to it. happy to hear a different vibe by maz here.",
   },
   {
     title: "Forgive Me",
     artist: "Maz B",
-    message: "the song speaks for itself. his songs always get me feeling a type of way. ",
+    message:
+      "the song speaks for itself. his songs always get me feeling a type of way. ",
   },
   {
     title: "Found",
     artist: "Maz B",
-    message: "sounds like rc20 slapped on the song. i love the vintage sound to this. this song genuinely brings tears to my eyes.",
+    message:
+      "sounds like rc20 slapped on the song. i love the vintage sound to this. this song genuinely brings tears to my eyes.",
   },
   {
     title: "My Witness",
     artist: "Maz B",
-    message: "again, one of the best intro's i've heard on an album. this one got a mysterious vibe to it and sets up the album perfectly. check it out.",
+    message:
+      "again, one of the best intro's i've heard on an album. this one got a mysterious vibe to it and sets up the album perfectly. check it out.",
   },
   {
     title: "White Collar Dreams",
     artist: "Maz B",
-    message: "the guitar flow switch midway is what keeps me waiting in this song. not to mention the outro, BEAUTIFUL. plz listen to this thanks.",
+    message:
+      "the guitar flow switch midway is what keeps me waiting in this song. not to mention the outro, BEAUTIFUL. plz listen to this thanks.",
   },
   {
     title: "Star Girl",
     artist: "Navaan Sandhu, Mickey Singh, JayB Singh",
-    message: "punjabi songs are never pop/melodically oriented, but this one felt different, especially with the chorus. love blasting this in the car.",
+    message:
+      "punjabi songs are never pop/melodically oriented, but this one felt different, especially with the chorus. love blasting this in the car.",
   },
   {
     title: "For A Reason",
     artist: "Karan Aujla, Ikky",
-    message: "spoke to ikky (producer) 2 years back. he said the shift to live instruments makes the song real, which i am currently doing, and which is evident here. one of my favs by karan.",
+    message:
+      "spoke to ikky (producer) 2 years back. he said the shift to live instruments makes the song real, which i am currently doing, and which is evident here. one of my favs by karan.",
   },
   {
     title: "I'ma Do My Thiiing",
@@ -409,22 +460,26 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Bachke Bachke - Unplugged",
     artist: "Karan Aujla",
-    message: "one of the 3 unplugged songs that are performed with such eloquence. i think karan is definitely top 5 punjabi lyricists, and you can see it here. one of my favs.",
+    message:
+      "one of the 3 unplugged songs that are performed with such eloquence. i think karan is definitely top 5 punjabi lyricists, and you can see it here. one of my favs.",
   },
   {
     title: "Punjaban",
     artist: "Sukha, Manni Sandhu, Kahlon",
-    message: "bhangra goes crazyyy on this song. word for word bar for bar, gets me hype everytime.",
+    message:
+      "bhangra goes crazyyy on this song. word for word bar for bar, gets me hype everytime.",
   },
   {
     title: "On The Loose",
     artist: "Sukha, Money Musik",
-    message: "never expected money to pop out with this type of beat honestly. tuff song though.",
+    message:
+      "never expected money to pop out with this type of beat honestly. tuff song though.",
   },
   {
     title: "Vanjhali Vaja",
     artist: "Amrinder Gill",
-    message: "one of the bestttt songs to do jhummar (type of bhangra) on. slow, melodic, and amrinder gill has such gracious lyrics. ",
+    message:
+      "one of the bestttt songs to do jhummar (type of bhangra) on. perfectly paced, melodic, and amrinder gill has such gracious lyrics. ",
   },
   {
     title: "Grateful",
@@ -434,22 +489,26 @@ export const onRepeatSeeds: OnRepeatSeed[] = [
   {
     title: "Arz Kiya Hai | Coke Studio Bharat",
     artist: "Anuv Jain",
-    message: "anuv jain is my go to for winters and rainy day cozy study sessions. i miss the old him before he got married though, thats when the real emotional songs were coming along.",
+    message:
+      "anuv jain is my go to for winters and rainy day cozy study sessions. i miss the old him before he got married though, thats when the real emotional songs were coming along.",
   },
   {
     title: "Gehra Hua",
     artist: "Shashwat Sachdev, Arijit Singh, Irshad Kamil, Armaan Khan",
-    message: "this movie is probably my favourite bollywood movie ever, and this song in the movie adds percetly to the scenes it covers. arijit singh once again delivers with the poetry and another banger added to his list.",
+    message:
+      "this movie is probably my favourite bollywood movie ever, and this song in the movie adds percetly to the scenes it covers. arijit singh once again delivers with the poetry and another banger added to his list.",
   },
   {
     title: "GEEKIN",
     artist: "Nemzzz",
-    message: "when im running soccer with my boys, this is the song im blasting lol. when you think of uk soccer and edits, you're hundred percent think of nemzzz.",
+    message:
+      "when im running soccer with my boys, this is the song im blasting lol. when you think of uk soccer and edits, you're hundred percent think of nemzzz.",
   },
   {
     title: "RAANI",
     artist: "Shergill, Virsa",
-    message: "fun fact: i played against this guy in school soccer lmao. great player but now he's popping out with greater songs. commends to shergill and hope to see him go big.",
+    message:
+      "fun fact: i played against this guy in school soccer lmao. great player but now he's popping out with greater songs. commends to shergill and hope to see him go big.",
   },
 ];
 /**

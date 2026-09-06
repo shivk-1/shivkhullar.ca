@@ -1,4 +1,4 @@
-import type { ProducedTrack, Track } from "@/data/music";
+import type { Track } from "@/data/music";
 
 /**
  * Ranked substring-and-subsequence matching over the fields a row already
@@ -12,7 +12,12 @@ import type { ProducedTrack, Track } from "@/data/music";
 
 /** What a term hit, best first. The gaps are wide enough that a title hit
     always outranks an artist hit no matter how many artist hits follow. */
-const FIELD_WEIGHT = { title: 100, artist: 55, album: 30, note: 20 } as const;
+const FIELD_WEIGHT = {
+  title: 100,
+  artist: 55,
+  album: 30,
+  message: 20,
+} as const;
 
 type Field = keyof typeof FIELD_WEIGHT;
 
@@ -25,15 +30,20 @@ function normalize(value: string) {
     .trim();
 }
 
-/** The searchable text of a row, one normalized string per field. */
+/**
+ * The searchable text of a row, one normalized string per field.
+ *
+ * The note lives on the notepad rather than in the row now, but it is still
+ * indexed: it is the only place a beat's story is written down, and someone
+ * looking for the anime one is searching for a word only it contains.
+ */
 function fields(track: Track): Array<[Field, string]> {
-  const note = (track as ProducedTrack).note;
   const entries: Array<[Field, string]> = [
     ["title", normalize(track.title)],
     ["artist", normalize(track.artist)],
   ];
   if (track.album) entries.push(["album", normalize(track.album)]);
-  if (note) entries.push(["note", normalize(note)]);
+  if (track.message) entries.push(["message", normalize(track.message)]);
   return entries;
 }
 
