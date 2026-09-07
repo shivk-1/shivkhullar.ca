@@ -203,25 +203,15 @@ export const producedTracks: ProducedTrack[] = [...produced].sort((a, b) =>
  */
 export const libraryNotes = {
   "on-repeat": {
-    /** The small label above the lead, the way a playlist page names itself. */
-    kind: "playlist",
     lead: "my top 40 songs in rotation.",
     body: "updated every month.",
   },
   produced: {
-    kind: "productions",
     lead: "check out some tracks i produced myself.",
     body:
       "haven't made anything in a while. these are from when i was producing " +
       "for other artists, so they sound mechanical/beat like. currently i'm working with " +
       "real instruments to bring tracks to life. updating soon...",
-  },
-  recommend: {
-    kind: "requests",
-    lead: "tell me what i should be listening to.",
-    body:
-      "leave your name and the song. i read every one, and the ones that stick " +
-      "end up on the rotation tab with a shoutout to whoever sent them.",
   },
 } as const;
 

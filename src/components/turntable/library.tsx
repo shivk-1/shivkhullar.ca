@@ -10,26 +10,17 @@ import {
   type Track,
 } from "@/data/music";
 import { site } from "@/data/site";
-import { Recommend } from "./recommend";
 import { searchTracks } from "./search";
 import { SORT_KEYS, SORT_LABELS, sortTracks, type SortKey } from "./sort";
 
-type Tab = "on-repeat" | "produced" | "recommend";
-
-/** The two tabs that are lists. "recommend" is a form, and everything that
-    narrows or counts a list has nothing to say about it. */
-type ListTab = Exclude<Tab, "recommend">;
+type Tab = "on-repeat" | "produced";
 
 /**
  * The record crate, laid out like an apple music song list: cover, title over
- * artist, album, duration. Tabs rather than stacked groups — the produced
- * rows carry a note in place of the album, so stacking the two lists pushed
- * one of them off the top of the scroll as soon as the playlist loaded.
- *
- * The third tab is not a list at all: it is the box people put song
- * recommendations into. It lives here because this is where someone is
- * already looking at what I listen to, which is the moment they have an
- * opinion about it.
+ * artist, album, duration. Two tabs rather than two stacked groups — the
+ * produced rows carry a note in place of the album, so stacking the two lists
+ * pushed one of them off the top of the scroll as soon as the playlist
+ * loaded.
  *
  * Opens on "on repeat", which is the first tab. The open tab and the leading
  * tab are deliberately the same thing: a tablist that opens on its second
@@ -59,7 +50,7 @@ export function Library({
   // One per tab. A sort is a statement about the list you are looking at, so
   // ordering the rotation by length should not silently reorder my own crate
   // behind the other tab.
-  const [sort, setSort] = useState<Record<ListTab, SortKey>>({
+  const [sort, setSort] = useState<Record<Tab, SortKey>>({
     "on-repeat": "shuffle",
     produced: "shuffle",
   });
@@ -101,13 +92,6 @@ export function Library({
         <TabButton id="produced" active={tab === "produced"} onSelect={setTab}>
           produced
         </TabButton>
-        <TabButton
-          id="recommend"
-          active={tab === "recommend"}
-          onSelect={setTab}
-        >
-          recommend
-        </TabButton>
       </div>
 
       <TabNote
@@ -117,25 +101,15 @@ export function Library({
         // playlist; narrowing it with a search does not make it a shorter
         // playlist.
         tracks={tab === "produced" ? produced : onRepeat}
-        // Never on the recommend tab: there is no list under it, so a song
-        // count there would be describing the wrong thing entirely.
-        counted={
-          tab === "produced" ||
-          (tab === "on-repeat" && onRepeatState === "ready")
-        }
+        counted={tab === "produced" || onRepeatState === "ready"}
       />
 
-      {/* Hidden on the recommend tab rather than disabled. Nothing there is
-          searchable or sortable, and a dead search field above a form invites
-          someone to type into the wrong box. */}
-      {tab !== "recommend" && (
-        <Filters
-          query={query}
-          onQuery={setQuery}
-          sort={sort[tab]}
-          onSort={(key) => setSort((current) => ({ ...current, [tab]: key }))}
-        />
-      )}
+      <Filters
+        query={query}
+        onQuery={setQuery}
+        sort={sort[tab]}
+        onSort={(key) => setSort((current) => ({ ...current, [tab]: key }))}
+      />
 
       <div
         role="tabpanel"
@@ -205,17 +179,6 @@ export function Library({
           </>
         )}
       </div>
-
-      <div
-        role="tabpanel"
-        id="panel-recommend"
-        aria-labelledby="tab-recommend"
-        aria-describedby="library-note"
-        hidden={tab !== "recommend"}
-        className="min-h-0 flex-1 overflow-y-auto"
-      >
-        <Recommend />
-      </div>
     </aside>
   );
 }
@@ -224,9 +187,9 @@ export function Library({
  * What each tab is, in a line, with the longer thought under it.
  *
  * It sits outside the panels so it can hold still while they swap, which is
- * why every panel points its `aria-describedby` at it: read on its own it is
- * a floating sentence, but as the description of whichever panel is showing
- * it says the same thing to a screen reader that it says on screen.
+ * why both panels point their `aria-describedby` at it: read on its own it is
+ * a floating sentence, but as the description of whichever list is showing it
+ * says the same thing to a screen reader that it says on screen.
  */
 function TabNote({
   id,
@@ -247,19 +210,11 @@ function TabNote({
   );
 
   return (
-    // Padded top and bottom, not just bottom: without it the kind line sits
-    // flush against the rule under the tabs.
+    // Padded top and bottom, not just bottom: without it the lead sits flush
+    // against the rule under the tabs.
     <div id={id} className="shrink-0 px-3 pb-3.5 pt-3.5">
-      {/* The category, set small and wide and quiet. It carries almost no
-          information; what it does is establish that everything under it is
-          one thing with a name, which is the job the word "playlist" does at
-          the top of a playlist. */}
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">
-        {note.kind}
-      </p>
-
       {/* The one line that is allowed to be loud. */}
-      <p className="mt-1.5 text-[15px] font-semibold leading-snug tracking-[-0.01em] text-white">
+      <p className="text-[15px] font-semibold leading-snug tracking-[-0.01em] text-white">
         {note.lead}
       </p>
 
