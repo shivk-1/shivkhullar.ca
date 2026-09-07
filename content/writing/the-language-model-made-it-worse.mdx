@@ -60,7 +60,7 @@ the **decoder** turns that stream of guesses into a string. this is where
 knowledge about language gets injected, because the encoder's output is full of
 errors and english has structure you can exploit.
 
-the argument in this post is entirely about the second half. the encoder stays
+the argument in this blog is entirely about the second half. the encoder stays
 frozen across both experiments: same ears, different brains.
 
 ### what the encoder actually is
@@ -101,7 +101,7 @@ blank whenever nothing is happening, and repeats collapse: `hh_ee_lll_o` becomes
 the right answer, so the model is never told where the characters are, only what
 they were.
 
-the consequence is the hinge of this post. at decode time CTC hands you not a
+the consequence is the hinge of this blog. at decode time CTC hands you not a
 string but a probability distribution over characters at every time step, which
 implies a huge weighted set of possible strings. that set is the **lattice**.
 what you are allowed to do with it is the entire disagreement.
