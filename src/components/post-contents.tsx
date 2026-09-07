@@ -27,7 +27,12 @@ export function PostContents({ headings }: { headings: Post["headings"] }) {
 
   return (
     <>
-      <nav ref={inlineRef} aria-label="contents" className="mt-8">
+      {/* Same margin below as above, so the list sits in its own band rather
+          than leaning against the opening paragraph. The body's first element
+          brings its own smaller top margin; these are adjacent siblings in
+          normal flow, so the two collapse to this one and the gap above and
+          below the list stays symmetrical. */}
+      <nav ref={inlineRef} aria-label="contents" className="mt-8 mb-8">
         <p className="text-sm text-muted">contents</p>
         <ul className="mt-2 space-y-1">
           {headings.map((h) => (
