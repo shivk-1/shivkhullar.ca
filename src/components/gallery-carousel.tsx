@@ -6,6 +6,9 @@ import { gallery, type GalleryPhoto } from "@/data/gallery";
 
 const PER_PAGE = 3;
 
+/** `size-8` in pixels. Only the arrow offset needs it as a number. */
+const BUTTON_SIZE = 32;
+
 /** "2024-07-21" -> "jul 2024". Matches the date style used in experience. */
 function formatDate(iso: string) {
   return new Date(`${iso}T00:00:00`)
@@ -53,6 +56,38 @@ export function GalleryCarousel() {
     },
     [],
   );
+
+  /**
+   * Height of one photo, which is what the arrows line up against.
+   *
+   * Measured rather than derived. The number is knowable in css - the photos
+   * are a fixed aspect of a third of the track - but writing it out means
+   * restating the track's width, both gaps and the arrow column as one
+   * expression, and every one of those is set somewhere else in this file.
+   * An observer costs a few lines and cannot drift out of step with them.
+   *
+   * Zero until it has been read, which is the pre-hydration state; the arrows
+   * fall back to centring on the whole row there, and the correction on the
+   * frame after is roughly half a caption.
+   */
+  const [photoHeight, setPhotoHeight] = useState(0);
+
+  useEffect(() => {
+    const photo = track.current?.querySelector("figure > button");
+    if (!photo) return;
+
+    // The border box, not `contentRect`: the photos are bordered, and the
+    // content box is the two pixels of that border short of what is actually
+    // on screen to line up with.
+    const observer = new ResizeObserver(([entry]) =>
+      setPhotoHeight(
+        entry.borderBoxSize?.[0]?.blockSize ??
+          photo.getBoundingClientRect().height,
+      ),
+    );
+    observer.observe(photo);
+    return () => observer.disconnect();
+  }, []);
 
   if (gallery.length === 0) return null;
 
@@ -131,13 +166,18 @@ export function GalleryCarousel() {
       {/*
         Arrows flank the strip instead of sitting under it, so they read as
         controls for the photos rather than another line of section furniture.
-        They are centred on the whole track, captions included.
+
+        Aligned to the top of the row rather than its middle, because the row
+        is a photo plus its caption and centring on the pair leaves the arrows
+        sitting low against the images they point at. Each one is dropped back
+        to the middle of the photo alone by the offset below.
       */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-start gap-2 sm:gap-4">
         {STOPS.length > 1 && (
           <NavButton
             label="previous photos"
             onClick={() => go(-1)}
+            centreOn={photoHeight}
             hidden={step === 0}
           >
             ←
@@ -193,6 +233,7 @@ export function GalleryCarousel() {
           <NavButton
             label="next photos"
             onClick={() => go(1)}
+            centreOn={photoHeight}
             hidden={step === STOPS.length - 1}
           >
             →
@@ -295,11 +336,19 @@ function Lightbox({
 function NavButton({
   label,
   onClick,
+  centreOn,
   hidden = false,
   children,
 }: {
   label: string;
   onClick: () => void;
+  /**
+   * Height of the photos beside it. The button is pushed down by half of
+   * what is left after its own height, which puts its middle on theirs.
+   * Zero means it has not been measured yet, and the button stays centred on
+   * the row the way it was before.
+   */
+  centreOn: number;
   hidden?: boolean;
   children: string;
 }) {
@@ -311,9 +360,12 @@ function NavButton({
       disabled={hidden}
       aria-hidden={hidden || undefined}
       tabIndex={hidden ? -1 : undefined}
-      className={`flex size-8 shrink-0 items-center justify-center rounded-md border border-border text-muted transition-colors hover:text-foreground ${
-        hidden ? "invisible" : ""
-      }`}
+      style={
+        centreOn > 0 ? { marginTop: (centreOn - BUTTON_SIZE) / 2 } : undefined
+      }
+      className={`flex size-8 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:text-foreground ${
+        centreOn > 0 ? "" : "self-center"
+      } ${hidden ? "invisible" : ""}`}
     >
       {children}
     </button>

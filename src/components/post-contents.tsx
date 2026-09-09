@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { scrollToHeading } from "@/lib/smooth-scroll";
 import type { Post } from "@/lib/writing";
 
 /**
@@ -25,6 +26,22 @@ export function PostContents({ headings }: { headings: Post["headings"] }) {
     return () => observer.disconnect();
   }, []);
 
+  /**
+   * Both lists point at the same headings, so both hand off to the same
+   * animation. The href stays a real one underneath: it is what a middle
+   * click, a right click and a browser with no javascript all use, and the
+   * default is only cancelled once there is something better to run instead.
+   */
+  const jump = (id: string) => (event: React.MouseEvent) => {
+    // Anything but a plain left click is the reader asking the browser for
+    // something else entirely, and none of those want a scroll.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    scrollToHeading(id);
+  };
+
   return (
     <>
       {/* Same margin below as above, so the list sits in its own band rather
@@ -37,7 +54,11 @@ export function PostContents({ headings }: { headings: Post["headings"] }) {
         <ul className="mt-2 space-y-1">
           {headings.map((h) => (
             <li key={h.id}>
-              <a href={`#${h.id}`} className="link text-[15px] text-muted">
+              <a
+                href={`#${h.id}`}
+                onClick={jump(h.id)}
+                className="link text-[15px] text-muted"
+              >
                 {h.text}
               </a>
             </li>
@@ -57,6 +78,7 @@ export function PostContents({ headings }: { headings: Post["headings"] }) {
             <li key={h.id}>
               <a
                 href={`#${h.id}`}
+                onClick={jump(h.id)}
                 tabIndex={railVisible ? undefined : -1}
                 className="block text-[13px] leading-snug text-muted transition-colors hover:text-foreground"
               >
