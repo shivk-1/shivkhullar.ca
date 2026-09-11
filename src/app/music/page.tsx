@@ -6,7 +6,6 @@ import { site } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "music wall",
-  description: `music ${site.shortName} listens to.`,
 };
 
 export default function MusicPage() {

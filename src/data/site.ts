@@ -5,8 +5,6 @@ export const site = {
   school: "university of waterloo",
   schoolUrl: "https://uwaterloo.ca/",
   url: "https://shivkhullar.com",
-  description:
-    "computer engineering @ university of waterloo. working on paper-to-implementation r&d and building projects i actually want to build.",
   photo: "/mypic.jpg",
   email: "shivansh.khullar@gmail.com",
   resume: "/Shivansh_Khullar_Resume.pdf",

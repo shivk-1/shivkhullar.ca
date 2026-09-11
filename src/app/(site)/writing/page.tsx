@@ -6,7 +6,6 @@ import { site } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "writing",
-  description: `things ${site.shortName} has written.`,
 };
 
 export default function WritingIndex() {

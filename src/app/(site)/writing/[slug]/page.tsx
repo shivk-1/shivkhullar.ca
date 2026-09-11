@@ -20,10 +20,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const post = getPost(slug);
   return {
     title: post.title,
-    description: post.excerpt,
     openGraph: {
       title: post.title,
-      description: post.excerpt,
       type: "article",
       publishedTime: post.date,
       images: post.cover ? [post.cover] : undefined,
