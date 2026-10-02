@@ -98,9 +98,18 @@ export function MusicRoom() {
     setTrack(next);
     setTime(0);
     setDuration(0);
-    // The element picks up the new src on the next render, so play once the
-    // browser says it can actually start.
-    setPlaying(true);
+
+    const el = audio.current;
+    if (!el) return;
+    // Set and started here, inside the tap, not on a later render. iOS only
+    // lets audio start from within the gesture that asked for it, and with
+    // preload it may never fire canplay until something calls play() — so
+    // waiting for canplay to start the track left it silent on a phone. The
+    // src is also kept off the element's props for the same reason: React
+    // writing it again on the next render would reload the track it just
+    // started.
+    el.src = next.audioSrc;
+    el.play().catch(() => setPlaying(false));
   };
 
   const toggle = () => {
@@ -238,11 +247,7 @@ export function MusicRoom() {
 
       <audio
         ref={audio}
-        src={track?.audioSrc}
         preload="metadata"
-        onCanPlay={(event) => {
-          if (playing) void event.currentTarget.play();
-        }}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onTimeUpdate={(event) => setTime(event.currentTarget.currentTime)}
