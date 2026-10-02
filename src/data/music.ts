@@ -205,6 +205,8 @@ export const libraryNotes = {
   "on-repeat": {
     lead: "my top 40 songs in rotation.",
     body: "updated every month.",
+    /** The same 40, kept as a spotify playlist for anyone who wants them. */
+    playlist: "https://open.spotify.com/playlist/4OvVophYT2CwDYDi1hex3Z",
   },
   produced: {
     lead: "check out some tracks i produced myself.",

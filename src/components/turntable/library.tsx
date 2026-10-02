@@ -232,6 +232,23 @@ function TabNote({
         {note.body}
       </p>
 
+      {/* Shown on a phone too, unlike the body above: it is the one line
+          here that does something. */}
+      {"playlist" in note && (
+        <p className="mt-1.5 text-[12.5px] text-white/45">
+          want this in a playlist? check it out on spotify{" "}
+          <a
+            href={note.playlist}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-white/80 underline decoration-white/30 underline-offset-2 transition-colors hover:text-white hover:decoration-white/70"
+          >
+            here
+          </a>
+          .
+        </p>
+      )}
+
       {counted && (
         /* Owner, then the numbers. The name is the only part in a brighter
            weight, so the line reads as "mine, and this much of it" rather than
