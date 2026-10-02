@@ -80,7 +80,7 @@ export function Library({
       <div
         role="tablist"
         aria-label="library"
-        className="flex shrink-0 gap-1 border-b border-white/10 px-3 py-3"
+        className="flex shrink-0 gap-1 border-b border-white/10 px-3 py-2 sm:py-3"
       >
         <TabButton
           id="on-repeat"
@@ -212,13 +212,16 @@ function TabNote({
   return (
     // Padded top and bottom, not just bottom: without it the lead sits flush
     // against the rule under the tabs.
-    <div id={id} className="shrink-0 px-3 pb-3.5 pt-3.5">
+    // On a phone the crate is a drawer a few hundred pixels tall, and the full
+    // note took most of it before a single track showed. The lead stays; the
+    // longer thought and the numbers are for the desk.
+    <div id={id} className="shrink-0 px-3 py-2.5 sm:pb-3.5 sm:pt-3.5">
       {/* The one line that is allowed to be loud. */}
       <p className="text-[15px] font-semibold leading-snug tracking-[-0.01em] text-white">
         {note.lead}
       </p>
 
-      <p className="mt-1.5 text-[12.5px] leading-relaxed text-white/45">
+      <p className="mt-1.5 hidden text-[12.5px] leading-relaxed text-white/45 sm:block">
         {note.body}
       </p>
 
@@ -226,7 +229,7 @@ function TabNote({
         /* Owner, then the numbers. The name is the only part in a brighter
            weight, so the line reads as "mine, and this much of it" rather than
            as three equal facts. */
-        <p className="mt-2.5 text-[11.5px] text-white/35">
+        <p className="mt-2.5 hidden text-[11.5px] text-white/35 sm:block">
           <span className="font-medium text-white/70">{site.name}</span>
           <span aria-hidden="true"> · </span>
           <span className="tabular-nums">
