@@ -34,8 +34,13 @@ export function MusicRoom() {
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [rpm, setRpm] = useState(33);
-  const { sheet, drag, toggle: toggleLibrary, handlers: sheetHandlers } =
-    useSheet();
+  const {
+    sheet,
+    drag,
+    toggle: toggleLibrary,
+    toggleFull,
+    handlers: sheetHandlers,
+  } = useSheet();
   const libraryOpen = sheet !== "closed";
   const [volume, setVolume] = useState(0.8);
 
@@ -180,9 +185,8 @@ export function MusicRoom() {
             around it. On a phone it is its own strip under the room instead:
             overlaid, it covered most of a canvas that is only a few hundred
             pixels tall, and a drag that lands on the dock never reaches the
-            orbit controls. The bottom padding leaves space for the crate's
-            tab, which hangs up off the top of the crate into this strip. */}
-        <div className="pointer-events-none flex shrink-0 flex-col items-center gap-3 px-3 pb-8 pt-1 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-6">
+            orbit controls. */}
+        <div className="pointer-events-none flex shrink-0 flex-col items-center gap-3 px-3 pb-3 pt-1 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-6">
           <PlayerDock
             track={track}
             playing={playing}
@@ -231,6 +235,8 @@ export function MusicRoom() {
           aria-expanded={libraryOpen}
           aria-controls="library"
           aria-label={libraryOpen ? "collapse the library" : "open the library"}
+          // Desk only. A phone pulls the crate by the grab bar inside it.
+          //
           // Hung off the panel's own edge rather than placed on the page, so
           // it travels with the panel and is always the thing nearest to what
           // it controls.
@@ -242,7 +248,7 @@ export function MusicRoom() {
           // inside is only what you can see. The margin then holds the whole
           // thing off the window edge while it is closed, so there is somewhere
           // to miss into.
-          className={`group absolute z-20 grid touch-none select-none place-items-center pt-2 sm:pb-0 sm:[touch-action:manipulation] sm:pl-2 sm:pt-0 ${
+          className={`group absolute z-20 hidden select-none place-items-center sm:grid sm:pl-2 sm:[touch-action:manipulation] ${
             libraryOpen ? "" : "-mt-2 sm:ml-[-0.5rem] sm:mt-0"
           } left-1/2 top-0 -translate-x-1/2 -translate-y-full sm:left-0 sm:top-1/2 sm:-translate-x-full sm:-translate-y-1/2`}
         >
@@ -266,10 +272,25 @@ export function MusicRoom() {
         {/* Solid on a phone, where the sheet can sit over the room and a
             see-through list on top of a lit scene is unreadable. */}
         <div
-          className="h-full w-full overflow-hidden rounded-t-2xl bg-[#0c0c0d] sm:rounded-none sm:bg-transparent"
+          className="flex h-full w-full flex-col overflow-hidden rounded-t-2xl bg-[#0c0c0d] sm:rounded-none sm:bg-transparent"
           inert={!libraryOpen}
         >
-          <div className="h-full w-full sm:w-[24rem] md:w-[30rem]">
+          {/* The phone's handle, in place of the desk's tab: the bar every
+              iOS sheet has, which says "pull me" without words. */}
+          <button
+            type="button"
+            data-sheet-handle
+            onClick={toggleFull}
+            aria-expanded={sheet === "full"}
+            aria-controls="library"
+            aria-label={
+              sheet === "full" ? "shrink the library" : "expand the library"
+            }
+            className="flex w-full touch-none justify-center pb-1 pt-2.5 sm:hidden"
+          >
+            <span className="h-1 w-9 rounded-full bg-white/25" />
+          </button>
+          <div className="min-h-0 w-full flex-1 sm:w-[24rem] md:w-[30rem]">
             <Library
               id="library"
               produced={produced}
