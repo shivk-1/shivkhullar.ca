@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import type { Quality } from "./quality";
 
 /**
  * The two practical lights in the room.
@@ -77,6 +78,12 @@ function lightTheShade(material: THREE.Material) {
   const shade = material.clone() as THREE.MeshStandardMaterial;
   shade.transparent = false;
   shade.opacity = 1;
+  // The outer layer ships with KHR_materials_transmission, which the loader
+  // turns into a physical material that refracts what is behind it. Going
+  // opaque does not switch that off: three still renders the whole room a
+  // second time every frame, into a buffer only this shade samples, to show
+  // a liner that hides it anyway.
+  if ("transmission" in shade) shade.transmission = 0;
   shade.depthWrite = true;
   shade.emissive = new THREE.Color("#ff8c46");
   shade.emissiveIntensity = 0.85;
@@ -105,6 +112,7 @@ function prepare(scene: THREE.Object3D) {
     if (!mesh.isMesh) return;
     mesh.castShadow = false;
     mesh.receiveShadow = false;
+    if (BULB.has(materialName(mesh.material))) mesh.userData.bulb = true;
 
     // Cloning the scene shares materials with the cached gltf, so the shade is
     // replaced with a copy rather than edited where it lies.
@@ -121,18 +129,35 @@ function prepare(scene: THREE.Object3D) {
   return root;
 }
 
-export function Lamps() {
+/**
+ * The bulb inside the table lamp, by material name: glass, screw base and the
+ * filament assembly. Over a third of the lamp's triangles, the screw thread
+ * alone 148k, for something an opaque shade covers. Left out on the low tier.
+ */
+const BULB = new Set(["bulbglass", "bulbbase", "Material.003", "Bulbinterior"]);
+
+function materialName(material: THREE.Material | THREE.Material[]) {
+  return Array.isArray(material) ? material[0]?.name : material.name;
+}
+
+export function Lamps({ quality = "high" }: { quality?: Quality }) {
   return (
     <>
-      <TableLamp />
-      <DonutLamp />
+      <TableLamp quality={quality} />
+      <DonutLamp quality={quality} />
     </>
   );
 }
 
-function TableLamp() {
+function TableLamp({ quality }: { quality: Quality }) {
   const { scene } = useGLTF(TABLE.url, DRACO);
   const model = useMemo(() => prepare(scene), [scene]);
+
+  useEffect(() => {
+    model.traverse((node) => {
+      if (node.userData.bulb) node.visible = quality === "high";
+    });
+  }, [model, quality]);
 
   const scale = TABLE.height / TABLE.modelHeight;
   const lift = -TABLE.base * scale;
@@ -161,7 +186,10 @@ function TableLamp() {
         distance={34}
         decay={2}
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        // Keyed by size below: three allocates the map once, at the size it
+        // first saw, and ignores a later change to it.
+        key={quality}
+        shadow-mapSize={quality === "high" ? [1024, 1024] : [512, 512]}
         shadow-camera-near={0.4}
         shadow-camera-far={26}
         shadow-bias={-0.002}
@@ -171,7 +199,7 @@ function TableLamp() {
   );
 }
 
-function DonutLamp() {
+function DonutLamp({ quality }: { quality: Quality }) {
   const { scene } = useGLTF(DONUT.url, DRACO);
   const model = useMemo(() => prepare(scene), [scene]);
 
@@ -197,7 +225,11 @@ function DonutLamp() {
         intensity={48}
         distance={22}
         decay={2}
-        castShadow
+        // Its shadows are the weaker pair, cast mostly onto the near side of
+        // the deck from a light on the floor. The low tier keeps the table
+        // lamp's and lets this one light without casting: six fewer renders
+        // of the room each time the shadows are redrawn.
+        castShadow={quality === "high"}
         shadow-mapSize={[512, 512]}
         shadow-camera-near={0.3}
         shadow-camera-far={15}

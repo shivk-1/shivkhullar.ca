@@ -13,6 +13,7 @@ import { markRoomReady, resetRoomReady } from "./room-ready";
 import { Lamps } from "./lamps";
 import { Notepad } from "./notepad";
 import { Plant } from "./plant";
+import { DPR, detectQuality, type Quality } from "./quality";
 import { Speakers } from "./speakers";
 import { Turntable, type TurntableProps } from "./turntable";
 
@@ -36,11 +37,19 @@ export type SceneProps = TurntableProps & {
 
 export function TurntableScene({ message, ...props }: SceneProps) {
   /**
+   * Read once on the client. A phone starts low; a desktop starts high and
+   * can be moved down below if it turns out not to hold it. Nothing moves it
+   * back up — a room that keeps swapping its shadows in and out is worse than
+   * one that settled on fewer.
+   */
+  const [quality, setQuality] = useState<Quality>(detectQuality);
+
+  /**
    * Starts below native retina density on purpose. At dpr 2 this is a four
    * megapixel pass every frame for a deck that reads identically at 1.5, and
    * the monitor below moves it either way once it has measured the machine.
    */
-  const [dpr, setDpr] = useState(1.5);
+  const [dpr, setDpr] = useState(() => DPR[quality].start);
 
   return (
     <Canvas
@@ -63,8 +72,19 @@ export function TurntableScene({ message, ...props }: SceneProps) {
         panel and 60 elsewhere rather than a fixed number.
       */}
       <PerformanceMonitor
-        onIncline={() => setDpr(2)}
-        onDecline={() => setDpr(1)}
+        onIncline={() => setDpr((d) => Math.min(d + 0.25, DPR[quality].max))}
+        onDecline={() => {
+          // Resolution goes first, since it costs nothing to look at. Once
+          // that is on the floor and the machine is still behind, the room
+          // drops a tier: the slower laptops land here rather than being
+          // guessed at up front.
+          if (dpr > DPR[quality].min) {
+            setDpr((d) => Math.max(d - 0.25, DPR[quality].min));
+          } else if (quality === "high") {
+            setQuality("low");
+            setDpr(DPR.low.start);
+          }
+        }}
       />
 
       {/*
@@ -100,14 +120,14 @@ export function TurntableScene({ message, ...props }: SceneProps) {
           />
         </Environment>
 
-        <Turntable {...props} />
+        <Turntable {...props} quality={quality} />
 
         {/* Stood off the deck's far right corner, close enough to read as the
             same room and far enough not to crowd the tonearm. It places itself
             against the canvas shape, so it is given no position here. */}
         <Plant />
         <Speakers />
-        <Lamps />
+        <Lamps quality={quality} />
         <Notepad message={message} />
 
         {/*
@@ -132,6 +152,7 @@ export function TurntableScene({ message, ...props }: SceneProps) {
         <Preload all />
 
         <RoomReady />
+        <ShadowGate quality={quality} />
       </Suspense>
 
       <OrbitControls
@@ -189,6 +210,47 @@ function RoomReady() {
       return;
     }
     if (drawn.current === 2) markRoomReady();
+  });
+
+  return null;
+}
+
+/**
+ * Redraws the shadow maps only when something that casts one has moved.
+ *
+ * Both lamps are point lights, and a point light's shadow is six renders of
+ * every caster in the room — twelve between them, every frame, which was most
+ * of what the room cost to draw. None of it depends on the camera, and almost
+ * nothing in the room moves: the record is a disc turning about its own axis,
+ * which throws the same shadow at every angle. The tonearm is the exception,
+ * and it asks for a redraw itself while it swings.
+ *
+ * Kept on for the first three frames after the room resolves, so everything
+ * that arrived with it is in the map, and again whenever the tier changes,
+ * since that is when the set of shadow-casting lights does.
+ */
+function ShadowGate({ quality }: { quality: Quality }) {
+  const get = useThree((state) => state.get);
+  const warm = useRef({ quality, frames: 0 });
+
+  useEffect(() => {
+    const { shadowMap } = get().gl;
+    shadowMap.autoUpdate = false;
+    return () => {
+      shadowMap.autoUpdate = true;
+    };
+  }, [get]);
+
+  useFrame(({ gl }) => {
+    const state = warm.current;
+    if (state.quality !== quality) {
+      state.quality = quality;
+      state.frames = 0;
+    }
+    if (state.frames < 3) {
+      state.frames += 1;
+      gl.shadowMap.needsUpdate = true;
+    }
   });
 
   return null;

@@ -27,6 +27,12 @@ import * as THREE from "three";
 
 const PAD = "/models/notebook.glb";
 const PEN = "/models/pen.glb";
+/**
+ * Both files are draco compressed — 6.3MB of raw geometry down to half a
+ * megabyte — and decoded by the same local decoder the lamps use, rather than
+ * drei's default, which fetches one from a CDN.
+ */
+const DRACO = "/draco/";
 
 /**
  * Hand lettering, so the page reads as written rather than typeset.
@@ -172,8 +178,8 @@ function prepare(
 }
 
 export function Notepad({ message }: { message?: string }) {
-  const pad = useGLTF(PAD);
-  const pen = useGLTF(PEN);
+  const pad = useGLTF(PAD, DRACO);
+  const pen = useGLTF(PEN, DRACO);
 
   const built = useMemo(() => {
     const padScale = PAD_LENGTH / PAD_MODEL.length;
@@ -445,5 +451,5 @@ function Message({
   );
 }
 
-useGLTF.preload(PAD);
-useGLTF.preload(PEN);
+useGLTF.preload(PAD, DRACO);
+useGLTF.preload(PEN, DRACO);

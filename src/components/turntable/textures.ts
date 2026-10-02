@@ -142,8 +142,7 @@ export type VinylMaps = {
   normal: THREE.Texture;
 };
 
-export function vinylMaps(): VinylMaps {
-  const size = VINYL_SIZE;
+export function vinylMaps(size = VINYL_SIZE): VinylMaps {
   const mid = size / 2;
   const profile = vinylProfile(mid);
 

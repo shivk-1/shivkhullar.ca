@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import type { Quality } from "./quality";
 import { brushedMaps, feltMaps, vinylMaps, woodMaps } from "./textures";
 
 /**
@@ -93,6 +94,11 @@ export type TurntableProps = {
   progress: number;
   /** Album art for the centre label. Falls back to a plain label when absent. */
   artwork?: string;
+  /**
+   * Read once, at mount. The maps are drawn on the main thread, so redrawing
+   * them mid-visit to save memory would cost a visible stall to do it.
+   */
+  quality?: Quality;
 };
 
 export function Turntable({
@@ -101,19 +107,25 @@ export function Turntable({
   bpm,
   progress,
   artwork,
+  quality = "high",
 }: TurntableProps) {
   const disc = useRef<THREE.Group>(null);
   const arm = useRef<THREE.Group>(null);
   /** Current platter speed in revolutions per second, eased toward target. */
   const speed = useRef(0);
+  /** Arm angle the shadow maps were last drawn at. */
+  const shadowAngle = useRef(ARM_REST);
 
   const maps = useMemo(
     () => ({
-      vinyl: vinylMaps(),
+      // Half size on the low tier: a quarter of the memory and of the time
+      // spent drawing it, on the one map large enough for either to matter.
+      vinyl: vinylMaps(quality === "low" ? 1024 : undefined),
       wood: woodMaps(),
       brushed: brushedMaps(),
       felt: feltMaps(),
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see `quality`
     [],
   );
   const label = useArtwork(artwork);
@@ -126,7 +138,7 @@ export function Turntable({
     };
   }, [maps]);
 
-  useFrame((_, delta) => {
+  useFrame(({ gl }, delta) => {
     const scale = bpm
       ? THREE.MathUtils.clamp(bpm / BPM_REFERENCE, BPM_SCALE.min, BPM_SCALE.max)
       : 1;
@@ -156,6 +168,16 @@ export function Turntable({
         3,
         delta,
       );
+      // The one moving thing in the room with a shadow that changes, and the
+      // scene only redraws shadow maps on request (see ShadowGate). Asked for
+      // by distance rather than every frame it moves: while a track plays the
+      // arm creeps inward by a hundred-thousandth of a radian a frame, and a
+      // threshold of a tenth of a degree turns that into a redraw every few
+      // seconds instead of sixty a second. A swing still redraws every frame.
+      if (Math.abs(arm.current.rotation.y - shadowAngle.current) > 0.002) {
+        shadowAngle.current = arm.current.rotation.y;
+        gl.shadowMap.needsUpdate = true;
+      }
     }
   });
 
