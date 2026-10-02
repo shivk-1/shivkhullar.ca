@@ -13,6 +13,7 @@ import { PlayerDock } from "./player-dock";
 import { TurntableScene } from "./scene";
 import { shuffle } from "./sort";
 import { useBpm } from "./use-bpm";
+import { useSheet } from "./use-sheet";
 
 type OnRepeatState = "loading" | "ready" | "unavailable";
 
@@ -33,7 +34,9 @@ export function MusicRoom() {
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [rpm, setRpm] = useState(33);
-  const [libraryOpen, setLibraryOpen] = useState(true);
+  const { sheet, drag, toggle: toggleLibrary, handlers: sheetHandlers } =
+    useSheet();
+  const libraryOpen = sheet !== "closed";
   const [volume, setVolume] = useState(0.8);
 
   // Measured from the audio itself, and only used to set how fast the platter
@@ -129,7 +132,7 @@ export function MusicRoom() {
   };
 
   return (
-    <div className="flex h-full w-full flex-col sm:flex-row">
+    <div className="relative flex h-full w-full flex-col sm:flex-row">
       {/* min-w-0 is load bearing, not tidiness. The canvas is sized in pixels
           by r3f from whatever this box measures, so once the crate collapses
           and the canvas grows to fill the row, that pixel width becomes this
@@ -145,7 +148,15 @@ export function MusicRoom() {
           it the room keeps the full width when the crate reopens, the row adds
           up to more than the window, and the crate comes back off the right
           hand edge of the page where nothing can reach it. */}
-      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+      {/* On a phone the crate is a sheet laid over the bottom of this column
+          rather than a row below it, so it can be pulled up over the room
+          without the canvas being resized under the finger. The padding is
+          what keeps the room and dock clear of it at its resting height. */}
+      <div
+        className={`relative flex min-h-0 min-w-0 flex-1 flex-col transition-[padding] duration-300 ease-out sm:pb-0 ${
+          libraryOpen ? "pb-72" : "pb-0"
+        }`}
+      >
         <div className="relative min-h-0 flex-1">
           <TurntableScene
             playing={playing}
@@ -200,15 +211,23 @@ export function MusicRoom() {
           orbits a fixed point, so widening the box re-centres the room on its
           own. */}
       <div
-        className={`relative shrink-0 transition-[height,width] duration-300 ease-out sm:h-full ${
-          libraryOpen
-            ? "h-72 sm:w-[24rem] md:w-[30rem]"
-            : "h-0 sm:w-0"
+        {...sheetHandlers}
+        className={`absolute inset-x-0 bottom-0 z-20 shrink-0 ease-out sm:relative sm:inset-auto sm:z-auto sm:h-full ${
+          drag === null ? "transition-[height,width] duration-300" : ""
+        } ${
+          sheet === "full"
+            ? "h-[calc(100dvh-4.5rem)] sm:w-[24rem] md:w-[30rem]"
+            : sheet === "open"
+              ? "h-72 sm:w-[24rem] md:w-[30rem]"
+              : "h-0 sm:w-0"
         }`}
+        // Only ever set on a phone, which is the only place a drag starts.
+        style={drag === null ? undefined : { height: drag }}
       >
         <button
           type="button"
-          onClick={() => setLibraryOpen((open) => !open)}
+          onClick={toggleLibrary}
+          data-sheet-handle
           aria-expanded={libraryOpen}
           aria-controls="library"
           aria-label={libraryOpen ? "collapse the library" : "open the library"}
@@ -223,7 +242,7 @@ export function MusicRoom() {
           // inside is only what you can see. The margin then holds the whole
           // thing off the window edge while it is closed, so there is somewhere
           // to miss into.
-          className={`group absolute z-20 grid select-none place-items-center pt-2 [touch-action:manipulation] sm:pb-0 sm:pl-2 sm:pt-0 ${
+          className={`group absolute z-20 grid touch-none select-none place-items-center pt-2 sm:pb-0 sm:[touch-action:manipulation] sm:pl-2 sm:pt-0 ${
             libraryOpen ? "" : "-mt-2 sm:ml-[-0.5rem] sm:mt-0"
           } left-1/2 top-0 -translate-x-1/2 -translate-y-full sm:left-0 sm:top-1/2 sm:-translate-x-full sm:-translate-y-1/2`}
         >
@@ -244,7 +263,12 @@ export function MusicRoom() {
         {/* Clipped, and taken out of the tab order while it is closed: a
             column of buttons you cannot see is still a column of buttons a
             keyboard will walk through. */}
-        <div className="h-full w-full overflow-hidden" inert={!libraryOpen}>
+        {/* Solid on a phone, where the sheet can sit over the room and a
+            see-through list on top of a lit scene is unreadable. */}
+        <div
+          className="h-full w-full overflow-hidden rounded-t-2xl bg-[#0c0c0d] sm:rounded-none sm:bg-transparent"
+          inert={!libraryOpen}
+        >
           <div className="h-full w-full sm:w-[24rem] md:w-[30rem]">
             <Library
               id="library"

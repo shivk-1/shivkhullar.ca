@@ -80,7 +80,10 @@ export function Library({
       <div
         role="tablist"
         aria-label="library"
-        className="flex shrink-0 gap-1 border-b border-white/10 px-3 py-2 sm:py-3"
+        // The strip a phone drags the crate up and down by. Taps on the tabs
+        // in it still land; only a move past a few pixels becomes a drag.
+        data-sheet-handle
+        className="flex shrink-0 touch-none gap-1 border-b border-white/10 px-3 py-2 sm:touch-auto sm:py-3"
       >
         <TabButton
           id="on-repeat"
@@ -117,7 +120,7 @@ export function Library({
         aria-labelledby="tab-on-repeat"
         aria-describedby="library-note"
         hidden={tab !== "on-repeat"}
-        className="min-h-0 flex-1 overflow-y-auto px-2 py-2"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-2"
       >
         {onRepeatState === "loading" && <Note>loading the rotation…</Note>}
         {onRepeatState === "unavailable" && (
@@ -151,7 +154,7 @@ export function Library({
         aria-labelledby="tab-produced"
         aria-describedby="library-note"
         hidden={tab !== "produced"}
-        className="min-h-0 flex-1 overflow-y-auto px-2 py-2"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-2"
       >
         {searching && foundProduced.length === 0 ? (
           <Note>nothing here matches “{deferredQuery.trim()}”.</Note>
@@ -215,7 +218,11 @@ function TabNote({
     // On a phone the crate is a drawer a few hundred pixels tall, and the full
     // note took most of it before a single track showed. The lead stays; the
     // longer thought and the numbers are for the desk.
-    <div id={id} className="shrink-0 px-3 py-2.5 sm:pb-3.5 sm:pt-3.5">
+    <div
+      id={id}
+      data-sheet-handle
+      className="shrink-0 touch-none px-3 py-2.5 sm:touch-auto sm:pb-3.5 sm:pt-3.5"
+    >
       {/* The one line that is allowed to be loud. */}
       <p className="text-[15px] font-semibold leading-snug tracking-[-0.01em] text-white">
         {note.lead}
