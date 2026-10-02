@@ -145,19 +145,33 @@ export function MusicRoom() {
           it the room keeps the full width when the crate reopens, the row adds
           up to more than the window, and the crate comes back off the right
           hand edge of the page where nothing can reach it. */}
-      <div className="relative min-h-0 min-w-0 flex-1">
-        <TurntableScene
-          playing={playing}
-          rpm={rpm}
-          bpm={bpm}
-          // Guarded: duration is NaN until metadata lands, and NaN would put
-          // the stylus nowhere.
-          progress={duration > 0 ? time / duration : 0}
-          artwork={track?.artwork}
-          message={track?.message}
-        />
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="relative min-h-0 flex-1">
+          <TurntableScene
+            playing={playing}
+            rpm={rpm}
+            bpm={bpm}
+            // Guarded: duration is NaN until metadata lands, and NaN would put
+            // the stylus nowhere.
+            progress={duration > 0 ? time / duration : 0}
+            artwork={track?.artwork}
+            message={track?.message}
+          />
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 p-4 sm:p-6">
+          {/* On a phone the hint sits on the room itself, since the dock has
+              moved out from under it. */}
+          <p className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[11px] text-white/35 sm:hidden">
+            drag to rotate · pinch to zoom
+          </p>
+        </div>
+
+        {/* Floated over the room on a desk, where there is room to spare
+            around it. On a phone it is its own strip under the room instead:
+            overlaid, it covered most of a canvas that is only a few hundred
+            pixels tall, and a drag that lands on the dock never reaches the
+            orbit controls. The bottom padding leaves space for the crate's
+            tab, which hangs up off the top of the crate into this strip. */}
+        <div className="pointer-events-none flex shrink-0 flex-col items-center gap-3 px-3 pb-8 pt-1 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-6">
           <PlayerDock
             track={track}
             playing={playing}
@@ -170,7 +184,7 @@ export function MusicRoom() {
             onRpm={setRpm}
             onVolume={setVolume}
           />
-          <p className="text-[11px] text-white/35">
+          <p className="hidden text-[11px] text-white/35 sm:block">
             drag to rotate · scroll to zoom
           </p>
         </div>

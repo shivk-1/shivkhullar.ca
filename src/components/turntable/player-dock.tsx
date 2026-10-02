@@ -29,9 +29,9 @@ export function PlayerDock({
 }) {
   return (
     <LiquidGlass className="pointer-events-auto w-full max-w-md rounded-2xl">
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="flex items-center gap-3">
-          <span className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/15">
+          <span className="relative size-10 shrink-0 sm:size-12 overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/15">
             {track && (
               <Image
                 src={track.artwork}
@@ -51,9 +51,18 @@ export function PlayerDock({
               {track?.artist ?? "pick one from the library"}
             </span>
           </span>
+          {/* A phone keeps play beside the title, where a thumb finds it,
+              and drops the row the desk version keeps it in. */}
+          <span className="ml-auto sm:hidden">
+            <PlayButton
+              playing={playing}
+              disabled={!track}
+              onToggle={onToggle}
+            />
+          </span>
         </div>
 
-        <div className="mt-4 flex items-center gap-3 text-[12px] text-white/55">
+        <div className="mt-3 flex items-center gap-3 text-[12px] text-white/55 sm:mt-4">
           <span className="tabular-nums">{clock(time)}</span>
           <Slider
             min={0}
@@ -74,48 +83,11 @@ export function PlayerDock({
             the volume one. As siblings on the same basis the two bars are the
             same width by construction, and the last one ends on the container
             padding — the same inset the play button starts from. */}
-        <div className="mt-4 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onToggle}
-            disabled={!track}
-            aria-label={playing ? "pause" : "play"}
-            className="mr-1 grid size-8 shrink-0 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_2px_10px_rgba(0,0,0,0.35)] transition-transform duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-30 disabled:shadow-none"
-          >
-            {playing ? (
-              <svg
-                width="12"
-                height="14"
-                viewBox="0 0 11 13"
-                aria-hidden="true"
-              >
-                <rect width="3.6" height="13" rx="1.3" fill="currentColor" />
-                <rect
-                  x="7.4"
-                  width="3.6"
-                  height="13"
-                  rx="1.3"
-                  fill="currentColor"
-                />
-              </svg>
-            ) : (
-              <svg
-                width="13"
-                height="15"
-                viewBox="0 0 12 14"
-                // A triangle's visual centre sits behind its bounding-box
-                // centre, so a mathematically centred play glyph reads as
-                // left-leaning inside a circle.
-                className="translate-x-px"
-                aria-hidden="true"
-              >
-                <path
-                  d="M1.1 1 10.6 6.2a.95.95 0 0 1 0 1.6L1.1 13A.95.95 0 0 1 0 12.2V1.8A.95.95 0 0 1 1.1 1Z"
-                  fill="currentColor"
-                />
-              </svg>
-            )}
-          </button>
+        {/* Desk only. iOS ignores volume set from a page, so on a phone that
+            slider would move and change nothing, and the platter speed is a
+            garnish not worth a row of a small screen. */}
+        <div className="mt-4 hidden items-center gap-3 sm:flex">
+          <PlayButton playing={playing} disabled={!track} onToggle={onToggle} />
 
           <SpeedIcon />
           {/* Fixed width so the bar beside it does not jump a pixel each time
@@ -148,6 +120,49 @@ export function PlayerDock({
         </div>
       </div>
     </LiquidGlass>
+  );
+}
+
+function PlayButton({
+  playing,
+  disabled,
+  onToggle,
+}: {
+  playing: boolean;
+  disabled: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      disabled={disabled}
+      aria-label={playing ? "pause" : "play"}
+      className="mr-1 grid size-8 shrink-0 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_2px_10px_rgba(0,0,0,0.35)] transition-transform duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-30 disabled:shadow-none"
+    >
+      {playing ? (
+        <svg width="12" height="14" viewBox="0 0 11 13" aria-hidden="true">
+          <rect width="3.6" height="13" rx="1.3" fill="currentColor" />
+          <rect x="7.4" width="3.6" height="13" rx="1.3" fill="currentColor" />
+        </svg>
+      ) : (
+        <svg
+          width="13"
+          height="15"
+          viewBox="0 0 12 14"
+          // A triangle's visual centre sits behind its bounding-box
+          // centre, so a mathematically centred play glyph reads as
+          // left-leaning inside a circle.
+          className="translate-x-px"
+          aria-hidden="true"
+        >
+          <path
+            d="M1.1 1 10.6 6.2a.95.95 0 0 1 0 1.6L1.1 13A.95.95 0 0 1 0 12.2V1.8A.95.95 0 0 1 1.1 1Z"
+            fill="currentColor"
+          />
+        </svg>
+      )}
+    </button>
   );
 }
 
